@@ -9,6 +9,7 @@ keywords = ["valgrind", "massif", "callgrind", "cachegrind", "helgrind"]
 categories = ["api-bindings", "development-tools::profiling", "development-tools", "emulators"]
 repository = "https://github.com/2dav/crabgrind"
 homepage = "https://github.com/2dav/crabgrind"
+documentation = "https://docs.rs/crabgrind"
 readme = "README.md"
 build = "build.rs"
 

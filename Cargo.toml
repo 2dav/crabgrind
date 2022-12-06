@@ -1,12 +1,12 @@
 [package]
 name = "crabgrind"
-version = "0.1.1"
+version = "0.1.2"
 license = "GPL-2.0"
 edition = "2015"
 rust-version = "1.1"
 description = "Rust bindings to \"Valgrind Client Request\" interface"
 keywords = ["valgrind", "massif", "callgrind", "cachegrind", "helgrind"]
-categories = ["api-bindings", "development-tools::profiling", "development-tools", "emulators"]
+categories = ["api-bindings", "development-tools::profiling", "development-tools"]
 repository = "https://github.com/2dav/crabgrind"
 homepage = "https://github.com/2dav/crabgrind"
 documentation = "https://docs.rs/crabgrind"

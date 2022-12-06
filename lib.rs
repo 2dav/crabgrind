@@ -4,7 +4,7 @@
 //! the resulting binary and exposes unsafe interface, allowing Rust programs running under Valgrind to
 //! interact with the tools and environment.
 //!
-//! ### Valgrind 3.19 API coverage
+//! ### Valgrind 3 API coverage
 //! - Supported tool-specific client request interface:
 //!     - [valgrind](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
 //!     - [callgrind](https://valgrind.org/docs/manual/cl-manual.html)
@@ -20,7 +20,7 @@
 //! Add the following to your `Cargo.toml` file:
 //! ```no_run
 //! [dependencies]
-//! crabgrind = "0.1"
+//! crabgrind = "^0.1"
 //! ```
 //!
 //! ### Examples

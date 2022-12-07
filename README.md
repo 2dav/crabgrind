@@ -160,16 +160,16 @@ fn factorial2(num: u128) -> u128 {
     (1..=num).product()
 }
 
-cg::zero_stats();
+cg::callgrind::zero_stats();
 
 let a = factorial1(20);
-cg::dump_stats("factorial1");
+cg::callgrind::dump_stats("factorial1");
 
 let b = factorial2(20);
-cg::dump_stats("factorial2");
+cg::callgrind::dump_stats("factorial2");
 
 assert_eq!(a,b);
-cg::dump_stats(None);
+cg::callgrind::dump_stats(None);
 ```
 
 ### Overhead

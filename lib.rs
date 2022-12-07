@@ -252,9 +252,9 @@ macro_rules! print_stacktrace{
 pub fn monitor_command(cmd: impl AsRef<str>) -> std::io::Result<()> {
     let cmd = std::ffi::CString::new(cmd.as_ref()).unwrap();
     if raw_call!(vg_monitor_command, cmd.as_ptr()) {
-        Ok(())
-    } else {
         Err(std::io::ErrorKind::NotFound.into())
+    } else {
+        Ok(())
     }
 }
 

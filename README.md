@@ -75,102 +75,12 @@ or manually
 
 > valgrind ./target/debug/appname
 
-
 ### Examples
-- [Print current function stack-trace to the Valgrind log](#print-current-function-stack-trace-to-the-valgrind-log)
-- [Exclude expensive initialization code from the measurements](#exclude-expensive-initialization-code-from-the-measurements)
-- [Run a closure on the real CPU while running under Valgrind](#run-a-closure-on-the-real-cpu-while-running-under-valgrind)
-- [Save current memory usage snapshot to a file](#save-current-memory-usage-snapshot-to-a-file)
-- [Dump Callgrind counters on a function basis](#dump-callgrind-counters-on-a-function-basis)
-
-#### Print current function stack-trace to the Valgrind log
-Valgrind provides `VALGRIND_PRINTF_BACKTRACE` macro to print the message with the stack-trace attached,
-`crabgrind::print_stacktrace` is it's crabbed wrapper.
-```rust
-use crabgrind as cg;
-
-#[inline(never)]
-fn print_trace(){
-    let mode = cg::run_mode();
-    cg::print_stacktrace!("current mode: {mode:?}");
-}
-
-print_trace();
-```
-
-#### Exclude expensive initialization code from the measurements
-One way to do this would be to turn off stats collection at stratup with the
-[`--collect-atstart=no`](https://valgrind.org/docs/manual/cl-manual.html#opt.collect-atstart)
-callgrind command-line attribute, and enable/disable it from the code with `callgrind::toggle_collect`
-
-```rust
-use crabgrind as cg;
-
-// ... some expensive initialization
-
-cg::callgrind::toggle_collect();
-// code of interest
-cg::callgrind::toggle_collect();
-
-// ... some deinitialization
-```
-
-#### Run a closure on the real CPU while running under Valgrind
-We can run on the real CPU instead of the virtual one using `valgrind::non_simd_call`,
-refer to `valgrind.h` for details on limitations and various ways to crash.
-
-```rust
-use crabgrind as cg;
-
-let mut state = 0;
-cg::valgrind::non_simd_call(|tid| {
-    // uncomment following line to see "the 'impossible' happened"
-    // println!("tid: {tid}");
-    state = tid;
-});
-
-println!("tid: {state}");
-```
-#### Save current memory usage snapshot to a file
-We'll use `Massif` tool and the [monitor command](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling)
-interface to run the corresponding Massif command.
-```rust
-use crabgrind as cg;
-
-let heap = String::from("alloca");
-
-if cg::monitor_command("snapshot mem.snapshot").is_ok(){
-    println!("snapshot is saved to \"mem.snapshot\"");
-}
-```
-
-#### Dump Callgrind counters on a function basis
-```rust
-use crabgrind as cg;
-
-fn factorial1(num: u128) -> u128 {
-    match num {
-        0 => 1,
-        1 => 1,
-        _ => factorial(num - 1) * num,
-    }
-}
-
-fn factorial2(num: u128) -> u128 {
-    (1..=num).product()
-}
-
-cg::callgrind::zero_stats();
-
-let a = factorial1(20);
-cg::callgrind::dump_stats("factorial1");
-
-let b = factorial2(20);
-cg::callgrind::dump_stats("factorial2");
-
-assert_eq!(a,b);
-cg::callgrind::dump_stats(None);
-```
+- [Print current function stack-trace to the Valgrind log](https://docs.rs/crabgrind/latest/crabgrind/#print-current-function-stack-trace-to-the-valgrind-log)
+- [Exclude expensive initialization code from the measurements](https://docs.rs/crabgrind/latest/crabgrind/#exclude-expensive-initialization-code-from-the-measurements)
+- [Run a closure on the real CPU while running under Valgrind](https://docs.rs/crabgrind/latest/crabgrind/#run-a-closure-on-the-real-cpu-while-running-under-valgrind)
+- [Save current memory usage snapshot to a file](https://docs.rs/crabgrind/latest/crabgrind/#save-current-memory-usage-snapshot-to-a-file)
+- [Dump Callgrind counters on a function basis](https://docs.rs/crabgrind/latest/crabgrind/#dump-callgrind-counters-on-a-function-basis)
 
 ### Overhead
 from [Valgrind docs](https://valgrind.org/docs/manual/manual-core-adv.html)

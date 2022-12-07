@@ -53,13 +53,27 @@
 //!
 //! ### Examples
 //!
-//! **Exclude expensive (de)initialization code from the measurements**
+//! ##### Print current function stack-trace to the Valgrind log
+//! Valgrind provides `VALGRIND_PRINTF_BACKTRACE` macro to print the message with the stack-trace attached,
+//! `crabgrind::print_stacktrace` is it's crabbed wrapper.
+//! ```rust
+//! use crabgrind as cg;
 //!
+//! #[inline(never)]
+//! fn print_trace(){
+//!     let mode = cg::run_mode();
+//!     cg::print_stacktrace!("current mode: {mode:?}");
+//! }
+//!
+//! print_trace();
+//! ```
+//!
+//! ##### Exclude expensive initialization code from the measurements
 //! One way to do this would be to turn off stats collection at stratup with the
 //! [`--collect-atstart=no`](https://valgrind.org/docs/manual/cl-manual.html#opt.collect-atstart)
-//! callgrind command-line attribute, and enable/disable it from the code with [`callgrind::toggle_collect`]
+//! callgrind command-line attribute, and enable/disable it from the code with `callgrind::toggle_collect`
 //!
-//! ```no_run
+//! ```rust
 //! use crabgrind as cg;
 //!
 //! // ... some expensive initialization
@@ -71,12 +85,11 @@
 //! // ... some deinitialization
 //! ```
 //!
-//! **Run a closure on the real CPU while running under Valgrind**
-//!
-//! We can run on the real CPU instead of the virtual one using [`valgrind::non_simd_call`],
+//! ##### Run a closure on the real CPU while running under Valgrind
+//! We can run on the real CPU instead of the virtual one using `valgrind::non_simd_call`,
 //! refer to `valgrind.h` for details on limitations and various ways to crash.
 //!
-//! ```no_run
+//! ```rust
 //! use crabgrind as cg;
 //!
 //! let mut state = 0;
@@ -88,11 +101,10 @@
 //!
 //! println!("tid: {state}");
 //! ```
-//! **Save current memory usage snapshot to a file**
-//!
+//! ##### Save current memory usage snapshot to a file
 //! We'll use `Massif` tool and the [monitor command](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling)
 //! interface to run the corresponding Massif command.
-//! ```no_run
+//! ```rust
 //! use crabgrind as cg;
 //!
 //! let heap = String::from("alloca");
@@ -100,6 +112,34 @@
 //! if cg::monitor_command("snapshot mem.snapshot").is_ok(){
 //!     println!("snapshot is saved to \"mem.snapshot\"");
 //! }
+//! ```
+//!
+//! ##### Dump Callgrind counters on a function basis
+//! ```rust
+//! use crabgrind as cg;
+//!
+//! fn factorial1(num: u128) -> u128 {
+//!     match num {
+//!         0 => 1,
+//!         1 => 1,
+//!         _ => factorial1(num - 1) * num,
+//!     }
+//! }
+//!
+//! fn factorial2(num: u128) -> u128 {
+//!     (1..=num).product()
+//! }
+//!
+//! cg::callgrind::zero_stats();
+//!
+//! let a = factorial1(20);
+//! cg::callgrind::dump_stats("factorial1");
+//!
+//! let b = factorial2(20);
+//! cg::callgrind::dump_stats("factorial2");
+//!
+//! assert_eq!(a,b);
+//! cg::callgrind::dump_stats(None);
 //! ```
 //!
 //! ### Overhead

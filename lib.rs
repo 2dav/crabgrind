@@ -18,7 +18,7 @@
 //! installed to build the project.
 //!
 //! Add the following to your `Cargo.toml` file:
-//! ```no_run
+//! ```ignore
 //! [dependencies]
 //! crabgrind = "^0.1"
 //! ```
@@ -99,6 +99,11 @@
 //!
 //! If you wish to compile out all (crab)Valgrind from the binary, you can wrap `crabgrind` calls with
 //! the feature-gate.
+//!
+//! ### Tests
+//! Tests must be run under Valgrind, as of now [`cargo-valgrind`](https://github.com/jfrimmel/cargo-valgrind)
+//! fits nicely, it allows to compile and run tests under Valgrind in one command
+//! > cargo valgrind test
 
 use std::ffi::{c_void, CStr};
 
@@ -710,5 +715,36 @@ pub mod helgrind {
             Annotation::RwLockAcquired(is_wl) => raw_call!(hg_rwlock_acquired, addr, is_wl),
             Annotation::RwLockReleased => raw_call!(hg_rwlock_released, addr),
         };
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate as cg;
+
+    #[test]
+    fn test_run_mode_under_valgrind() {
+        assert_eq!(cg::RunMode::Valgrind, cg::run_mode());
+    }
+
+    #[test]
+    fn print_macros_wont_fail() {
+        // we are fine as long as it's not crashing
+        let m = "crabgrind";
+        cg::print!("{m}");
+        cg::println!("het, {m}");
+        cg::print_stacktrace!("{m}");
+    }
+
+    #[test]
+    fn ok_monitor_command() {
+        // we are fine as long as it's not crashing
+        cg::monitor_command("v.info all_errors").unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn wrong_monitor_command() {
+        cg::monitor_command("hey valgringo").unwrap();
     }
 }

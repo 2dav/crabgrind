@@ -133,5 +133,10 @@ the feature-gate.
 ### Safety
 No
 
+### Development
+Tests must be run under Valgrind, as of now [`cargo-valgrind`](https://github.com/jfrimmel/cargo-valgrind)
+fits nicely, it allows to compile and run tests under Valgrind in one command
+> cargo valgrind test
+
 ### License
 `crabgrind` is distributed under the same license terms as the `Valgrind` that is GPL version 2.

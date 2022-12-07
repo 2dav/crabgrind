@@ -10,5 +10,11 @@ fn main() {
 
     println!("cargo:rerun-if-changed=export.c");
 
-    cc::Build::new().file("export.c").compile("libcrabgrind.a");
+    let mut builder = cc::Build::new();
+
+    if let Ok(dep_valgrind) = std::env::var("DEP_VALGRIND") {
+        builder.include(dep_valgrind);
+    }
+
+    builder.file("export.c").compile("libcrabgrind.a");
 }

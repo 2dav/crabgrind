@@ -125,24 +125,99 @@ pub fn run_mode() -> RunMode {
     }
 }
 
-/// VALGRIND_PRINTF
-/// wrapped with the fixed `"%s"` format
-#[inline]
-pub fn print(msg: impl AsRef<CStr>) -> usize {
-    raw_call!(vg_print, msg.as_ref().as_ptr())
+#[doc(hidden)]
+#[inline(always)]
+pub fn __print(msg: String) {
+    let cstr = std::ffi::CString::new(msg).unwrap();
+    raw_call!(vg_print, cstr.as_ptr());
+}
+
+/// Prints to the Valgrind's log.
+///
+/// Accepts format string similar to [`std::println!`].
+///
+/// # Example
+/// ```no_run
+/// if !matches!(crabgrind::run_mode(), crabgrind::RunMode::Native){
+///     crabgrind::print!("hello {}", "Valgrind");
+/// }
+/// ```
+///
+/// # Implementation
+/// `VALGRIND_PRINTF` wrapped with the fixed `"%s"` format.
+///
+/// # Panics
+/// If format string contains null-byte in any position.
+#[macro_export]
+macro_rules! print{
+    ($($arg:tt)+) => { $crate::__print(format!("{}",format_args!($($arg)+)));}
+}
+
+/// Prints to the Valgrind's log, with a newline.
+///
+/// Accepts format string similar to [`std::println!`].
+///
+/// # Example
+/// ```no_run
+/// use crabgrind as cg;
+///
+/// cg::println!("current mode: {:?}", cg::run_mode());
+/// ```
+///
+/// # Implementation
+/// `VALGRIND_PRINTF` wrapped with the fixed `"%s"` format.
+///
+/// # Panics
+/// If format string contains null-byte in any position.
+#[macro_export]
+macro_rules! println{
+    ($($arg:tt)+) => { $crate::__print(format!("{}\n",format_args!($($arg)+)));}
+}
+
+#[doc(hidden)]
+#[inline(always)]
+pub fn __print_stacktrace(msg: String) {
+    let cstr = std::ffi::CString::new(msg).unwrap();
+    raw_call!(vg_print_backtrace, cstr.as_ptr());
+}
+
+/// Prints to the Valgrind's log, with the current stacktrace attached.
+///
+/// Accepts format string similar to [`std::println!`].
+///
+/// # Example
+/// ```no_run
+/// use crabgrind as cg;
+///
+/// #[inline(never)]
+/// fn print_trace(){
+///     let mode = cg::run_mode();
+///     cg::print_stacktrace!("current mode: {mode:?}");
+/// }
+///
+/// print_trace();
+/// ```
+///
+/// # Implementation
+/// `VALGRIND_PRINTF_BACKTRACE` wrapped with the fixed `"%s"` format.
+///
+/// # Panics
+/// If format string contains null-byte in any position.
+#[macro_export]
+macro_rules! print_stacktrace{
+    ($($arg:tt)+) => { $crate::__print_stacktrace(format!("{}\n",format_args!($($arg)+)));}
 }
 
 /// VALGRIND_PRINTF_BACKTRACE
 /// wrapped with the fixed `"%s"` format
 #[inline]
-pub fn print_backtrace(msg: impl AsRef<CStr>) -> usize {
-    raw_call!(vg_print_backtrace, msg.as_ref().as_ptr())
-}
-
-/// VALGRIND_MONITOR_COMMAND
-#[inline]
-pub fn monitor_command(cmd: impl AsRef<CStr>) -> bool {
-    raw_call!(vg_monitor_command, cmd.as_ref().as_ptr())
+pub fn monitor_command(cmd: impl AsRef<str>) -> std::io::Result<()> {
+    let cmd = std::ffi::CString::new(cmd.as_ref()).unwrap();
+    if raw_call!(vg_monitor_command, cmd.as_ptr()) {
+        Ok(())
+    } else {
+        Err(std::io::ErrorKind::NotFound.into())
+    }
 }
 
 pub mod valgrind {

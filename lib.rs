@@ -263,6 +263,95 @@ pub fn monitor_command(cmd: impl AsRef<str>) -> std::io::Result<()> {
     }
 }
 
+/// Disable error reporting for this thread
+///
+/// from `valgrind.h`:
+///
+/// Behaves in a stack like way, so you can safely call this multiple times provided that
+/// [`enable_error_reporting()`] is called the same number of times to re-enable reporting.  
+///
+/// The first call of this macro disables reporting.  Subsequent calls have no effect except
+/// to increase the number of [`enable_error_reporting()`] calls needed to re-enable reporting.  
+///
+/// Child threads do not inherit this setting from their parents -- they are always created with
+/// reporting enabled.
+///
+/// # Example
+/// ```no_run
+/// use crabgrind as cg;
+///
+/// cg::disable_error_reporting();
+///
+/// unsafe {
+///     let b = Box::new([0]);
+///     println!("{}", b.get_unchecked(1));
+/// };
+/// assert_eq!(cg::count_errors(), 0);
+/// ```
+///
+/// # Implementation
+/// `VALGRIND_DISABLE_ERROR_REPORTING`
+#[inline]
+pub fn disable_error_reporting() {
+    raw_call!(vg_disable_error_reporting);
+}
+
+/// Re-enable error reporting for this thread
+///
+/// see [`disable_error_reporting()`] docs
+///
+/// # Implementation
+/// `VALGRIND_ENABLE_ERROR_REPORTING`
+#[inline]
+pub fn enable_error_reporting() {
+    raw_call!(vg_enable_error_reporting);
+}
+
+/// Returns the number of errors found so far by Valgrind
+///
+/// # Example
+/// ```no_run
+/// use crabgrind as cg;
+///
+/// unsafe {
+///     let b = Box::new([0]);
+///     println!("{}", b.get_unchecked(1));
+/// };
+///
+/// assert_eq!(cg::count_errors(), 1);
+/// ```
+///
+/// # Implementation
+/// `VALGRIND_COUNT_ERRORS`
+#[inline]
+pub fn count_errors() -> usize {
+    raw_call!(vg_count_errors)
+}
+
+/// Change the value of a dynamic command line option.
+///
+/// see [`official docs`](https://valgrind.org/docs/manual/manual-core.html#manual-core.dynopts)
+/// for details.
+///
+/// # Example
+/// ```no_run
+/// use crabgrind as cg;
+///
+/// cg::change_cli_option("--leak-check=no");
+/// std::mem::forget(String::from("see you in the void"));
+/// ```
+///
+/// # Implementation
+/// `VALGRIND_CLO_CHANGE`
+///
+/// # Panics
+/// If command string contains null-byte in any position.
+#[inline]
+pub fn change_cli_option(opt: impl AsRef<str>) {
+    let cstr = std::ffi::CString::new(opt.as_ref()).unwrap();
+    raw_call!(vg_clo_change, cstr.as_ptr());
+}
+
 pub mod valgrind {
     //! [`Valgrind requests`](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
     use std::os::unix::prelude::RawFd;
@@ -270,30 +359,6 @@ pub mod valgrind {
     use super::*;
 
     pub type ThreadId = usize;
-
-    /// VALGRIND_DISABLE_ERROR_REPORTING
-    #[inline]
-    pub fn disable_error_reporting() {
-        raw_call!(vg_disable_error_reporting);
-    }
-
-    /// VALGRIND_ENABLE_ERROR_REPORTING
-    #[inline]
-    pub fn enable_error_reporting() {
-        raw_call!(vg_enable_error_reporting);
-    }
-
-    /// VALGRIND_COUNT_ERRORS
-    #[inline]
-    pub fn count_errors() -> usize {
-        raw_call!(vg_count_errors)
-    }
-
-    /// VALGRIND_CLO_CHANGE
-    #[inline]
-    pub fn cli_option_change(opt: impl AsRef<CStr>) {
-        raw_call!(vg_clo_change, opt.as_ref().as_ptr());
-    }
 
     /// VALGRIND_DISCARD_TRANSLATIONS
     #[inline]
@@ -342,6 +407,17 @@ pub mod valgrind {
     /// identifier and there may not be relationship between [`ThreadId`] and rust's [`std::thread::ThreadId`].
     ///
     /// Refer to the `valgrind.h` for details and limitations.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use crabgrind as cg;
+    ///
+    /// let mut thread_id = 0;
+    /// cg::valgrind::non_simd_call(|tid| {
+    ///     thread_id = tid;
+    /// });
+    /// println!("{thread_id}");
+    /// ```
     ///
     /// # Implementation
     /// `VALGRIND_NON_SIMD_CALL1`
@@ -720,7 +796,7 @@ pub mod helgrind {
 
 #[cfg(test)]
 mod tests {
-    use crate as cg;
+    use crate::{self as cg, valgrind::ThreadId};
 
     #[test]
     fn test_run_mode_under_valgrind() {
@@ -746,5 +822,31 @@ mod tests {
     #[should_panic]
     fn wrong_monitor_command() {
         cg::monitor_command("hey valgringo").unwrap();
+    }
+
+    #[test]
+    fn disable_error_reporting() {
+        cg::disable_error_reporting();
+
+        unsafe {
+            let b = Box::new([0]);
+            println!("{}", b.get_unchecked(1));
+        };
+        assert_eq!(cg::count_errors(), 0);
+    }
+
+    #[test]
+    fn non_simd_call() {
+        let mut tid = ThreadId::MAX;
+        cg::valgrind::non_simd_call(|id| {
+            tid = id;
+        });
+        assert_ne!(tid, ThreadId::MAX);
+    }
+
+    #[test]
+    fn change_cli_option() {
+        cg::change_cli_option("--leak-check=no");
+        std::mem::forget(String::from("leaked"));
     }
 }

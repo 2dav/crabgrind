@@ -51,12 +51,12 @@ Next, use some of the [Valgrind's API](https://docs.rs/crabgrind/0.1.5/crabgrind
 ```rust
 use crabgrind as cg;
 
-fn main(){
-	if matches!(cg::run_mode(), cg::RunMode::Native) {
-	    println!("run me under Valgrind");
-	} else {
-	    cg::println!("Hey, Valgrind!");
-	}
+fn main() {
+    if matches!(cg::run_mode(), cg::RunMode::Native) {
+        println!("run me under Valgrind");
+    } else {
+        cg::println!("Hey, Valgrind!");
+    }
 }
 ```
 And run your application under Valgrind, either with handy [cargo-valgrind](https://github.com/jfrimmel/cargo-valgrind) 

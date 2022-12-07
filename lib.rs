@@ -466,7 +466,7 @@ pub mod callgrind {
     ///     match num {
     ///         0 => 1,
     ///         1 => 1,
-    ///         _ => factorial(num - 1) * num,
+    ///         _ => factorial1(num - 1) * num,
     ///     }
     /// }
     ///
@@ -474,16 +474,16 @@ pub mod callgrind {
     ///     (1..=num).product()
     /// }
     ///
-    /// cg::zero_stats();
+    /// cg::callgrind::zero_stats();
     ///
     /// let a = factorial1(20);
-    /// cg::dump_stats("factorial1");
+    /// cg::callgrind::dump_stats("factorial1");
     ///
     /// let b = factorial2(20);
-    /// cg::dump_stats("factorial2");
+    /// cg::callgrind::dump_stats("factorial2");
     ///
     /// assert_eq!(a,b);
-    /// cg::dump_stats(None);
+    /// cg::callgrind::dump_stats(None);
     /// ```
     ///
     /// # Implementation
@@ -492,11 +492,11 @@ pub mod callgrind {
     /// # Panics
     /// If `reason` is specified and contains null-byte in any position.
     #[inline]
-    pub fn dump_stats<R: AsRef<str>>(reason: impl Into<Option<R>>) {
+    pub fn dump_stats<'a>(reason: impl Into<Option<&'a str>>) {
         match reason.into() {
             None => raw_call!(cg_dump_stats),
             Some(reason) => {
-                let cstr = std::ffi::CString::new(reason.as_ref()).unwrap();
+                let cstr = std::ffi::CString::new(reason).unwrap();
                 raw_call!(cg_dump_stats_at, cstr.as_ptr())
             }
         };
@@ -523,9 +523,9 @@ pub mod callgrind {
     ///
     /// let xs = (0..10 << 10).into_iter().collect::<Vec<u32>>();
     ///
-    /// cg::toggle_collect();
-    /// let i = xs.binary_search(10 << 10 >> 1);
-    /// cg::toggle_collect();
+    /// cg::callgrind::toggle_collect();
+    /// let i = xs.binary_search(&(10 << 10 >> 1));
+    /// cg::callgrind::toggle_collect();
     /// ```
     ///
     /// # Implementation
@@ -550,9 +550,9 @@ pub mod callgrind {
     ///
     /// let xs = (0..10 << 10).into_iter().collect::<Vec<u32>>();
     ///
-    /// cg::start_instrumentation();
-    /// let i = xs.binary_search(10 << 10 >> 1);
-    /// cg::dump_stats(None);
+    /// cg::callgrind::start_instrumentation();
+    /// let i = xs.binary_search(&(10 << 10 >> 1));
+    /// cg::callgrind::dump_stats(None);
     /// ```
     /// also see documentation for [`stop_instrumentation()`]
     ///

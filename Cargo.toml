@@ -1,6 +1,6 @@
 [package]
 name = "crabgrind"
-version = "0.1.4"
+version = "0.1.5"
 license = "GPL-2.0"
 edition = "2015"
 rust-version = "1.1"

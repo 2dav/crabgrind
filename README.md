@@ -18,13 +18,23 @@
 the resulting binary, and exposes an unsafe interface to allow Rust programs running under Valgrind to
 interact with the tools and environment.
 
+## Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Valgrind 3 API Coverage](#valgind-3-api-coverage)
+- [Quickstart](#quickstart)
+- [Examples](#examples)
+- [Overhead](#overhead)
+- [Safety](#safety)
+- [Development](#development)
+- [License](#license)
+
 ### Valgrind 3 API coverage
 - Supported tool-specific client request interface: 
-	- [valgrind](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
-	- [callgrind](https://valgrind.org/docs/manual/cl-manual.html)
-	- [memcheck](https://valgrind.org/docs/manual/mc-manual.html)
-	- [helgrind](https://valgrind.org/docs/manual/hg-manual.html)
-	- [massif](https://valgrind.org/docs/manual/ms-manual.html)
+	 [valgrind](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
+	 [callgrind](https://valgrind.org/docs/manual/cl-manual.html)
+	 [memcheck](https://valgrind.org/docs/manual/mc-manual.html)
+	 [helgrind](https://valgrind.org/docs/manual/hg-manual.html)
+	 [massif](https://valgrind.org/docs/manual/ms-manual.html)
 - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 
 ### Quickstart
@@ -32,13 +42,20 @@ interact with the tools and environment.
 installed to build the project. 
 
 Add the following to your `Cargo.toml` file:
-```rust
+```toml
 [dependencies]
 crabgrind = "^0.1"
 ```
 
 ### Examples
-> Print some message to the Valgrind log
+- [Print some message to the Valgrind log](#print-some-message-to-the-valgrind-log)
+- [Exclude expensive initialization code from the measurements](#exclude-expensive-initialization-code-from-the-measurements)
+- [Run a closure on the real CPU while running under Valgrind](#run-a-closure-on-the-real-cpu-while-running-under-valgrind)
+- [Save current memory usage snapshot to a file](#save-current-memory-usage-snapshot-to-a-file)
+- [Print current function stack-trace to the Valgrind log](#print-current-function-stack-trace-to-the-valgrind-log)
+- [Dump Callgrind counters on a function basis](#dump-callgrind-counters-on-a-function-basis)
+
+#### Print some message to the Valgrind log
 ```rust
 use crabgrind as cg;
 
@@ -49,7 +66,7 @@ if matches!(cg::run_mode(), cg::RunMode::Native) {
 }
 ```
 
-> Exclude expensive (de)initialization code from the measurements
+#### Exclude expensive initialization code from the measurements
 
 One way to do this would be to turn off stats collection at stratup with the
 [`--collect-atstart=no`](https://valgrind.org/docs/manual/cl-manual.html#opt.collect-atstart)
@@ -67,7 +84,7 @@ cg::callgrind::toggle_collect();
 // ... some deinitialization
 ```
 
-> Run a closure on the real CPU while running under Valgrind
+#### Run a closure on the real CPU while running under Valgrind
 
 We can run on the real CPU instead of the virtual one using `valgrind::non_simd_call`,
 refer to `valgrind.h` for details on limitations and various ways to crash.
@@ -84,7 +101,7 @@ cg::valgrind::non_simd_call(|tid| {
 
 println!("tid: {state}");
 ```
-> Save current memory usage snapshot to a file
+#### Save current memory usage snapshot to a file
 
 We'll use `Massif` tool and the [monitor command](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling)
 interface to run the corresponding Massif command.
@@ -98,7 +115,7 @@ if cg::monitor_command("snapshot mem.snapshot").is_ok(){
 }
 ```
 
-> Print current function stack-trace to the Valgrind's log
+#### Print current function stack-trace to the Valgrind log
 
 Valgrind provides `VALGRIND_PRINTF_BACKTRACE` macro to print the message with the stack-trace attached,
 `crabgrind::print_stacktrace` is it's crabbed wrapper.
@@ -112,6 +129,34 @@ fn print_trace(){
 }
 
 print_trace();
+```
+
+#### Dump Callgrind counters on a function basis
+```rust
+use crabgrind as cg;
+
+fn factorial1(num: u128) -> u128 {
+    match num {
+        0 => 1,
+        1 => 1,
+        _ => factorial(num - 1) * num,
+    }
+}
+
+fn factorial2(num: u128) -> u128 {
+    (1..=num).product()
+}
+
+cg::zero_stats();
+
+let a = factorial1(20);
+cg::dump_stats("factorial1");
+
+let b = factorial2(20);
+cg::dump_stats("factorial2");
+
+assert_eq!(a,b);
+cg::dump_stats(None);
 ```
 
 ### Overhead

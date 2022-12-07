@@ -105,7 +105,7 @@
 //! fits nicely, it allows to compile and run tests under Valgrind in one command
 //! > cargo valgrind test
 
-use std::ffi::{c_void, CStr};
+use std::ffi::c_void;
 
 mod bindings;
 
@@ -439,34 +439,131 @@ pub mod callgrind {
     //! [`Callgrind requests`](https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#cl-manual.clientrequests)
     use super::*;
 
-    /// CALLGRIND_DUMP_STATS | CALLGRIND_DUMP_STATS_AT
+    /// Dump current state of cost centers, and zero them afterwards
+    ///
+    /// If `reason` parameter is specified, this string will be written as a description field into
+    /// the profile data dump.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use crabgrind as cg;
+    ///
+    /// fn factorial1(num: u128) -> u128 {
+    ///     match num {
+    ///         0 => 1,
+    ///         1 => 1,
+    ///         _ => factorial(num - 1) * num,
+    ///     }
+    /// }
+    ///
+    /// fn factorial2(num: u128) -> u128 {
+    ///     (1..=num).product()
+    /// }
+    ///
+    /// cg::zero_stats();
+    ///
+    /// let a = factorial1(20);
+    /// cg::dump_stats("factorial1");
+    ///
+    /// let b = factorial2(20);
+    /// cg::dump_stats("factorial2");
+    ///
+    /// assert_eq!(a,b);
+    /// cg::dump_stats(None);
+    /// ```
+    ///
+    /// # Implementation
+    /// `CALLGRIND_DUMP_STATS` or `CALLGRIND_DUMP_STATS_AT`
+    ///
+    /// # Panics
+    /// If `reason` is specified and contains null-byte in any position.
     #[inline]
-    pub fn dump_stats<R: AsRef<CStr>>(reason: impl Into<Option<R>>) {
+    pub fn dump_stats<R: AsRef<str>>(reason: impl Into<Option<R>>) {
         match reason.into() {
             None => raw_call!(cg_dump_stats),
-            Some(reason) => raw_call!(cg_dump_stats_at, reason.as_ref().as_ptr()),
+            Some(reason) => {
+                let cstr = std::ffi::CString::new(reason.as_ref()).unwrap();
+                raw_call!(cg_dump_stats_at, cstr.as_ptr())
+            }
         };
     }
 
-    /// CALLGRIND_ZERO_STATS
+    /// Zero current stats
+    ///
+    /// # Implementation
+    /// `CALLGRIND_ZERO_STATS`
     #[inline]
     pub fn zero_stats() {
         raw_call!(cg_zero_stats);
     }
 
-    /// CALLGRIND_TOGGLE_COLLECT
+    /// Toggles collection state
+    ///
+    /// from `callgrind.h`:
+    ///
+    /// The collection state specifies whether the happening of events should be noted or if
+    /// they are to be ignored. Events are noted by increment of counters in a cost center.
+    ///
+    /// # Example
+    /// run with `valgrind --tool==callgrind --collect-atstart=no ...`
+    /// ```no_run
+    /// use crabgrind as cg;
+    ///
+    /// let xs = (0..10 << 10).into_iter().collect::<Vec<u32>>();
+    ///
+    /// cg::toggle_collect();
+    /// let i = xs.binary_search(10 << 10 >> 1);
+    /// cg::toggle_collect();
+    /// ```
+    ///
+    /// # Implementation
+    /// `CALLGRIND_TOGGLE_COLLECT`
     #[inline]
     pub fn toggle_collect() {
         raw_call!(cg_toggle_collect);
     }
 
-    /// CALLGRIND_START_INSTRUMENTATION
+    /// Start full callgrind instrumentation if not already switched on
+    ///
+    /// from `callgrind.h`:
+    ///
+    /// When cache simulation is done, it will flush the simulated cache;
+    /// this will lead to an artificial cache warmup phase afterwards with cache misses which
+    /// would not have happened in reality.
+    ///
+    /// Use this to bypass Callgrind aggregation for uninteresting code parts.
+    /// To start Callgrind in this mode to ignore the setup phase, use the option `--instr-atstart=no`.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use crabgrind as cg;
+    ///
+    /// let xs = (0..10 << 10).into_iter().collect::<Vec<u32>>();
+    ///
+    /// cg::start_instrumentation();
+    /// let i = xs.binary_search(10 << 10 >> 1);
+    /// cg::dump_stats(None);
+    /// ```
+    /// also see documentation for [`stop_instrumentation()`]
+    ///
+    /// # Implementation
+    /// `CALLGRIND_START_INSTRUMENTATION`
     #[inline]
     pub fn start_instrumentation() {
         raw_call!(cg_start_instrumentation);
     }
 
-    /// CALLGRIND_STOP_INSTRUMENTATION
+    /// Stop full callgrind instrumentation if not already switched off
+    ///
+    /// from `callgrind.h`:
+    ///
+    /// This flushes Valgrinds translation cache, and does no additional instrumentation afterwards,
+    /// which effectivly will run at the same speed as the "none" tool (ie. at minimal slowdown).
+    ///
+    /// also see documentation for [`start_instrumentation()`]
+    ///
+    /// # Implementation
+    /// `CALLGRIND_STOP_INSTRUMENTATION`
     #[inline]
     pub fn stop_instrumentation() {
         raw_call!(cg_stop_instrumentation);
@@ -547,9 +644,13 @@ pub mod memcheck {
     }
 
     /// VALGRIND_CREATE_BLOCK
+    ///
+    /// # Panics
+    /// If string contains null-byte in any position.
     #[inline]
-    pub fn create_block(addr: *mut c_void, len: usize, desc: impl AsRef<CStr>) -> BlockDescHandle {
-        raw_call!(mc_create_block, addr, len, desc.as_ref().as_ptr())
+    pub fn create_block(addr: *mut c_void, len: usize, desc: impl AsRef<str>) -> BlockDescHandle {
+        let cstr = std::ffi::CString::new(desc.as_ref()).unwrap();
+        raw_call!(mc_create_block, addr, len, cstr.as_ptr())
     }
 
     /// VALGRIND_DISCARD

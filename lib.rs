@@ -14,8 +14,15 @@
 //! - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 //!
 //! ### Quickstart
-//! `crabgrind` imports macros from Valgrind's header files, therefore you must have Valgrind
-//! installed to build the project.
+//! `crabgrind` imports macros from Valgrind's header files, so they must be accessible to build the project.
+//!
+//! If you installed Valgrind using your OS-specific package manager, the header files will be placed at the paths
+//! according to your OS's conventions, and most likely [`cc`](https://docs.rs/cc/latest/cc/index.html), the build
+//! tool `crabgrind` uses, will find them.
+//!
+//! If you have installed Vallgrind manually or having any issues, you can set `DEP_VALGRIND` environment variable to the appropriate path, if
+//! one is specified, its value will be directly passed to [`cc::Build::include`](https://docs.rs/cc/latest/cc/struct.Build.html#method.include).
+//! > env DEP_VALGRIND=/path/to/valgrind cargo build
 //!
 //! Add the following to your `Cargo.toml` file:
 //! ```ignore
@@ -23,17 +30,28 @@
 //! crabgrind = "^0.1"
 //! ```
 //!
-//! ### Examples
-//! **Print some message to the Valgrind log**
+//! Next, use some of the [Valgrind's API](#modules)
 //! ```no_run
 //! use crabgrind as cg;
 //!
-//! if matches!(cg::run_mode(), cg::RunMode::Native) {
-//!     println!("run me under Valgrind");
-//! } else {
-//!     cg::println!("Hey, Valgrind!");
+//! fn main() {
+//!     if matches!(cg::run_mode(), cg::RunMode::Native) {
+//!         println!("run me under Valgrind");
+//!     } else {
+//!         cg::println!("Hey, Valgrind!");
+//!     }
 //! }
 //! ```
+//! And run your application under Valgrind, either with handy [cargo-valgrind](https://github.com/jfrimmel/cargo-valgrind)
+//! > cargo valgrind run
+//!
+//! or manually
+//!
+//! > cargo build
+//!
+//! > valgrind ./target/debug/appname
+//!
+//! ### Examples
 //!
 //! **Exclude expensive (de)initialization code from the measurements**
 //!

@@ -47,23 +47,48 @@ Add the following to your `Cargo.toml` file:
 crabgrind = "^0.1"
 ```
 
-### Examples
-- [Print some message to the Valgrind log](#print-some-message-to-the-valgrind-log)
-- [Exclude expensive initialization code from the measurements](#exclude-expensive-initialization-code-from-the-measurements)
-- [Run a closure on the real CPU while running under Valgrind](#run-a-closure-on-the-real-cpu-while-running-under-valgrind)
-- [Save current memory usage snapshot to a file](#save-current-memory-usage-snapshot-to-a-file)
-- [Print current function stack-trace to the Valgrind log](#print-current-function-stack-trace-to-the-valgrind-log)
-- [Dump Callgrind counters on a function basis](#dump-callgrind-counters-on-a-function-basis)
-
-#### Print some message to the Valgrind log
+Next, use some of the [Valgrind's API](https://docs.rs/crabgrind/0.1.5/crabgrind/#modules)
 ```rust
 use crabgrind as cg;
 
-if matches!(cg::run_mode(), cg::RunMode::Native) {
-    println!("run me under Valgrind");
-} else {
-    cg::println!("Hey, Valgrind!");
+fn main(){
+	if matches!(cg::run_mode(), cg::RunMode::Native) {
+	    println!("run me under Valgrind");
+	} else {
+	    cg::println!("Hey, Valgrind!");
+	}
 }
+```
+And run your application under Valgrind, either with handy [cargo-valgrind](https://github.com/jfrimmel/cargo-valgrind) 
+> cargo valgrind run
+
+or manually
+
+> cargo build
+
+> valgrind ./target/debug/appname
+
+
+### Examples
+- [Print current function stack-trace to the Valgrind log](#print-current-function-stack-trace-to-the-valgrind-log)
+- [Exclude expensive initialization code from the measurements](#exclude-expensive-initialization-code-from-the-measurements)
+- [Run a closure on the real CPU while running under Valgrind](#run-a-closure-on-the-real-cpu-while-running-under-valgrind)
+- [Save current memory usage snapshot to a file](#save-current-memory-usage-snapshot-to-a-file)
+- [Dump Callgrind counters on a function basis](#dump-callgrind-counters-on-a-function-basis)
+
+#### Print current function stack-trace to the Valgrind log
+Valgrind provides `VALGRIND_PRINTF_BACKTRACE` macro to print the message with the stack-trace attached,
+`crabgrind::print_stacktrace` is it's crabbed wrapper.
+```rust
+use crabgrind as cg;
+
+#[inline(never)]
+fn print_trace(){
+    let mode = cg::run_mode();
+    cg::print_stacktrace!("current mode: {mode:?}");
+}
+
+print_trace();
 ```
 
 #### Exclude expensive initialization code from the measurements
@@ -110,21 +135,6 @@ let heap = String::from("alloca");
 if cg::monitor_command("snapshot mem.snapshot").is_ok(){
     println!("snapshot is saved to \"mem.snapshot\"");
 }
-```
-
-#### Print current function stack-trace to the Valgrind log
-Valgrind provides `VALGRIND_PRINTF_BACKTRACE` macro to print the message with the stack-trace attached,
-`crabgrind::print_stacktrace` is it's crabbed wrapper.
-```rust
-use crabgrind as cg;
-
-#[inline(never)]
-fn print_trace(){
-    let mode = cg::run_mode();
-    cg::print_stacktrace!("current mode: {mode:?}");
-}
-
-print_trace();
 ```
 
 #### Dump Callgrind counters on a function basis

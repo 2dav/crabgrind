@@ -147,17 +147,17 @@ void cg_stop_instrumentation(){
 //
 // MEMCHECK
 //
-void mc_make_mem_noaccess(void* addr, size_t len){
-	VALGRIND_MAKE_MEM_NOACCESS(addr, len);
+int mc_make_mem_noaccess(void* addr, size_t len){
+	return VALGRIND_MAKE_MEM_NOACCESS(addr, len);
 }
-void mc_make_mem_undefined(void* addr, size_t len){
-	VALGRIND_MAKE_MEM_UNDEFINED(addr, len);
+int mc_make_mem_undefined(void* addr, size_t len){
+	return VALGRIND_MAKE_MEM_UNDEFINED(addr, len);
 }
-void mc_make_mem_defined(void* addr, size_t len){
-	VALGRIND_MAKE_MEM_DEFINED(addr, len);
+int mc_make_mem_defined(void* addr, size_t len){
+	return VALGRIND_MAKE_MEM_DEFINED(addr, len);
 }
-void mc_make_mem_defined_if_addressable(void* addr, size_t len){
-	VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE(addr, len);
+int mc_make_mem_defined_if_addressable(void* addr, size_t len){
+	return VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE(addr, len);
 }
 int mc_create_block(void* addr, size_t len, const char* desc){
 	return VALGRIND_CREATE_BLOCK(addr, len, desc);

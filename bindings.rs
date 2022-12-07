@@ -71,10 +71,10 @@ pub struct LeakCount {
 }
 
 extern "C" {
-    pub fn mc_make_mem_noaccess(addr: *mut c_void, len: usize);
-    pub fn mc_make_mem_undefined(addr: *mut c_void, len: usize);
-    pub fn mc_make_mem_defined(addr: *mut c_void, len: usize);
-    pub fn mc_make_mem_defined_if_addressable(addr: *mut c_void, len: usize);
+    pub fn mc_make_mem_noaccess(addr: *mut c_void, len: usize) -> i32;
+    pub fn mc_make_mem_undefined(addr: *mut c_void, len: usize) -> i32;
+    pub fn mc_make_mem_defined(addr: *mut c_void, len: usize) -> i32;
+    pub fn mc_make_mem_defined_if_addressable(addr: *mut c_void, len: usize) -> i32;
 
     pub fn mc_create_block(addr: *mut c_void, len: usize, desc: *const c_char) -> u32;
     pub fn mc_discard(blkindex: u32) -> u32;

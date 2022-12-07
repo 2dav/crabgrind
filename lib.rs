@@ -265,8 +265,6 @@ pub fn monitor_command(cmd: impl AsRef<str>) -> std::io::Result<()> {
 
 /// Disable error reporting for this thread
 ///
-/// from `valgrind.h`:
-///
 /// Behaves in a stack like way, so you can safely call this multiple times provided that
 /// [`enable_error_reporting()`] is called the same number of times to re-enable reporting.  
 ///
@@ -360,19 +358,35 @@ pub mod valgrind {
 
     pub type ThreadId = usize;
 
-    /// VALGRIND_DISCARD_TRANSLATIONS
+    /// Discards translations of code in the specified address range
+    ///
+    /// see [official docs](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
+    /// for details.
+    ///
+    /// # Implementation
+    /// `VALGRIND_DISCARD_TRANSLATIONS`
     #[inline]
     pub fn discard_translations(addr: *mut c_void, len: usize) {
         raw_call!(vg_discard_translations, addr, len);
     }
 
-    /// VALGRIND_LOAD_PDB_DEBUGINFO
+    /// Load PDB debug info for Wine PE image_map
+    ///
+    /// # Implementation
+    /// `VALGRIND_LOAD_PDB_DEBUGINFO`
     #[inline]
     pub fn load_pdb_debuginfo(fd: RawFd, ptr: *mut c_void, total_size: usize, delta: usize) {
         raw_call!(vg_load_pdb_debuginfo, fd, ptr, total_size, delta);
     }
 
-    /// VALGRIND_MAP_IP_TO_SRCLOC
+    /// Map a code address to a source file name and line number
+    ///
+    /// `buf64` must point to a 64-byte buffer in the caller's address space.  
+    /// The result will be dumped in there and is guaranteed to be zero terminated.  
+    /// If no info is found, the first byte is set to zero.
+    ///
+    /// # Implementation
+    /// `VALGRIND_MAP_IP_TO_SRCLOC`
     #[inline]
     pub fn map_ip_to_srcloc(addr: *mut c_void, buf64: *mut c_void) -> usize {
         raw_call!(vg_map_ip_to_srcloc, addr, buf64)
@@ -499,8 +513,6 @@ pub mod callgrind {
 
     /// Toggles collection state
     ///
-    /// from `callgrind.h`:
-    ///
     /// The collection state specifies whether the happening of events should be noted or if
     /// they are to be ignored. Events are noted by increment of counters in a cost center.
     ///
@@ -524,8 +536,6 @@ pub mod callgrind {
     }
 
     /// Start full callgrind instrumentation if not already switched on
-    ///
-    /// from `callgrind.h`:
     ///
     /// When cache simulation is done, it will flush the simulated cache;
     /// this will lead to an artificial cache warmup phase afterwards with cache misses which
@@ -554,8 +564,6 @@ pub mod callgrind {
     }
 
     /// Stop full callgrind instrumentation if not already switched off
-    ///
-    /// from `callgrind.h`:
     ///
     /// This flushes Valgrinds translation cache, and does no additional instrumentation afterwards,
     /// which effectivly will run at the same speed as the "none" tool (ie. at minimal slowdown).
@@ -609,51 +617,82 @@ pub mod memcheck {
 
     #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
     pub enum LeakCheck {
-        /// VALGRIND_DO_LEAK_CHECK
         Full,
-        /// VALGRIND_DO_QUICK_LEAK_CHECK
         Quick,
-        /// VALGRIND_DO_ADDED_LEAK_CHECK
         Added,
-        /// VALGRIND_DO_CHANGED_LEAK_CHECK
         Changed,
     }
 
     #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
-    pub enum MemMark {
-        /// VALGRIND_MAKE_MEM_NOACCESS
+    pub enum MemState {
         NoAccess,
-        /// VALGRIND_MAKE_MEM_UNDEFINED
         Undefined,
-        /// VALGRIND_MAKE_MEM_DEFINED
         Defined,
-        /// VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE
         DefinedIfAddressable,
     }
 
+    /// Mark memory state for an address range
+    ///
+    /// # Memory mark option
+    /// **MemState::NoAccess**
+    /// - mark address ranges as completely inaccessible
+    ///
+    /// **MemState::Defined**
+    /// - mark address ranges as accessible but containing undefined data
+    ///
+    /// **MemState::Undefined**
+    /// - mark address ranges as accessible and containing defined data
+    ///
+    /// **MemState::DefinedIfAddressable**
+    /// - same as `MemState::Defined` but only affects those bytes that are already addressable
+    ///
+    /// # Implementation
+    /// - [MemState::NoAccess] `VALGRIND_MAKE_MEM_NOACCESS`
+    /// - [MemState::Undefined] `VALGRIND_MAKE_MEM_UNDEFINED`
+    /// - [MemState::Defined] `VALGRIND_MAKE_MEM_DEFINED`
+    /// - [MemState::DefinedIfAddressable] `VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE`
     #[inline]
-    pub fn mark_mem(addr: *mut c_void, len: usize, mark: MemMark) {
-        match mark {
-            MemMark::NoAccess => raw_call!(mc_make_mem_noaccess, addr, len),
-            MemMark::Undefined => raw_call!(mc_make_mem_undefined, addr, len),
-            MemMark::Defined => raw_call!(mc_make_mem_defined, addr, len),
-            MemMark::DefinedIfAddressable => {
+    pub fn mark_mem(addr: *mut c_void, len: usize, mark: MemState) -> Result {
+        let ret = match mark {
+            MemState::NoAccess => raw_call!(mc_make_mem_noaccess, addr, len),
+            MemState::Undefined => raw_call!(mc_make_mem_undefined, addr, len),
+            MemState::Defined => raw_call!(mc_make_mem_defined, addr, len),
+            MemState::DefinedIfAddressable => {
                 raw_call!(mc_make_mem_defined_if_addressable, addr, len)
             }
         };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(Error::NoValgrind)
+        }
     }
 
-    /// VALGRIND_CREATE_BLOCK
+    /// Create a block-description handle
+    ///
+    /// The description is an ascii string which is included in any messages pertaining to
+    /// addresses within the specified memory range.  Has no other effect on the properties of
+    /// the memory range.
+    ///
+    /// # Implementation
+    /// `VALGRIND_CREATE_BLOCK`
     ///
     /// # Panics
     /// If string contains null-byte in any position.
     #[inline]
-    pub fn create_block(addr: *mut c_void, len: usize, desc: impl AsRef<str>) -> BlockDescHandle {
+    pub fn new_block_description(
+        addr: *mut c_void,
+        len: usize,
+        desc: impl AsRef<str>,
+    ) -> BlockDescHandle {
         let cstr = std::ffi::CString::new(desc.as_ref()).unwrap();
         raw_call!(mc_create_block, addr, len, cstr.as_ptr())
     }
 
-    /// VALGRIND_DISCARD
+    /// Discard a block-description-handle
+    ///
+    /// # Implementation
+    /// `VALGRIND_DISCARD`
     #[inline]
     pub fn discard(handle: BlockDescHandle) -> Result {
         if raw_call!(mc_discard, handle) == 0 {
@@ -663,7 +702,13 @@ pub mod memcheck {
         }
     }
 
-    /// VALGRIND_CHECK_MEM_IS_ADDRESSABLE
+    /// Check that memory range is addressable
+    ///
+    /// If suitable addressibility is not established, Valgrind prints an error message and returns
+    /// the address of the first offending byte.
+    ///
+    /// # Implementation
+    /// `VALGRIND_CHECK_MEM_IS_ADDRESSABLE`
     #[inline]
     pub fn is_addressable(addr: *mut c_void, len: usize) -> Result {
         match raw_call!(mc_check_mem_is_addressable, addr, len) {
@@ -672,7 +717,13 @@ pub mod memcheck {
         }
     }
 
-    /// VALGRIND_CHECK_MEM_IS_DEFINED
+    /// Check that memory range is addressable and defined
+    ///
+    /// If suitable addressibility and definedness are not established, Valgrind prints an error
+    /// message and returns the address of the first offending byte.
+    ///
+    /// # Implementation
+    /// `VALGRIND_CHECK_MEM_IS_DEFINED`
     #[inline]
     pub fn is_defined(addr: *mut c_void, len: usize) -> Result {
         match raw_call!(mc_check_mem_is_defined, addr, len) {
@@ -681,6 +732,29 @@ pub mod memcheck {
         }
     }
 
+    /// Do a memory leak check
+    ///
+    /// # Memory check option
+    /// **LeakCheck::Full**
+    /// - Do a full memory leak check (like --leak-check=full) mid-execution. This is useful for
+    /// incrementally checking for leaks between arbitrary places in the program's execution.
+    ///
+    /// **LeakCheck::Quick**
+    /// - Do a summary memory leak check (like --leak-check=summary) mid-execution.
+    ///
+    /// **LeakCheck::Added**
+    /// - Same as `LeakCheck::Full` but only showing the entries for which there was an increase in
+    /// leaked bytes or leaked number of blocks since the previous leak search.
+    ///
+    /// **LeakCheck::Changed**
+    /// - Same as `LeakCheck::Added` but showing entries with increased or decreased leaked
+    /// bytes/blocks since previous leak search.
+    ///
+    /// # Implementation
+    /// - [LeakCheck::Full]  `VALGRIND_DO_LEAK_CHECK`
+    /// - [LeakCheck::Quick]  `VALGRIND_DO_QUICK_LEAK_CHECK`
+    /// - [LeakCheck::Added]  `VALGRIND_DO_ADDED_LEAK_CHECK`
+    /// - [LeakCheck::Changed]  `VALGRIND_DO_CHANGED_LEAK_CHECK`
     #[inline]
     pub fn leak_check(mode: LeakCheck) {
         match mode {
@@ -691,19 +765,28 @@ pub mod memcheck {
         };
     }
 
-    /// VALGRIND_COUNT_LEAKS
+    /// Return number of leaked bytes found by all previous leak checks
+    ///
+    /// # Implementation
+    /// `VALGRIND_COUNT_LEAKS`
     #[inline]
     pub fn leaks_count() -> LeakCount {
         raw_call!(mc_count_leaks)
     }
 
-    /// VALGRIND_COUNT_LEAK_BLOCKS
+    /// Return number of leaked blocks found by all previous leak checks
+    ///
+    /// # Implementation
+    /// `VALGRIND_COUNT_LEAK_BLOCKS`
     #[inline]
     pub fn block_leaks_count() -> LeakCount {
         raw_call!(mc_count_leak_blocks)
     }
 
-    /// VALGRIND_GET_VBITS
+    /// Get the validity data for address range
+    ///
+    /// # Implementation
+    /// `VALGRIND_GET_VBITS`
     #[inline]
     pub fn vbits(addr: *mut c_void, bits: *const u8, nbytes: usize) -> Result {
         match raw_call!(mc_get_vbits, addr, bits, nbytes) {
@@ -715,7 +798,10 @@ pub mod memcheck {
         }
     }
 
-    /// VALGRIND_SET_VBITS
+    /// Set the validity data for address range
+    ///
+    /// # Implementation
+    /// `VALGRIND_SET_VBITS`
     #[inline]
     pub fn set_vbits(addr: *mut c_void, bits: *const u8, nbytes: usize) -> Result {
         match raw_call!(mc_set_vbits, addr, bits, nbytes) {
@@ -727,34 +813,56 @@ pub mod memcheck {
         }
     }
 
-    /// VALGRIND_DISABLE_ADDR_ERROR_REPORTING_IN_RANGE
+    /// Disable reporting of addressing errors in the specified address range
+    ///
+    /// # Implementation
+    /// `VALGRIND_DISABLE_ADDR_ERROR_REPORTING_IN_RANGE`
     #[inline]
     pub fn disable_error_reporting(addr: *mut c_void, len: usize) {
         raw_call!(mc_disable_addr_error_reporting_in_range, addr, len);
     }
 
-    /// VALGRIND_ENABLE_ADDR_ERROR_REPORTING_IN_RANGE
+    /// Re-enable reporting of addressing errors in the specified address range
+    ///
+    /// # Implementation
+    /// `VALGRIND_ENABLE_ADDR_ERROR_REPORTING_IN_RANGE`
     #[inline]
     pub fn enable_error_reporting(addr: *mut c_void, len: usize) {
         raw_call!(mc_enable_addr_error_reporting_in_range, addr, len);
     }
 
     pub mod alloc {
+        //! Heap memory functionality
         use super::super::*;
 
-        /// VALGRIND_MALLOCLIKE_BLOCK
+        /// Marks a region of memory as having been allocated by a `malloc()`-like function
+        ///
+        /// See the comments in `valgrind.h` for information on how to use it.
+        ///
+        /// # Implementation
+        /// `VALGRIND_MALLOCLIKE_BLOCK`
         #[inline]
         pub fn malloc(addr: *mut c_void, size: usize, rz: usize, is_zeroed: bool) {
             raw_call!(vg_malloclike_block, addr, size, rz, is_zeroed);
         }
 
-        /// VALGRIND_FREELIKE_BLOCK
+        /// Partner to [`malloc()`]
+        ///
+        /// See the comments in `valgrind.h` for information on how to use it.
+        ///
+        /// # Implementation
+        /// `VALGRIND_FREELIKE_BLOCK`
         #[inline]
         pub fn free(addr: *mut c_void, rz: usize) {
             raw_call!(vg_freelike_block, addr, rz);
         }
 
-        /// VALGRIND_RESIZEINPLACE_BLOCK
+        /// Informs Memcheck about reallocation
+        ///
+        /// See the comments in `valgrind.h` for information on how to use it.
+        ///
+        /// # Implementation
+        /// `VALGRIND_RESIZEINPLACE_BLOCK`
         #[inline]
         pub fn resize_inplace(addr: *mut c_void, old_size: usize, new_size: usize, rz: usize) {
             raw_call!(vg_resizeinplace_block, addr, old_size, new_size, rz);
@@ -762,16 +870,24 @@ pub mod memcheck {
     }
 
     pub mod mempool {
-        //! [`Memory pools requests`](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        //! Memory pools functionality
+        //!
+        //! refer to [`Memory pools`](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        //! Valgrind manual.
         use super::super::*;
 
-        /// VALGRIND_MEMPOOL_AUTO_FREE
+        /// `VALGRIND_MEMPOOL_AUTO_FREE`
         pub const AUTO_FREE: u32 = 1;
 
-        /// VALGRIND_MEMPOOL_METAPOOL
+        /// `VALGRIND_MEMPOOL_METAPOOL`
         pub const METAPOOL: u32 = 2;
 
-        /// VALGRIND_CREATE_MEMPOOL | VALGRIND_CREATE_MEMPOOL_EXT
+        /// Create a memory pool
+        ///
+        /// refer to [Memory Pools: describing and working with custom allocators](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        ///
+        /// # Implementation
+        /// `VALGRIND_CREATE_MEMPOOL` or `VALGRIND_CREATE_MEMPOOL_EXT`
         #[inline]
         pub fn create(
             pool: *mut c_void,
@@ -785,43 +901,78 @@ pub mod memcheck {
             };
         }
 
-        /// VALGRIND_DESTROY_MEMPOOL
+        /// Destroy a memory pool
+        ///
+        /// refer to [Memory Pools: describing and working with custom allocators](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        ///
+        /// # Implementation
+        /// `VALGRIND_DESTROY_MEMPOOL`
         #[inline]
         pub fn destroy(pool: *mut c_void) {
             raw_call!(vg_destroy_mempool, pool);
         }
 
-        /// VALGRIND_MEMPOOL_ALLOC
+        /// Associate a piece of memory with a memory pool
+        ///
+        /// refer to [Memory Pools: describing and working with custom allocators](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        ///
+        /// # Implementation
+        /// `VALGRIND_MEMPOOL_ALLOC`
         #[inline]
         pub fn alloc(pool: *mut c_void, addr: *mut c_void, size: usize) {
             raw_call!(vg_mempool_alloc, pool, addr, size);
         }
 
-        /// VALGRIND_MEMPOOL_FREE
+        /// Disassociate a piece of memory from a memory pool
+        ///
+        /// refer to [Memory Pools: describing and working with custom allocators](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        ///
+        /// # Implementation
+        /// `VALGRIND_MEMPOOL_FREE`
         #[inline]
         pub fn free(pool: *mut c_void, addr: *mut c_void) {
             raw_call!(vg_mempool_free, pool, addr);
         }
 
-        /// VALGRIND_MEMPOOL_TRIM
+        /// Disassociate any pieces outside a particular range
+        ///
+        /// refer to [Memory Pools: describing and working with custom allocators](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        ///
+        /// # Implementation
+        /// `VALGRIND_MEMPOOL_TRIM`
         #[inline]
         pub fn trim(pool: *mut c_void, addr: *mut c_void, size: usize) {
             raw_call!(vg_mempool_trim, pool, addr, size);
         }
 
-        /// VALGRIND_MOVE_MEMPOOL
+        /// Resize and/or move a piece associated with a memory pool
+        ///
+        /// refer to [Memory Pools: describing and working with custom allocators](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        ///
+        /// # Implementation
+        /// `VALGRIND_MOVE_MEMPOOL`
         #[inline]
         pub fn move_to(pool_a: *mut c_void, pool_b: *mut c_void) {
             raw_call!(vg_move_mempool, pool_a, pool_b);
         }
 
-        /// VALGRIND_MEMPOOL_CHANGE
+        /// Resize and/or move a piece associated with a memory pool
+        ///
+        /// refer to [Memory Pools: describing and working with custom allocators](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        ///
+        /// # Implementation
+        /// `VALGRIND_MEMPOOL_CHANGE`
         #[inline]
         pub fn change(pool: *mut c_void, addr_a: *mut c_void, addr_b: *mut c_void, size: usize) {
             raw_call!(vg_mempool_change, pool, addr_a, addr_b, size);
         }
 
-        /// VALGRIND_MEMPOOL_EXISTS
+        /// Check mempool existence
+        ///
+        /// refer to [Memory Pools: describing and working with custom allocators](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.mempools)
+        ///
+        /// # Implementation
+        /// `VALGRIND_MEMPOOL_EXISTS`
         #[inline]
         pub fn is_exists(pool: *mut c_void) -> bool {
             raw_call!(vg_mempool_exists, pool)
@@ -829,26 +980,36 @@ pub mod memcheck {
     }
 
     pub mod stack {
+        //! Stack memory functionality
         use super::super::*;
 
         pub type StackId = usize;
 
-        /// VALGRIND_STACK_REGISTER
+        /// Mark a piece of memory as being a stack
+        ///
+        /// # Implementation
+        /// `VALGRIND_STACK_REGISTER`
         #[inline]
-        pub fn register(start: *mut c_void, end: *mut c_void) -> StackId {
-            raw_call!(vg_stack_register, start, end)
+        pub fn register(lowest: *mut c_void, highest: *mut c_void) -> StackId {
+            raw_call!(vg_stack_register, lowest, highest)
         }
 
-        /// VALGRIND_STACK_DEREGISTER
+        /// Unmark the piece of memory associated with a [`StackId`] as being a stack
+        ///
+        /// # Implementation
+        /// `VALGRIND_STACK_DEREGISTER`
         #[inline]
         pub fn deregister(id: StackId) {
             raw_call!(vg_stack_deregister, id);
         }
 
-        /// VALGRIND_STACK_CHANGE
+        /// Change the start and end address of the [`StackId`]
+        ///
+        /// # Implementation
+        /// `VALGRIND_STACK_CHANGE`
         #[inline]
-        pub fn change(id: StackId, start: *mut c_void, end: *mut c_void) {
-            raw_call!(vg_stack_change, id, start, end);
+        pub fn change(id: StackId, new_lowest: *mut c_void, new_highest: *mut c_void) {
+            raw_call!(vg_stack_change, id, new_lowest, new_highest);
         }
     }
 }
@@ -859,38 +1020,70 @@ pub mod helgrind {
 
     #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
     pub enum Annotation {
-        /// ANNOTATE_HAPPENS_BEFORE
         HappensBefore,
-        /// ANNOTATE_HAPPENS_AFTER
         HappensAfter,
-        /// ANNOTATE_NEW_MEMORY
         New(usize),
-        /// ANNOTATE_RWLOCK_CREATE
         RwLockCreate,
-        /// ANNOTATE_RWLOCK_DESTROY
         RwLockDestroy,
-        /// ANNOTATE_RWLOCK_ACQUIRED, 'true' for a writer lock
+        /// 'true' for a writer lock
         RwLockAcquired(bool),
-        /// ANNOTATE_RWLOCK_RELEASED
         RwLockReleased,
     }
 
-    /// VALGRIND_HG_CLEAN_MEMORY
+    /// Let `Helgrind` forget everything it know about the specified memory range
+    ///
+    /// # Implementation
+    /// `VALGRIND_HG_CLEAN_MEMORY`
     #[inline]
     pub fn clean_memory(addr: *mut c_void, len: usize) {
         raw_call!(hg_clean_memory, addr, len);
     }
 
+    /// Annotations useful for debugging
+    ///
+    /// # Annotation options
+    /// **Annotation::RwLockCreate**
+    /// - Report that a lock has just been created at address LOCK
+    ///
+    /// **Annotation::RwLockDestroy**
+    /// - Report that the lock at address LOCK is about to be destroyed
+    ///
+    /// **Annotation::RwLockAcquired**
+    /// - Report that the lock at address LOCK has just been acquired
+    ///
+    /// **Annotation::RwLockReleased**
+    /// - Report that the lock at address LOCK is about to be released
+    ///
+    /// **Annotation::HappensAfter** **Annotation::HappensBefore**
+    /// - If threads `T1 .. Tn` all do ANNOTATE_HAPPENS_BEFORE(obj) and later (w.r.t. some
+    /// notional global clock for the computation) thread `Tm` does ANNOTATE_HAPPENS_AFTER(obj),
+    /// then `Helgrind` will regard all memory accesses done by `T1 .. Tn` before the ..BEFORE..
+    /// call as happening-before all memory accesses done by `Tm` after the ..AFTER.. call.  
+    /// Hence `Helgrind` won't complain about races if `Tm's` accesses afterwards are to the same
+    /// locations as accesses before by any of `T1 .. Tn`.
+    ///
+    /// **Annotation::New**
+    /// - Report that a new memory at "address" of size "size" has been allocated
+    ///
+    ///
+    /// # Implementation
+    /// - Annotation::RwLockCreate `ANNOTATE_RWLOCK_CREATE`
+    /// - Annotation::RwLockDestroy `ANNOTATE_RWLOCK_DESTROY`
+    /// - Annotation::RwLockAcquired `ANNOTATE_RWLOCK_ACQUIRED`
+    /// - Annotation::RwLockReleased `ANNOTATE_RWLOCK_RELEASED`
+    /// - Annotation::HappensAfter `ANNOTATE_HAPPENS_AFTER`
+    /// - Annotation::HappensBefore `ANNOTATE_HAPPENS_BEFORE`
+    /// - Annotation::New `ANNOTATE_NEW_MEMORY`
     #[inline]
     pub fn annotate_memory(addr: *mut c_void, rel: Annotation) {
         match rel {
-            Annotation::HappensBefore => raw_call!(hg_annotate_happens_before, addr),
-            Annotation::HappensAfter => raw_call!(hg_annotate_happens_after, addr),
-            Annotation::New(size) => raw_call!(hg_annotate_new_memory, addr, size),
             Annotation::RwLockCreate => raw_call!(hg_rwlock_create, addr),
             Annotation::RwLockDestroy => raw_call!(hg_rwlock_destroy, addr),
             Annotation::RwLockAcquired(is_wl) => raw_call!(hg_rwlock_acquired, addr, is_wl),
             Annotation::RwLockReleased => raw_call!(hg_rwlock_released, addr),
+            Annotation::HappensAfter => raw_call!(hg_annotate_happens_after, addr),
+            Annotation::HappensBefore => raw_call!(hg_annotate_happens_before, addr),
+            Annotation::New(size) => raw_call!(hg_annotate_new_memory, addr, size),
         };
     }
 }

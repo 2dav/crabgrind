@@ -30,11 +30,11 @@ interact with the tools and environment.
 
 ### Valgrind 3 API coverage
 - Supported tool-specific client request interface: 
-	 [valgrind](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
-	 [callgrind](https://valgrind.org/docs/manual/cl-manual.html)
-	 [memcheck](https://valgrind.org/docs/manual/mc-manual.html)
-	 [helgrind](https://valgrind.org/docs/manual/hg-manual.html)
-	 [massif](https://valgrind.org/docs/manual/ms-manual.html)
+[valgrind](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq),
+[callgrind](https://valgrind.org/docs/manual/cl-manual.html),
+[memcheck](https://valgrind.org/docs/manual/mc-manual.html),
+[helgrind](https://valgrind.org/docs/manual/hg-manual.html),
+[massif](https://valgrind.org/docs/manual/ms-manual.html)
 - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 
 ### Quickstart
@@ -67,7 +67,6 @@ if matches!(cg::run_mode(), cg::RunMode::Native) {
 ```
 
 #### Exclude expensive initialization code from the measurements
-
 One way to do this would be to turn off stats collection at stratup with the
 [`--collect-atstart=no`](https://valgrind.org/docs/manual/cl-manual.html#opt.collect-atstart)
 callgrind command-line attribute, and enable/disable it from the code with `callgrind::toggle_collect`
@@ -85,7 +84,6 @@ cg::callgrind::toggle_collect();
 ```
 
 #### Run a closure on the real CPU while running under Valgrind
-
 We can run on the real CPU instead of the virtual one using `valgrind::non_simd_call`,
 refer to `valgrind.h` for details on limitations and various ways to crash.
 
@@ -102,7 +100,6 @@ cg::valgrind::non_simd_call(|tid| {
 println!("tid: {state}");
 ```
 #### Save current memory usage snapshot to a file
-
 We'll use `Massif` tool and the [monitor command](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling)
 interface to run the corresponding Massif command.
 ```rust
@@ -116,7 +113,6 @@ if cg::monitor_command("snapshot mem.snapshot").is_ok(){
 ```
 
 #### Print current function stack-trace to the Valgrind log
-
 Valgrind provides `VALGRIND_PRINTF_BACKTRACE` macro to print the message with the stack-trace attached,
 `crabgrind::print_stacktrace` is it's crabbed wrapper.
 ```rust

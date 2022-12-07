@@ -1,7 +1,7 @@
 //! [Valgrind Client Request](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq) interface for Rust
 //!
-//!`crabgrind` wraps various Valgrind client request macros in a C functions, compiles and links against
-//! the resulting binary and exposes unsafe interface, allowing Rust programs running under Valgrind to
+//! `crabgrind` wraps various Valgrind macros in C functions, compiles and links against
+//! the resulting binary, and exposes an unsafe interface to allow Rust programs running under Valgrind to
 //! interact with the tools and environment.
 //!
 //! ### Valgrind 3 API coverage
@@ -14,7 +14,7 @@
 //! - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 //!
 //! ### Quickstart
-//! `crabgrind` imports macros from Valgrind's header files, therefor you must have Valgrind
+//! `crabgrind` imports macros from Valgrind's header files, therefore you must have Valgrind
 //! installed to build the project.
 //!
 //! Add the following to your `Cargo.toml` file:
@@ -31,8 +31,7 @@
 //! if matches!(cg::run_mode(), cg::RunMode::Native) {
 //!     println!("run me under Valgrind");
 //! } else {
-//!     let msg = std::ffi::CString::new("Hey Valgrind!\n")?;
-//!     cg::print(msg);
+//!     cg::println!("Hey, Valgrind!");
 //! }
 //! ```
 //!
@@ -77,11 +76,12 @@
 //! interface to run the corresponding Massif command.
 //! ```no_run
 //! use crabgrind as cg;
-//! use std::ffi::CString;
 //!
 //! let heap = String::from("alloca");
 //!
-//! cg::monitor_command(CString::new("snapshot mem.snapshot")?);
+//! if cg::monitor_command("snapshot mem.snapshot").is_ok(){
+//!     println!("snapshot is saved to \"mem.snapshot\"");
+//! }
 //! ```
 //!
 //! ### Overhead
@@ -92,8 +92,11 @@
 //! > ... the code does nothing when not run on Valgrind, so you are not forced to run your program
 //! under Valgrind just because you use the macros in this file.
 //!
-//! however, wrapping each macros in a function implies function call overhead regardless of the run
-//! mode, plus, some of the wrappers returns `std::result::Result` which involves branching.
+//! however,
+//! - wrapping each macros in a function implies function call overhead regardless of the run mode
+//! - functions that returns `std::result::Result` involve branching
+//! - functions that takes strings as a parameters internally converts them to `std::ffi::CString`
+//!
 //! If you wish to compile out all (crab)Valgrind from the binary, you can wrap `crabgrind` calls with
 //! the feature-gate.
 
@@ -108,14 +111,33 @@ macro_rules! raw_call {
     }};
 }
 
+/// Current run mode
+///
+/// see [`run_mode()`]
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
 pub enum RunMode {
+    /// on the real CPU
     Native,
+    /// under Valgrind emulation
     Valgrind,
+    /// under multiple layers of Valgrind emulation
     ValgrindInValgrind(usize),
 }
 
-/// RUNNING_ON_VALGRIND
+/// Returns the [`RunMode`] app running in
+///
+/// # Example
+/// ```no_run
+/// use crabgrind::RunMode;
+///
+/// match crabgrind::run_mode(){
+///     RunMode::Native                 => println!("native CPU"),
+///     RunMode::Valgrind               => println!("hey, Valgrind!"),
+///     RunMode::ValgrindInValgrind(n)  => println!("Valgrind layers: {n}"),
+/// }
+/// ```
+/// # Implementation
+/// `RUNNING_ON_VALGRIND` macro call
 #[inline]
 pub fn run_mode() -> RunMode {
     match unsafe { bindings::running_on_valgrind() } {
@@ -208,8 +230,24 @@ macro_rules! print_stacktrace{
     ($($arg:tt)+) => { $crate::__print_stacktrace(format!("{}\n",format_args!($($arg)+)));}
 }
 
-/// VALGRIND_PRINTF_BACKTRACE
-/// wrapped with the fixed `"%s"` format
+/// Execute arbitrary Valgrind [Monitor command](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling)
+///
+/// # Example
+/// ```no_run
+/// use crabgrind as cg;
+///
+/// let heap = String::from("alloca");
+///
+/// if cg::monitor_command("snapshot mem.snapshot").is_ok(){
+///     println!("snapshot is saved to \"mem.snapshot\"");
+/// }
+/// ```
+///
+/// # Implementation
+/// `VALGRIND_MONITOR_COMMAND`
+///
+/// # Panics
+/// If command string contains null-byte in any position.
 #[inline]
 pub fn monitor_command(cmd: impl AsRef<str>) -> std::io::Result<()> {
     let cmd = std::ffi::CString::new(cmd.as_ref()).unwrap();
@@ -225,6 +263,8 @@ pub mod valgrind {
     use std::os::unix::prelude::RawFd;
 
     use super::*;
+
+    pub type ThreadId = usize;
 
     /// VALGRIND_DISABLE_ERROR_REPORTING
     #[inline]
@@ -268,9 +308,9 @@ pub mod valgrind {
         raw_call!(vg_map_ip_to_srcloc, addr, buf64)
     }
 
-    extern "C" fn _closure_adapter<F>(tid: usize, f: *mut c_void)
+    extern "C" fn _closure_adapter<F>(tid: ThreadId, f: *mut c_void)
     where
-        F: FnMut(usize),
+        F: FnMut(ThreadId),
     {
         debug_assert!(!f.is_null(), "closure pointer is null");
         debug_assert_eq!(
@@ -291,11 +331,22 @@ pub mod valgrind {
         }
     }
 
-    /// VALGRIND_NON_SIMD_CALL1
+    /// Runs a closure on the real CPU.
+    ///
+    /// Closure receives a [`ThreadId`] as the parameter, that is the Valgrind's notion of thread
+    /// identifier and there may not be relationship between [`ThreadId`] and rust's [`std::thread::ThreadId`].
+    ///
+    /// Refer to the `valgrind.h` for details and limitations.
+    ///
+    /// # Implementation
+    /// `VALGRIND_NON_SIMD_CALL1`
+    ///
+    /// # Panics
+    /// It's safe to panic in the closure code in that this won't cause a UB on stack unwinding.
     #[inline]
     pub fn non_simd_call<F>(f: F)
     where
-        F: FnMut(usize),
+        F: FnMut(ThreadId),
     {
         let boxed = Box::into_raw(Box::new(f));
         raw_call!(vg_non_simd_call1, _closure_adapter::<F>, boxed.cast());

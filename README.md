@@ -1,9 +1,21 @@
-<h1 align="center">crabgrind</h1>
-<div align="center"><a href="https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq">Valgrind Client Request</a> interface for Rust</div>
-</br>
+<div align="center">
+	<h1>crabgrind</h1>
+	<p><a href="https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq">Valgrind Client Request</a> interface for Rust programs</p>
 
-`crabgrind` wraps various Valgrind client request macros in a C functions, compiles and links against
-the resulting binary and exposes unsafe interface, allowing Rust programs running under Valgrind to
+[crates.io]: https://crates.io/crates/crabgrind
+[libs.rs]: https://lib.rs/crates/crabgrind
+[documentation]: https://docs.rs/crabgrind
+[license]: https://github.com/2dav/crabgrind/blob/main/LICENSE
+
+[![crates.io](https://img.shields.io/crates/v/crabgrind)][crates.io]
+[![libs.rs](https://img.shields.io/badge/libs.rs-crabgrind-orange)][libs.rs]
+[![documentation](https://img.shields.io/docsrs/crabgrind)][documentation]
+[![license](https://img.shields.io/crates/l/crabgrind)][license]
+
+</div>
+
+`crabgrind` wraps various Valgrind macros in C functions, compiles and links against
+the resulting binary, and exposes an unsafe interface to allow Rust programs running under Valgrind to
 interact with the tools and environment.
 
 ### Valgrind 3 API coverage
@@ -16,7 +28,7 @@ interact with the tools and environment.
 - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 
 ### Quickstart
-`crabgrind` imports macros from Valgrind's header files, therefor you must have Valgrind
+`crabgrind` imports macros from Valgrind's header files, therefore you must have Valgrind
 installed to build the project. 
 
 Add the following to your `Cargo.toml` file:
@@ -26,19 +38,18 @@ crabgrind = "^0.1"
 ```
 
 ### Examples
-**Print some message to the Valgrind log**
+> Print some message to the Valgrind log
 ```rust
 use crabgrind as cg;
 
 if matches!(cg::run_mode(), cg::RunMode::Native) {
     println!("run me under Valgrind");
 } else {
-    let msg = std::ffi::CString::new("Hey Valgrind!\n")?;
-    cg::print(msg);
+    cg::println!("Hey, Valgrind!");
 }
 ```
 
-**Exclude expensive (de)initialization code from the measurements**
+> Exclude expensive (de)initialization code from the measurements
 
 One way to do this would be to turn off stats collection at stratup with the
 [`--collect-atstart=no`](https://valgrind.org/docs/manual/cl-manual.html#opt.collect-atstart)
@@ -56,7 +67,7 @@ cg::callgrind::toggle_collect();
 // ... some deinitialization
 ```
 
-**Run a closure on the real CPU while running under Valgrind**
+> Run a closure on the real CPU while running under Valgrind
 
 We can run on the real CPU instead of the virtual one using `valgrind::non_simd_call`,
 refer to `valgrind.h` for details on limitations and various ways to crash.
@@ -73,17 +84,34 @@ cg::valgrind::non_simd_call(|tid| {
 
 println!("tid: {state}");
 ```
-**Save current memory usage snapshot to a file**
+> Save current memory usage snapshot to a file
 
 We'll use `Massif` tool and the [monitor command](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling)
 interface to run the corresponding Massif command.
 ```rust
 use crabgrind as cg;
-use std::ffi::CString;
 
 let heap = String::from("alloca");
 
-cg::monitor_command(CString::new("snapshot mem.snapshot")?);
+if cg::monitor_command("snapshot mem.snapshot").is_ok(){
+    println!("snapshot is saved to \"mem.snapshot\"");
+}
+```
+
+> Print current function stack-trace to the Valgrind's log
+
+Valgrind provides `VALGRIND_PRINTF_BACKTRACE` macro to print the message with the stack-trace attached,
+`crabgrind::print_stacktrace` is it's crabbed wrapper.
+```rust
+use crabgrind as cg;
+
+#[inline(never)]
+fn print_trace(){
+    let mode = cg::run_mode();
+    cg::print_stacktrace!("current mode: {mode:?}");
+}
+
+print_trace();
 ```
 
 ### Overhead
@@ -94,8 +122,11 @@ from [Valgrind docs](https://valgrind.org/docs/manual/manual-core-adv.html)
 > ... the code does nothing when not run on Valgrind, so you are not forced to run your program
 under Valgrind just because you use the macros in this file.
 
-however, wrapping each macros in a function implies function call overhead regardless of the run
-mode, plus, some of the wrappers returns `std::result::Result` which involves branching.
+however,
+- wrapping each macros in a function implies function call overhead regardless of the run mode
+- functions that returns `std::result::Result` involve branching
+- functions that takes strings as a parameters internally converts them to `std::ffi::CString`
+
 If you wish to compile out all (crab)Valgrind from the binary, you can wrap `crabgrind` calls with 
 the feature-gate.
 
@@ -103,4 +134,4 @@ the feature-gate.
 No
 
 ### License
-`crabgrind` is distributed under the same license terms as the `Valgrind` which is GPL version 2.
+`crabgrind` is distributed under the same license terms as the `Valgrind` that is GPL version 2.

@@ -6,11 +6,11 @@
 //!
 //! ### Valgrind 3 API coverage
 //! - Supported tool-specific client request interface:
-//!     - [valgrind](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
-//!     - [callgrind](https://valgrind.org/docs/manual/cl-manual.html)
-//!     - [memcheck](https://valgrind.org/docs/manual/mc-manual.html)
-//!     - [helgrind](https://valgrind.org/docs/manual/hg-manual.html)
-//!     - [massif](https://valgrind.org/docs/manual/ms-manual.html)
+//! [valgrind](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq),
+//! [callgrind](https://valgrind.org/docs/manual/cl-manual.html),
+//! [memcheck](https://valgrind.org/docs/manual/mc-manual.html),
+//! [helgrind](https://valgrind.org/docs/manual/hg-manual.html),
+//! [massif](https://valgrind.org/docs/manual/ms-manual.html),
 //! - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 //!
 //! ### Quickstart
@@ -162,9 +162,7 @@
 //! Tests must be run under Valgrind, as of now [`cargo-valgrind`](https://github.com/jfrimmel/cargo-valgrind)
 //! fits nicely, it allows to compile and run tests under Valgrind in one command
 //! > cargo valgrind test
-
 use std::ffi::c_void;
-
 mod bindings;
 
 macro_rules! raw_call {
@@ -211,7 +209,6 @@ pub fn run_mode() -> RunMode {
 }
 
 #[doc(hidden)]
-#[inline(always)]
 pub fn __print(msg: String) {
     let cstr = std::ffi::CString::new(msg).unwrap();
     raw_call!(vg_print, cstr.as_ptr());

@@ -54,7 +54,7 @@ Add the following to your `Cargo.toml` file:
 crabgrind = "^0.1"
 ```
 
-Next, use some of the [Valgrind's API](https://docs.rs/crabgrind/0.1.5/crabgrind/#modules)
+Next, use some of the [Valgrind's API](https://docs.rs/crabgrind/latest/crabgrind/#modules)
 ```rust
 use crabgrind as cg;
 

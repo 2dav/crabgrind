@@ -16,7 +16,10 @@
 
 `crabgrind` wraps various Valgrind macros in C functions, compiles and links against
 the resulting binary, and exposes an unsafe interface to allow Rust programs running under Valgrind to
-interact with the tools and environment.
+interact with the tools and environment. 
+
+This library is indeed a wrapper, the only thing it adds are the type conversions and some structure,
+all the real things are happening inside Valgrind.
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
@@ -38,15 +41,16 @@ interact with the tools and environment.
 - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 
 ### Quickstart
-`crabgrind` imports macros from Valgrind's header files, so they must be accessible to build the project.
+`crabgrind` doesn't links against Valgrind, but reads it's header files, so they must be accessible 
+to build the project. 
 
-If you installed Valgrind using your OS-specific package manager, the header files will be placed at the paths
-according to your OS's conventions, and most likely [`cc`](https://docs.rs/cc/latest/cc/index.html), the build
+If headers resides at the `/usr/include/valgrind`, [`cc`](https://docs.rs/cc/latest/cc/index.html), the build
 tool `crabgrind` uses, will find them.
 
-If you have installed Vallgrind manually or having any issues, you can set `DEP_VALGRIND` environment variable to the appropriate path, if
-one is specified, its value will be directly passed to [`cc::Build::include`](https://docs.rs/cc/latest/cc/struct.Build.html#method.include).
-> env DEP_VALGRIND=/path/to/valgrind cargo build
+If you have installed Vallgrind manually, you can set `DEP_VALGRIND` environment variable to the appropriate path, 
+its value, if specified, will be directly passed to [`cc::Build::include`](https://docs.rs/cc/latest/cc/struct.Build.html#method.include).
+> env DEP_VALGRIND=/usr/include cargo build
+
 
 Add the following to your `Cargo.toml` file:
 ```toml

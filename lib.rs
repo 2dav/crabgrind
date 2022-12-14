@@ -454,13 +454,16 @@ pub mod valgrind {
     where
         F: FnMut(ThreadId),
     {
-        debug_assert!(!f.is_null(), "closure pointer is null");
-        debug_assert_eq!(
-            f as usize & (std::mem::align_of::<F>() - 1),
-            0,
-            "unexpected closure pointer"
-        );
-        if let Err(err) = std::panic::catch_unwind(|| unsafe { (*f.cast::<F>())(tid) }) {
+        if let Err(err) = std::panic::catch_unwind(|| unsafe {
+            debug_assert!(!f.is_null(), "closure pointer is null");
+            debug_assert_eq!(
+                f as usize & (std::mem::align_of::<F>() - 1),
+                0,
+                "unexpected closure pointer"
+            );
+
+            (*f.cast::<F>())(tid)
+        }) {
             let panic_info = err
                 .downcast::<String>()
                 .map(|v| *v)

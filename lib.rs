@@ -30,7 +30,7 @@
 //! Add the following to your `Cargo.toml` file:
 //! ```ignore
 //! [dependencies]
-//! crabgrind = "^0.1"
+//! crabgrind = "~0.1"
 //! ```
 //!
 //! Next, use some of the [Valgrind's API](#modules)

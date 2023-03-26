@@ -1,7 +1,7 @@
 [package]
 name = "crabgrind"
 version = "0.1.8"
-license = "GPL-2.0"
+license = "MIT"
 edition = "2015"
 rust-version = "1.1"
 description = "Rust bindings to \"Valgrind Client Request\" interface"

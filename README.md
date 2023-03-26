@@ -111,4 +111,7 @@ fits nicely, it allows to compile and run tests under Valgrind in one command
 > cargo valgrind test
 
 ### License
-`crabgrind` is distributed under the same license terms as the `Valgrind` that is GPL version 2.
+`crabgrind` is distributed under `MIT` license.
+
+`Valgrind` itself is a GPL2, however `valgrind/*.h` headers are distributed under a BSD-style license, 
+so we can use them without worrying about license conflicts.

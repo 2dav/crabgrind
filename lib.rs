@@ -639,6 +639,53 @@ pub mod callgrind {
     }
 }
 
+pub mod cachegrind {
+    //! [`Cachegrind requests`](TODO)
+    use super::*;
+
+    /// Start full cachegrind instrumentation if not already switched on
+    ///
+    /// When cache simulation is done, it will flush the simulated cache;
+    /// this will lead to an artificial cache warmup phase afterwards with cache misses which
+    /// would not have happened in reality.
+    ///
+    /// Use this to bypass Cachegrind aggregation for uninteresting code parts.
+    /// To start Callgrind in this mode to ignore the setup phase, use the option `--instr-at-start=no`.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use crabgrind as cg;
+    ///
+    /// let xs = (0..10 << 10).into_iter().collect::<Vec<u32>>();
+    ///
+    /// cg::cachegrind::start_instrumentation();
+    /// let i = xs.binary_search(&(10 << 10 >> 1));
+    /// cg::cachegrind::stop_instrumentation();
+    /// ```
+    /// also see documentation for [`cachegrind::stop_instrumentation()`]
+    ///
+    /// # Implementation
+    /// `CACHEGRIND_START_INSTRUMENTATION`
+    #[inline]
+    pub fn start_instrumentation() {
+        raw_call!(cg_start_instrumentation);
+    }
+
+    /// Stop full cachegrind instrumentation if not already switched off
+    ///
+    /// This flushes Valgrind's translation cache, and does no additional instrumentation afterwards,
+    /// which effectively will run at the same speed as the "none" tool (ie. at minimal slowdown).
+    ///
+    /// also see documentation for [`cachegrind::start_instrumentation()`]
+    ///
+    /// # Implementation
+    /// `CACHEGRIND_STOP_INSTRUMENTATION`
+    #[inline]
+    pub fn stop_instrumentation() {
+        raw_call!(cg_stop_instrumentation);
+    }
+}
+
 pub mod memcheck {
     //! [`Memcheck requests`](https://valgrind.org/docs/manual/mc-manual.html#mc-manual.clientreqs)
     use super::*;

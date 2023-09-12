@@ -59,6 +59,12 @@ extern "C" {
     pub fn cl_stop_instrumentation();
 }
 
+// cachegrind
+extern "C" {
+    pub fn cg_start_instrumentation();
+    pub fn cg_stop_instrumentation();
+}
+
 // memcheck
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]

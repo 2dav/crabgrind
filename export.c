@@ -1,4 +1,5 @@
 #include <valgrind/callgrind.h>
+#include <valgrind/cachegrind.h>
 #include <valgrind/valgrind.h>
 #include <valgrind/memcheck.h>
 #include <valgrind/helgrind.h>
@@ -142,6 +143,17 @@ void cl_start_instrumentation(){
 
 void cl_stop_instrumentation(){
 	CALLGRIND_STOP_INSTRUMENTATION;
+}
+
+//
+// CACHEGRIND
+//
+void cg_start_instrumentation(){
+    CACHEGRIND_START_INSTRUMENTATION;
+}
+
+void cg_stop_instrumentation(){
+    CACHEGRIND_STOP_INSTRUMENTATION;
 }
 
 //

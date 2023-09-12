@@ -120,27 +120,27 @@ void vg_clo_change(char* opt){
 //
 // CALLGRIND
 //
-void cg_dump_stats(){
+void cl_dump_stats(){
 	CALLGRIND_DUMP_STATS;
 }
 
-void cg_dump_stats_at(char* pos_str){
+void cl_dump_stats_at(char* pos_str){
 	CALLGRIND_DUMP_STATS_AT(pos_str);
 }
 
-void cg_zero_stats(){
+void cl_zero_stats(){
 	CALLGRIND_ZERO_STATS;
 }
 
-void cg_toggle_collect(){
+void cl_toggle_collect(){
 	CALLGRIND_TOGGLE_COLLECT;
 }
 
-void cg_start_instrumentation(){
+void cl_start_instrumentation(){
 	CALLGRIND_START_INSTRUMENTATION;
 }
 
-void cg_stop_instrumentation(){
+void cl_stop_instrumentation(){
 	CALLGRIND_STOP_INSTRUMENTATION;
 }
 

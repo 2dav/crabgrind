@@ -49,14 +49,14 @@ extern "C" {
 
 // callgrind
 extern "C" {
-    pub fn cg_dump_stats();
-    pub fn cg_dump_stats_at(pos_str: *const c_char);
-    pub fn cg_zero_stats();
+    pub fn cl_dump_stats();
+    pub fn cl_dump_stats_at(pos_str: *const c_char);
+    pub fn cl_zero_stats();
 
-    pub fn cg_toggle_collect();
+    pub fn cl_toggle_collect();
 
-    pub fn cg_start_instrumentation();
-    pub fn cg_stop_instrumentation();
+    pub fn cl_start_instrumentation();
+    pub fn cl_stop_instrumentation();
 }
 
 // memcheck

@@ -555,10 +555,10 @@ pub mod callgrind {
     #[inline]
     pub fn dump_stats<'a>(reason: impl Into<Option<&'a str>>) {
         match reason.into() {
-            None => raw_call!(cg_dump_stats),
+            None => raw_call!(cl_dump_stats),
             Some(reason) => {
                 let cstr = std::ffi::CString::new(reason).unwrap();
-                raw_call!(cg_dump_stats_at, cstr.as_ptr())
+                raw_call!(cl_dump_stats_at, cstr.as_ptr())
             }
         };
     }
@@ -569,7 +569,7 @@ pub mod callgrind {
     /// `CALLGRIND_ZERO_STATS`
     #[inline]
     pub fn zero_stats() {
-        raw_call!(cg_zero_stats);
+        raw_call!(cl_zero_stats);
     }
 
     /// Toggles collection state
@@ -593,7 +593,7 @@ pub mod callgrind {
     /// `CALLGRIND_TOGGLE_COLLECT`
     #[inline]
     pub fn toggle_collect() {
-        raw_call!(cg_toggle_collect);
+        raw_call!(cl_toggle_collect);
     }
 
     /// Start full callgrind instrumentation if not already switched on
@@ -621,7 +621,7 @@ pub mod callgrind {
     /// `CALLGRIND_START_INSTRUMENTATION`
     #[inline]
     pub fn start_instrumentation() {
-        raw_call!(cg_start_instrumentation);
+        raw_call!(cl_start_instrumentation);
     }
 
     /// Stop full callgrind instrumentation if not already switched off
@@ -635,7 +635,7 @@ pub mod callgrind {
     /// `CALLGRIND_STOP_INSTRUMENTATION`
     #[inline]
     pub fn stop_instrumentation() {
-        raw_call!(cg_stop_instrumentation);
+        raw_call!(cl_stop_instrumentation);
     }
 }
 

@@ -54,6 +54,7 @@
 //!
 //! *manually:*
 //! > cargo build
+//!
 //! > valgrind ./target/debug/appname
 //!
 //! ### Examples

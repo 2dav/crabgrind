@@ -82,6 +82,7 @@ and run your application under Valgrind,
 
 *manually:*
 > cargo build
+
 > valgrind ./target/debug/appname
 
 ### Examples

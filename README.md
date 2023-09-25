@@ -14,11 +14,14 @@
 
 </div>
 
-`crabgrind` wraps various Valgrind macros in C functions, compiles and links against
-the resulting binary, and exposes an unsafe interface to allow Rust programs running under Valgrind to
-interact with the tools and environment. 
+`crabgrind` allows Rust programs running under Valgrind to interact with the tools and virtualized environment.
 
-This library is indeed a wrapper, the only thing it adds are the type conversions and some structure,
+[Valgrind runtime API(client request interface)](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
+is accessible through a set of `C` macros from Valgrind header files, which cannot be used from the languages that lack support 
+for `C`-preprocessor, such as Rust. In such cases one needs to either re-implement all the macros with the inline assembly, or
+create a library of exported functions that wrap macros, `crabgrind` is the latter.
+
+This library is indeed a wrapper, the only thing it adds is the type conversions and some structure,
 all the real things are happening inside Valgrind.
 
 ## Table of Contents
@@ -37,28 +40,30 @@ all the real things are happening inside Valgrind.
 [callgrind](https://valgrind.org/docs/manual/cl-manual.html),
 [memcheck](https://valgrind.org/docs/manual/mc-manual.html),
 [helgrind](https://valgrind.org/docs/manual/hg-manual.html),
-[massif](https://valgrind.org/docs/manual/ms-manual.html)
+[massif](https://valgrind.org/docs/manual/ms-manual.html),
+*cachegrind(upcoming)*,
 - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 
 ### Quickstart
 `crabgrind` doesn't links against Valgrind, but reads it's header files, so they must be accessible 
 to build the project. 
 
-If headers resides at the `/usr/include/valgrind`, [`cc`](https://docs.rs/cc/latest/cc/index.html), the build
-tool `crabgrind` uses, will find them.
+If you have installed Vallgrind using OS-specific package-manager, the paths are likely to be resolved automatically 
+by [`cc`](https://docs.rs/cc/latest/cc/index.html). 
 
-If you have installed Vallgrind manually, you can set `DEP_VALGRIND` environment variable to the appropriate path, 
-its value, if specified, will be directly passed to [`cc::Build::include`](https://docs.rs/cc/latest/cc/struct.Build.html#method.include).
+In case of manual installation or any `missing file` error, you can set the path to Valgrind headers location
+through the `DEP_VALGRIND` environment variable, e.g.
+
 > env DEP_VALGRIND=/usr/include cargo build
 
 
 Add the following to your `Cargo.toml` file:
 ```toml
 [dependencies]
-crabgrind = "~0.1"
+crabgrind = "0.1"
 ```
 
-Next, use some of the [Valgrind's API](https://docs.rs/crabgrind/latest/crabgrind/#modules)
+next, use some of the [Valgrind's API](https://docs.rs/crabgrind/latest/crabgrind/#modules)
 ```rust
 use crabgrind as cg;
 
@@ -70,13 +75,13 @@ fn main() {
     }
 }
 ```
-And run your application under Valgrind, either with handy [cargo-valgrind](https://github.com/jfrimmel/cargo-valgrind) 
+and run your application under Valgrind, 
+
+*using [cargo-valgrind](https://github.com/jfrimmel/cargo-valgrind):*
 > cargo valgrind run
 
-or manually
-
+*manually:*
 > cargo build
-
 > valgrind ./target/debug/appname
 
 ### Examples

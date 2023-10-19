@@ -14,15 +14,17 @@
 
 </div>
 
-`crabgrind` allows Rust programs running under Valgrind to interact with the tools and virtualized environment.
+`crabgrind` allows Rust programs running under Valgrind to interact with the tools and virtualized 
+environment.
 
-[Valgrind runtime API(client request interface)](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
-is accessible through a set of `C` macros from Valgrind header files, which cannot be used from the languages that lack support 
-for `C`-preprocessor, such as Rust. In such cases one needs to either re-implement all the macros with the inline assembly, or
-create a library of exported functions that wrap macros, `crabgrind` is the latter.
+[Valgrind's "client request interface"](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq) 
+is primarily accessible through a set of `C` macros in Valgrind's header files. However, these macros 
+cannot be utilized in languages that lack support for C-preprocessor, such as Rust. 
+To address this, `crabgrind` wraps "client request interface" macros with `C` functions and expose
+this API to Rust programs.
 
-This library is indeed a wrapper, the only thing it adds is the type conversions and some structure,
-all the real things are happening inside Valgrind.
+This library is essentially a wrapper. It only adds type conversions and some structure, while all 
+the real things happens inside Valgrind.
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
@@ -45,25 +47,25 @@ all the real things are happening inside Valgrind.
 - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 
 ### Quickstart
-`crabgrind` doesn't links against Valgrind, but reads it's header files, so they must be accessible 
-to build the project. 
+`crabgrind` does not link against Valgrind but instead reads its header files, which must be accessible during build.
 
-If you have installed Vallgrind using OS-specific package-manager, the paths are likely to be resolved automatically 
-by [`cc`](https://docs.rs/cc/latest/cc/index.html). 
+If you have installed Vallgrind using OS-specific package manager, the paths to the headers are likely 
+to be resolved automatically by [`cc`](https://docs.rs/cc/latest/cc/index.html). 
 
-In case of manual installation or any `missing file` error, you can set the path to Valgrind headers location
-through the `DEP_VALGRIND` environment variable, e.g.
+In case of manual installation or any `missing file` error, you can set the path to the Valgrind headers location
+through the `DEP_VALGRIND` environment variable. For example:
 
-> env DEP_VALGRIND=/usr/include cargo build
+```bash
+DEP_VALGRIND=/usr/include cargo build
+```
 
-
-Add the following to your `Cargo.toml` file:
+add dependency `Cargo.toml`
 ```toml
 [dependencies]
 crabgrind = "0.1"
 ```
 
-next, use some of the [Valgrind's API](https://docs.rs/crabgrind/latest/crabgrind/#modules)
+use some of the [Valgrind's API](https://docs.rs/crabgrind/latest/crabgrind/#modules)
 ```rust
 use crabgrind as cg;
 
@@ -75,7 +77,7 @@ fn main() {
     }
 }
 ```
-and run your application under Valgrind, 
+and run under Valgrind, 
 
 *using [cargo-valgrind](https://github.com/jfrimmel/cargo-valgrind):*
 > cargo valgrind run
@@ -100,21 +102,14 @@ from [Valgrind docs](https://valgrind.org/docs/manual/manual-core-adv.html)
 > ... the code does nothing when not run on Valgrind, so you are not forced to run your program
 under Valgrind just because you use the macros in this file.
 
-however,
-- wrapping each macros in a function implies function call overhead regardless of the run mode
-- functions that returns `std::result::Result` involve branching
-- functions that takes strings as a parameters internally converts them to `std::ffi::CString`
-
-If you wish to compile out all (crab)Valgrind from the binary, you can wrap `crabgrind` calls with 
-the feature-gate.
+Although your loops should be very tight (like a well-executed dance move) to notice any impact, 
+keep in mind that:
+- Wrapping each macros in a function implies function call overhead regardless of the run mode. This can potentially impact the performance of your Rust program.
+- Functions that return `std::result::Result` involve branching, which can also have an impact on performance.
+- Functions that take strings as parameters internally convert them to `std::ffi::CString`, which can introduce additional overhead.
 
 ### Safety
 No
-
-### Development
-Tests must be run under Valgrind, as of now [`cargo-valgrind`](https://github.com/jfrimmel/cargo-valgrind)
-fits nicely, it allows to compile and run tests under Valgrind in one command
-> cargo valgrind test
 
 ### License
 `crabgrind` is distributed under `MIT` license.

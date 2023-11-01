@@ -16,7 +16,8 @@
 //! [callgrind](https://valgrind.org/docs/manual/cl-manual.html),
 //! [memcheck](https://valgrind.org/docs/manual/mc-manual.html),
 //! [helgrind](https://valgrind.org/docs/manual/hg-manual.html),
-//! [massif](https://valgrind.org/docs/manual/ms-manual.html)
+//! [massif](https://valgrind.org/docs/manual/ms-manual.html),
+//! [cachegrind](https://valgrind.org/docs/manual/cg-manual.html#cg-manual.clientrequests)
 //! - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 //!
 //! ### Quickstart

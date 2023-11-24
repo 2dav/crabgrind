@@ -113,7 +113,7 @@ under Valgrind just because you use the macros in this file.
 
 Although your loops should be very tight (like a well-executed dance move) to notice any impact, 
 keep in mind that:
-- Wrapping each macros in a function implies function call overhead regardless of the run mode. This can potentially impact the performance of your Rust program.
+- Wrapping each macros in a function implies function call overhead regardless of the run mode. This can potentially impact the performance of your Rust program. See [linker-plugin-lto](https://github.com/2dav/crabgrind/tree/linker-plugin-lto) branch for a possible workaround.
 - Functions that return `std::result::Result` involve branching, which can also have an impact on performance.
 - Functions that take strings as parameters internally convert them to `std::ffi::CString`, which can introduce additional overhead.
 

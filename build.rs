@@ -16,5 +16,5 @@ fn main() {
         builder.include(dep_valgrind);
     }
 
-    builder.file("export.c").compile("libcrabgrind.a");
+    builder.compiler("clang").flag("-flto=thin").file("export.c").compile("libcrabgrind.a");
 }

@@ -29,6 +29,7 @@ the real things happens inside Valgrind.
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
 - [Valgrind 3 API Coverage](#valgind-3-api-coverage)
+- [Compatibility](#compatibility)
 - [Quickstart](#quickstart)
 - [Examples](#examples)
 - [Overhead](#overhead)
@@ -46,20 +47,28 @@ the real things happens inside Valgrind.
 [cachegrind](https://valgrind.org/docs/manual/cg-manual.html#cg-manual.clientrequests)
 - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 
+### Compatibility
+The latest version of `crabgrind` builds against latest `Valgrind`. However, depending on your `Valgrind` installation, you may need to use a different version:
+
+| Valgrind  | crabgrind |
+| ------------- | ------------- |
+| <= 3.21  | 0.1.9  |
+| >= 3.22  | 0.1.10  |
+
 ### Quickstart
 `crabgrind` does not link against Valgrind but instead reads its header files, which must be accessible during build.
 
 If you have installed Vallgrind using OS-specific package manager, the paths to the headers are likely 
 to be resolved automatically by [`cc`](https://docs.rs/cc/latest/cc/index.html). 
 
-In case of manual installation or any `missing file` error, you can set the path to the Valgrind headers location
+In case of manual installation, you can set the path to the Valgrind headers location
 through the `DEP_VALGRIND` environment variable. For example:
 
 ```bash
 DEP_VALGRIND=/usr/include cargo build
 ```
 
-add dependency `Cargo.toml`
+add dependency to `Cargo.toml`
 ```toml
 [dependencies]
 crabgrind = "0.1"

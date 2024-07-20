@@ -113,3 +113,8 @@ extern "C" {
     pub fn hg_rwlock_acquired(lock: *mut c_void, is_w: bool);
     pub fn hg_rwlock_released(lock: *mut c_void);
 }
+
+// dhat
+extern "C" {
+    pub fn dh_histogram_memory(addr: *mut c_void);
+}

@@ -45,6 +45,7 @@ the real things happens inside Valgrind.
 [helgrind](https://valgrind.org/docs/manual/hg-manual.html),
 [massif](https://valgrind.org/docs/manual/ms-manual.html),
 [cachegrind](https://valgrind.org/docs/manual/cg-manual.html#cg-manual.clientrequests)
+[dhat](https://valgrind.org/docs/manual/dh-manual.html)
 - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 
 ### Compatibility

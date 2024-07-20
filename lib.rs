@@ -1198,6 +1198,26 @@ pub mod helgrind {
     }
 }
 
+pub mod dhat {
+    //! [`DHAT manual`](https://valgrind.org/docs/manual/dh-manual.html)
+    use super::*;
+
+    /// Override default block size
+    ///
+    /// The size of the blocks that measure and display access counts is limited to 1024 bytes.
+    /// This is done to limit the performance overhead and also to keep the size of the generated output reasonable.
+    /// However, it is possible to override this limit using client requests.
+    /// The use-case for this is to first run DHAT normally, and then identify any large blocks that you would like to further investigate with access count histograms.
+    /// The macro should be placed immediately after the call to the allocator, and use the pointer returned by the allocator.
+    ///
+    /// # Implementation
+    /// `DHAT_HISTOGRAM_MEMORY`
+    #[inline]
+    pub fn histogram_memory(addr: *mut c_void) {
+        raw_call!(dh_histogram_memory, addr);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{self as cg, valgrind::ThreadId};

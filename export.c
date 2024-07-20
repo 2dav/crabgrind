@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <valgrind/cachegrind.h>
 #include <valgrind/callgrind.h>
+#include <valgrind/dhat.h>
 #include <valgrind/helgrind.h>
 #include <valgrind/memcheck.h>
 #include <valgrind/valgrind.h>
@@ -217,3 +218,8 @@ void hg_rwlock_acquired(void *lock, bool is_write) {
 }
 
 void hg_rwlock_released(void *lock) { ANNOTATE_RWLOCK_RELEASED(lock, 0); }
+
+//
+// DHAT
+//
+void dh_histogram_memory(void *addr) { DHAT_HISTOGRAM_MEMORY(addr); }

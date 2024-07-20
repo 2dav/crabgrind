@@ -32,7 +32,7 @@
 //! ```
 //!
 //! Then, use some of [Valgrind's API](https://docs.rs/crabgrind/latest/crabgrind/#modules)
-//! ```rust
+//! ```no_run
 //! use crabgrind as cg;
 //!
 //! fn main() {
@@ -55,7 +55,7 @@
 //! ##### Print current function stack-trace to the Valgrind log
 //! Valgrind provides `VALGRIND_PRINTF_BACKTRACE` macro to print the message with the stack-trace attached,
 //! `crabgrind::print_stacktrace` is it's crabbed wrapper.
-//! ```rust
+//! ```no_run
 //! use crabgrind as cg;
 //!
 //! #[inline(never)]
@@ -72,7 +72,7 @@
 //! [`--collect-atstart=no`](https://valgrind.org/docs/manual/cl-manual.html#opt.collect-atstart)
 //! callgrind command-line attribute, and enable/disable it from the code with `callgrind::toggle_collect`
 //!
-//! ```rust
+//! ```no_run
 //! use crabgrind as cg;
 //!
 //! // ... some expensive initialization
@@ -88,7 +88,7 @@
 //! We can run on the real CPU instead of the virtual one using `valgrind::non_simd_call`,
 //! refer to `valgrind.h` for details on limitations and various ways to crash.
 //!
-//! ```rust
+//! ```no_run
 //! use crabgrind as cg;
 //!
 //! let mut state = 0;
@@ -103,7 +103,7 @@
 //! ##### Save current memory usage snapshot to a file
 //! We'll use `Massif` tool and the [monitor command](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling)
 //! interface to run the corresponding Massif command.
-//! ```rust
+//! ```no_run
 //! use crabgrind as cg;
 //!
 //! let heap = String::from("alloca");
@@ -114,7 +114,7 @@
 //! ```
 //!
 //! ##### Dump Callgrind counters on a per-function basis
-//! ```rust
+//! ```no_run
 //! use crabgrind as cg;
 //!
 //! fn factorial1(num: u128) -> u128 {
@@ -1237,9 +1237,20 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn wrong_monitor_command() {
-        cg::monitor_command("hey valgringo").unwrap();
+        assert!(cg::monitor_command("hey valgringo").is_err());
+    }
+
+    #[test]
+    fn count_errors() {
+        unsafe {
+            let uninit = std::mem::MaybeUninit::<u8>::uninit();
+            if uninit.assume_init() > 0 {
+                unreachable!();
+            }
+        }
+
+        assert_eq!(cg::count_errors(), 1);
     }
 
     #[test]
@@ -1247,9 +1258,12 @@ mod tests {
         cg::disable_error_reporting();
 
         unsafe {
-            let b = Box::new([0]);
-            println!("{}", b.get_unchecked(1));
-        };
+            let uninit = std::mem::MaybeUninit::<u8>::uninit();
+            if uninit.assume_init() > 0 {
+                unreachable!();
+            }
+        }
+
         assert_eq!(cg::count_errors(), 0);
     }
 

@@ -88,6 +88,7 @@ extern "C" {
     pub fn mc_check_mem_is_defined(addr: *mut c_void, len: usize) -> usize;
 
     pub fn mc_do_leak_check();
+    pub fn mc_do_new_leak_check();
     pub fn mc_do_quick_leak_check();
     pub fn mc_do_added_leak_check();
     pub fn mc_do_changed_leak_check();

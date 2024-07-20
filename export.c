@@ -154,6 +154,7 @@ size_t mc_check_mem_is_defined(void *addr, size_t len) {
 /*	return VALGRIND_CHECK_VALUE_IS_DEFINED(addr);*/
 /*}*/
 void mc_do_leak_check() { VALGRIND_DO_LEAK_CHECK; }
+void mc_do_new_leak_check() { VALGRIND_DO_NEW_LEAK_CHECK; }
 void mc_do_quick_leak_check() { VALGRIND_DO_QUICK_LEAK_CHECK; }
 void mc_do_added_leak_check() { VALGRIND_DO_ADDED_LEAK_CHECK; }
 void mc_do_changed_leak_check() { VALGRIND_DO_CHANGED_LEAK_CHECK; }

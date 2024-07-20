@@ -722,6 +722,7 @@ pub mod memcheck {
     #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
     pub enum LeakCheck {
         Full,
+        New,
         Quick,
         Added,
         Changed,
@@ -843,6 +844,9 @@ pub mod memcheck {
     /// - Do a full memory leak check (like --leak-check=full) mid-execution. This is useful for
     /// incrementally checking for leaks between arbitrary places in the program's execution.
     ///
+    /// **LeakCheck::New**
+    /// - Same as `LeakCheck::Full` but only showing the entries since the previous leak search. It has no return value.
+    ///
     /// **LeakCheck::Quick**
     /// - Do a summary memory leak check (like --leak-check=summary) mid-execution.
     ///
@@ -856,6 +860,7 @@ pub mod memcheck {
     ///
     /// # Implementation
     /// - [LeakCheck::Full]  `VALGRIND_DO_LEAK_CHECK`
+    /// - [LeakCheck::New]  `VALGRIND_DO_NEW_LEAK_CHECK`
     /// - [LeakCheck::Quick]  `VALGRIND_DO_QUICK_LEAK_CHECK`
     /// - [LeakCheck::Added]  `VALGRIND_DO_ADDED_LEAK_CHECK`
     /// - [LeakCheck::Changed]  `VALGRIND_DO_CHANGED_LEAK_CHECK`
@@ -863,6 +868,7 @@ pub mod memcheck {
     pub fn leak_check(mode: LeakCheck) {
         match mode {
             LeakCheck::Full => raw_call!(mc_do_leak_check),
+            LeakCheck::New => raw_call!(mc_do_new_leak_check),
             LeakCheck::Quick => raw_call!(mc_do_quick_leak_check),
             LeakCheck::Added => raw_call!(mc_do_added_leak_check),
             LeakCheck::Changed => raw_call!(mc_do_changed_leak_check),

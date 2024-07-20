@@ -67,7 +67,7 @@ valgrind ./target/debug/appname
 ```
 
 and finally, for more details and code examples, be sure to check out the
-[documentation](https://img.shields.io/docsrs/crabgrind).
+[documentation](https://docs.rs/crabgrind/latest/crabgrind).
 
 ### License
 `crabgrind` is distributed under `MIT` license.

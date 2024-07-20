@@ -16,6 +16,15 @@
 //! [dhat](https://valgrind.org/docs/manual/dh-manual.html)
 //! - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 //!
+//! ### Compatibility
+//! `crabgrind` usually builds against the latest `Valgrind` releases, even if some new APIs aren't available—at least it compiles. However, some releases may introduce breaking changes. So, if you run into build errors or need a specific new feature, check out the compatibility table.
+//!
+//! | Valgrind | crabgrind |
+//! |----------|-----------|
+//! | 3.23     | 0.1.11    |
+//! | 3.22     | 0.1.10    |
+//! | 3.21     | 0.1.9     |
+//!
 //! ## Quickstart
 //! `crabgrind` does not link against `Valgrind` but instead reads its header files, which must be accessible during build.
 //! If you have installed `Valgrind` using OS-specific package manager, the paths to the headers are likely to be resolved automatically by [`cc`](https://docs.rs/cc/latest/cc/index.html).

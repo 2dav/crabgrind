@@ -1,14 +1,9 @@
-//! `crabgrind` allows Rust programs running under Valgrind to interact with the tools and virtualized
-//! environment.
+//! `crabgrind` is a small library that enables `Rust` programs to tap into `Valgrind`'s tools and virtualized environment.
 //!
-//! [Valgrind's "client request interface"](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
-//! is primarily accessible through a set of `C` macros in Valgrind's header files. However, these macros
-//! cannot be utilized in languages that lack support for C-preprocessor, such as Rust.
-//! To address this, `crabgrind` wraps "client request interface" macros with `C` functions and expose
-//! this API to Rust programs.
+//! `Valgrind` offers a ["client request interface"](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq) that is accessible through `C` macros in its header files.
+//! However, these macros can’t be used in languages fortunate enough to lack `C` preprocessor support, such as `Rust`. To address this,`crabgrind` wraps those macros in `C` functions and expose this API via FFI.
 //!
-//! This library is essentially a wrapper. It only adds type conversions and some structure, while all
-//! the real things happens inside Valgrind.
+//! Essentially, `crabgrind` acts as a thin wrapper. It adds some type conversions and structure, but all the real things are done by `Valgrind` itself.
 //!
 //! ### Valgrind 3 API coverage
 //! - Supported tool-specific client request interface:
@@ -17,26 +12,27 @@
 //! [memcheck](https://valgrind.org/docs/manual/mc-manual.html),
 //! [helgrind](https://valgrind.org/docs/manual/hg-manual.html),
 //! [massif](https://valgrind.org/docs/manual/ms-manual.html),
-//! [cachegrind](https://valgrind.org/docs/manual/cg-manual.html#cg-manual.clientrequests)
+//! [cachegrind](https://valgrind.org/docs/manual/cg-manual.html#cg-manual.clientrequests),
+//! [dhat](https://valgrind.org/docs/manual/dh-manual.html)
 //! - [Monitor commands](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling) interface
 //!
-//! ### Quickstart
-//! `crabgrind` does not link against Valgrind but instead reads its header files, which must be accessible during build.
+//! ## Quickstart
+//! `crabgrind` does not link against `Valgrind` but instead reads its header files, which must be accessible during build.
+//! If you have installed `Valgrind` using OS-specific package manager, the paths to the headers are likely to be resolved automatically by [`cc`](https://docs.rs/cc/latest/cc/index.html).
+//! In case of manual installation, you can set the path to the `Valgrind` headers location through the `DEP_VALGRIND` environment variable. For example:
 //!
-//! If you have installed Vallgrind using OS-specific package manager, the paths to the headers are likely
-//! to be resolved automatically by [`cc`](https://docs.rs/cc/latest/cc/index.html).
+//! ```bash
+//! DEP_VALGRIND=/usr/include cargo build
+//! ```
 //!
-//! In case of manual installation or any `missing file` error, you can set the path to the Valgrind headers location
-//! through the `DEP_VALGRIND` environment variable. For example:
-//!
-//! add dependency `Cargo.toml`
-//! ```ignore
+//! Next, add dependency to `Cargo.toml`
+//! ```toml
 //! [dependencies]
 //! crabgrind = "0.1"
 //! ```
 //!
-//! use some of the [Valgrind's API](https://docs.rs/crabgrind/latest/crabgrind/#modules)
-//! ```no_run
+//! Then, use some of [Valgrind's API](https://docs.rs/crabgrind/latest/crabgrind/#modules)
+//! ```rust
 //! use crabgrind as cg;
 //!
 //! fn main() {
@@ -47,15 +43,12 @@
 //!     }
 //! }
 //! ```
-//! and run under Valgrind,
+//! and run under `Valgrind`
 //!
-//! *using [cargo-valgrind](https://github.com/jfrimmel/cargo-valgrind):*
-//! > cargo valgrind run
-//!
-//! *manually:*
-//! > cargo build
-//!
-//! > valgrind ./target/debug/appname
+//! ``` bash
+//! cargo build
+//! valgrind ./target/debug/appname
+//! ```
 //!
 //! ### Examples
 //!
@@ -120,7 +113,7 @@
 //! }
 //! ```
 //!
-//! ##### Dump Callgrind counters on a function basis
+//! ##### Dump Callgrind counters on a per-function basis
 //! ```rust
 //! use crabgrind as cg;
 //!
@@ -159,6 +152,7 @@
 //! Although your loops should be very tight (like a well-executed dance move) to notice any impact,
 //! keep in mind that:
 //! - Wrapping each macros in a function implies function call overhead regardless of the run mode. This can potentially impact the performance of your Rust program.
+//! See [linker-plugin-lto](https://github.com/2dav/crabgrind/tree/linker-plugin-lto) branch for a possible workaround.
 //! - Functions that return `std::result::Result` involve branching, which can also have an impact on performance.
 //! - Functions that take strings as parameters internally convert them to `std::ffi::CString`, which can introduce additional overhead.
 use std::ffi::c_void;

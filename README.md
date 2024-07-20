@@ -21,6 +21,15 @@ However, these macros can’t be used in languages fortunate enough to lack `C` 
 
 Essentially, `crabgrind` acts as a thin wrapper. It adds some type conversions and structure, but all the real things are done by `Valgrind` itself.
 
+### Compatibility
+`crabgrind` usually builds against the latest `Valgrind` releases, even if some new APIs aren't available—at least it compiles. However, some releases may introduce breaking changes. So, if you run into build errors or need a specific new feature, check out the compatibility table.
+
+| Valgrind | crabgrind |
+|----------|-----------|
+| 3.23     | 0.1.11    |
+| 3.22     | 0.1.10    |
+| 3.21     | 0.1.9     |
+
 ## Quickstart
 `crabgrind` does not link against `Valgrind` but instead reads its header files, which must be accessible during build.
 

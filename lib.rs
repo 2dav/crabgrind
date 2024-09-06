@@ -760,7 +760,7 @@ pub mod memcheck {
                 raw_call!(mc_make_mem_defined_if_addressable, addr, len)
             }
         };
-        if ret == 0 {
+        if ret == -1 {
             Ok(())
         } else {
             Err(Error::NoValgrind)

@@ -162,9 +162,17 @@
 //! keep in mind that:
 //! - Wrapping each macros in a function implies function call overhead regardless of the run mode. This can potentially impact the performance of your Rust program.
 //! See [linker-plugin-lto](https://github.com/2dav/crabgrind/tree/linker-plugin-lto) branch for a possible workaround.
-//! - Functions that return `std::result::Result` involve branching, which can also have an impact on performance.
-//! - Functions that take strings as parameters internally convert them to `std::ffi::CString`, which can introduce additional overhead.
-use std::ffi::c_void;
+//! - Functions that return `core::result::Result` involve branching, which can also have an impact on performance.
+//! - Functions that take strings as parameters internally convert them to `CString`, which can introduce additional overhead.
+#![cfg_attr(not(feature = "std"), no_std)]
+extern crate alloc;
+#[cfg(feature = "std")]
+extern crate core;
+use alloc::boxed::Box;
+use alloc::ffi::CString;
+use alloc::string::String;
+
+use core::ffi::c_void;
 mod bindings;
 
 macro_rules! raw_call {
@@ -212,7 +220,7 @@ pub fn run_mode() -> RunMode {
 
 #[doc(hidden)]
 pub fn __print(msg: String) {
-    let cstr = std::ffi::CString::new(msg).unwrap();
+    let cstr = CString::new(msg).unwrap();
     raw_call!(vg_print, cstr.as_ptr());
 }
 
@@ -261,7 +269,7 @@ macro_rules! println{
 #[doc(hidden)]
 #[inline(always)]
 pub fn __print_stacktrace(msg: String) {
-    let cstr = std::ffi::CString::new(msg).unwrap();
+    let cstr = CString::new(msg).unwrap();
     raw_call!(vg_print_backtrace, cstr.as_ptr());
 }
 
@@ -292,6 +300,20 @@ macro_rules! print_stacktrace{
     ($($arg:tt)+) => { $crate::__print_stacktrace(format!("{}\n",format_args!($($arg)+)));}
 }
 
+#[derive(Clone, Debug)]
+pub enum MonitorErr {
+    NotFound,
+}
+
+#[cfg(feature = "std")]
+impl From<MonitorErr> for std::io::Error {
+    fn from(m: MonitorErr) -> std::io::Error {
+        match m {
+            MonitorErr::NotFound => std::io::ErrorKind::NotFound.into(),
+        }
+    }
+}
+
 /// Execute arbitrary Valgrind [Monitor command](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver-commandhandling)
 ///
 /// # Example
@@ -311,13 +333,9 @@ macro_rules! print_stacktrace{
 /// # Panics
 /// If command string contains null-byte in any position.
 #[inline]
-pub fn monitor_command(cmd: impl AsRef<str>) -> std::io::Result<()> {
-    let cmd = std::ffi::CString::new(cmd.as_ref()).unwrap();
-    if raw_call!(vg_monitor_command, cmd.as_ptr()) {
-        Err(std::io::ErrorKind::NotFound.into())
-    } else {
-        Ok(())
-    }
+pub fn monitor_command(cmd: impl AsRef<str>) -> Result<(), MonitorErr> {
+    let cmd = CString::new(cmd.as_ref()).unwrap();
+    if raw_call!(vg_monitor_command, cmd.as_ptr()) { Err(MonitorErr::NotFound) } else { Ok(()) }
 }
 
 /// Disable error reporting for this thread
@@ -393,7 +411,7 @@ pub fn count_errors() -> usize {
 /// use crabgrind as cg;
 ///
 /// cg::change_cli_option("--leak-check=no");
-/// std::mem::forget(String::from("see you in the void"));
+/// core::mem::forget(String::from("see you in the void"));
 /// ```
 ///
 /// # Implementation
@@ -403,16 +421,14 @@ pub fn count_errors() -> usize {
 /// If command string contains null-byte in any position.
 #[inline]
 pub fn change_cli_option(opt: impl AsRef<str>) {
-    let cstr = std::ffi::CString::new(opt.as_ref()).unwrap();
+    let cstr = CString::new(opt.as_ref()).unwrap();
     raw_call!(vg_clo_change, cstr.as_ptr());
 }
 
 pub mod valgrind {
     //! [`Valgrind requests`](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
-    use std::os::unix::prelude::RawFd;
-
     use super::*;
-
+    pub type RawFd = i32;
     pub type ThreadId = usize;
 
     /// Discards translations of code in the specified address range
@@ -449,6 +465,15 @@ pub mod valgrind {
         raw_call!(vg_map_ip_to_srcloc, addr, buf64)
     }
 
+    #[cfg(not(feature = "std"))]
+    extern "C" fn _closure_adapter<F>(tid: ThreadId, f: *mut c_void)
+    where
+        F: FnMut(ThreadId),
+    {
+        unsafe { (*f.cast::<F>())(tid) }
+    }
+
+    #[cfg(feature = "std")]
     extern "C" fn _closure_adapter<F>(tid: ThreadId, f: *mut c_void)
     where
         F: FnMut(ThreadId),
@@ -456,7 +481,7 @@ pub mod valgrind {
         if let Err(err) = std::panic::catch_unwind(|| unsafe {
             debug_assert!(!f.is_null(), "closure pointer is null");
             debug_assert_eq!(
-                f as usize & (std::mem::align_of::<F>() - 1),
+                f as usize & (core::mem::align_of::<F>() - 1),
                 0,
                 "unexpected closure pointer"
             );
@@ -478,7 +503,7 @@ pub mod valgrind {
     /// Runs a closure on the real CPU.
     ///
     /// Closure receives a [`ThreadId`] as the parameter, that is the Valgrind's notion of thread
-    /// identifier and there may not be relationship between [`ThreadId`] and rust's [`std::thread::ThreadId`].
+    /// identifier and there may not be relationship between [`ThreadId`] and rust's [`core::thread::ThreadId`].
     ///
     /// Refer to the `valgrind.h` for details and limitations.
     ///
@@ -556,7 +581,7 @@ pub mod callgrind {
         match reason.into() {
             None => raw_call!(cl_dump_stats),
             Some(reason) => {
-                let cstr = std::ffi::CString::new(reason).unwrap();
+                let cstr = CString::new(reason).unwrap();
                 raw_call!(cl_dump_stats_at, cstr.as_ptr())
             }
         };
@@ -701,12 +726,12 @@ pub mod memcheck {
         UnalignedArrays,
     }
 
-    impl std::error::Error for Error {}
+    impl core::error::Error for Error {}
     unsafe impl Send for Error {}
     unsafe impl Sync for Error {}
-    impl std::fmt::Display for Error {
+    impl core::fmt::Display for Error {
         #[inline]
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
             match self {
                 Error::InvalidHandle => f.write_str("Invalid memory block description handle"),
                 Error::NotAddressable(addr) => {
@@ -720,7 +745,7 @@ pub mod memcheck {
         }
     }
 
-    pub type Result<T = ()> = std::result::Result<T, Error>;
+    pub type Result<T = ()> = core::result::Result<T, Error>;
 
     #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
     pub enum LeakCheck {
@@ -769,11 +794,7 @@ pub mod memcheck {
                 raw_call!(mc_make_mem_defined_if_addressable, addr, len)
             }
         };
-        if ret == -1 {
-            Ok(())
-        } else {
-            Err(Error::NoValgrind)
-        }
+        if ret == -1 { Ok(()) } else { Err(Error::NoValgrind) }
     }
 
     /// Create a block-description handle
@@ -793,7 +814,7 @@ pub mod memcheck {
         len: usize,
         desc: impl AsRef<str>,
     ) -> BlockDescHandle {
-        let cstr = std::ffi::CString::new(desc.as_ref()).unwrap();
+        let cstr = CString::new(desc.as_ref()).unwrap();
         raw_call!(mc_create_block, addr, len, cstr.as_ptr())
     }
 
@@ -803,11 +824,7 @@ pub mod memcheck {
     /// `VALGRIND_DISCARD`
     #[inline]
     pub fn discard(handle: BlockDescHandle) -> Result {
-        if raw_call!(mc_discard, handle) == 0 {
-            Ok(())
-        } else {
-            Err(Error::InvalidHandle)
-        }
+        if raw_call!(mc_discard, handle) == 0 { Ok(()) } else { Err(Error::InvalidHandle) }
     }
 
     /// Check that memory range is addressable
@@ -1253,7 +1270,7 @@ mod tests {
     #[test]
     fn count_errors() {
         unsafe {
-            let uninit = std::mem::MaybeUninit::<u8>::uninit();
+            let uninit = core::mem::MaybeUninit::<u8>::uninit();
             if uninit.assume_init() > 0 {
                 unreachable!();
             }
@@ -1267,7 +1284,7 @@ mod tests {
         cg::disable_error_reporting();
 
         unsafe {
-            let uninit = std::mem::MaybeUninit::<u8>::uninit();
+            let uninit = core::mem::MaybeUninit::<u8>::uninit();
             if uninit.assume_init() > 0 {
                 unreachable!();
             }
@@ -1288,6 +1305,6 @@ mod tests {
     #[test]
     fn change_cli_option() {
         cg::change_cli_option("--leak-check=no");
-        std::mem::forget(String::from("leaked"));
+        core::mem::forget(String::from("leaked"));
     }
 }

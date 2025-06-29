@@ -18,3 +18,7 @@ cc = { version = "1.0", features = ['parallel'] }
 
 [lib]
 path = "lib.rs"
+
+[features]
+default = ["std"]
+std = []

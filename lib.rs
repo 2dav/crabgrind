@@ -769,11 +769,7 @@ pub mod memcheck {
                 raw_call!(mc_make_mem_defined_if_addressable, addr, len)
             }
         };
-        if ret == -1 {
-            Ok(())
-        } else {
-            Err(Error::NoValgrind)
-        }
+        if ret == -1 { Ok(()) } else { Err(Error::NoValgrind) }
     }
 
     /// Create a block-description handle
@@ -803,11 +799,7 @@ pub mod memcheck {
     /// `VALGRIND_DISCARD`
     #[inline]
     pub fn discard(handle: BlockDescHandle) -> Result {
-        if raw_call!(mc_discard, handle) == 0 {
-            Ok(())
-        } else {
-            Err(Error::InvalidHandle)
-        }
+        if raw_call!(mc_discard, handle) == 0 { Ok(()) } else { Err(Error::InvalidHandle) }
     }
 
     /// Check that memory range is addressable
@@ -1251,29 +1243,31 @@ mod tests {
     }
 
     #[test]
-    fn count_errors() {
-        unsafe {
-            let uninit = std::mem::MaybeUninit::<u8>::uninit();
-            if uninit.assume_init() > 0 {
-                unreachable!();
-            }
-        }
-
-        assert_eq!(cg::count_errors(), 1);
-    }
-
-    #[test]
     fn disable_error_reporting() {
         cg::disable_error_reporting();
 
+        let before = cg::count_errors();
+
         unsafe {
             let uninit = std::mem::MaybeUninit::<u8>::uninit();
-            if uninit.assume_init() > 0 {
-                unreachable!();
-            }
+            println!("{}", unsafe { uninit.assume_init() });
         }
 
-        assert_eq!(cg::count_errors(), 0);
+        assert_eq!(cg::count_errors(), before);
+    }
+
+    #[test]
+    fn count_errors() {
+        cg::enable_error_reporting();
+
+        let before = cg::count_errors();
+
+        unsafe {
+            let uninit = std::mem::MaybeUninit::<u8>::uninit();
+            println!("{}", unsafe { uninit.assume_init() });
+        }
+
+        assert!(cg::count_errors() > before);
     }
 
     #[test]

@@ -1,4 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
 pkgs.mkShell {
-  buildInputs = [ pkgs.valgrind.dev ];
+  buildInputs = [ 
+	pkgs.valgrind.dev
+	pkgs.python3
+  ];
 }

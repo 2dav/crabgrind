@@ -3,8 +3,79 @@ use crate::bindings::CG_DRDClientRequest as CR;
 
 use core::{
     ffi::{CStr, c_char, c_void},
+    marker::PhantomData,
     mem::size_of,
 };
+
+/// Defines the behavior for a DRD scope operation.
+///
+/// See [`ignore_var`] and [`trace_var`]
+pub trait DRDRegionMode: sealed::Sealed {
+    #[doc(hidden)]
+    fn enter(addr: usize, size: usize);
+    #[doc(hidden)]
+    fn exit(addr: usize, size: usize);
+}
+
+#[doc = include_str!("../../doc/drd/DRDRegionGuard.md")]
+#[clippy::has_significant_drop]
+#[must_use = "The guard activates immediately upon creation. Dropping it instantly reverts the operation."]
+pub struct DRDRegionGuard<'a, M: DRDRegionMode> {
+    addr: usize,
+    size: usize,
+    _marker: PhantomData<&'a ()>,
+    _flavor: PhantomData<M>,
+}
+
+// Marker type for the "Ignoring" mode (`DRD_IGNORE_VAR`).
+#[doc(hidden)]
+pub struct Ignoring;
+// Marker type for the "Tracing" mode (`DRD_TRACE_VAR`).
+#[doc(hidden)]
+pub struct Tracing;
+
+impl DRDRegionMode for Ignoring {
+    #[inline(always)]
+    fn enter(addr: usize, size: usize) {
+        client_request!(CR::CG_ANNOTATE_BENIGN_RACE_SIZED, addr, size);
+    }
+
+    #[inline(always)]
+    fn exit(addr: usize, size: usize) {
+        client_request!(CR::CG_DRD_STOP_IGNORING_VAR, addr, size);
+    }
+}
+
+impl DRDRegionMode for Tracing {
+    #[inline(always)]
+    fn enter(addr: usize, size: usize) {
+        client_request!(CR::CG_DRD_TRACE_VAR, addr, size);
+    }
+
+    #[inline(always)]
+    fn exit(addr: usize, size: usize) {
+        client_request!(CR::CG_DRD_STOP_TRACING_VAR, addr, size);
+    }
+}
+
+impl<M: DRDRegionMode> DRDRegionGuard<'_, M> {
+    #[inline(always)]
+    fn new<T: Sized>(var: &T) -> Self {
+        let addr = var as *const _ as usize;
+        let size = size_of::<T>();
+
+        M::enter(addr, size);
+
+        Self { addr, size, _marker: PhantomData, _flavor: PhantomData }
+    }
+}
+
+impl<M: DRDRegionMode> Drop for DRDRegionGuard<'_, M> {
+    #[inline]
+    fn drop(&mut self) {
+        M::exit(self.addr, self.size);
+    }
+}
 
 #[doc = include_str!("../../doc/drd/valgrind_thread_id.md")]
 #[inline(always)]
@@ -12,27 +83,22 @@ pub fn valgrind_threadid() -> ThreadId {
     client_request!(CR::CG_DRD_GET_VALGRIND_THREADID)
 }
 
+#[doc = include_str!("../../doc/drd/drd_thread_id.md")]
 #[inline(always)]
 pub fn drd_threadid() -> ThreadId {
     client_request!(CR::CG_DRD_GET_DRD_THREADID)
 }
 
+#[doc = include_str!("../../doc/drd/ignore_var.md")]
 #[inline(always)]
-pub fn ignore_var<T: Sized>(var: &T, ignore: bool) {
-    if ignore {
-        client_request!(CR::CG_ANNOTATE_BENIGN_RACE_SIZED, var as *const _, size_of::<T>());
-    } else {
-        client_request!(CR::CG_DRD_STOP_IGNORING_VAR, var as *const _, size_of::<T>());
-    }
+pub fn ignore_var<T: Sized>(var: &T) -> DRDRegionGuard<'_, Ignoring> {
+    DRDRegionGuard::new(var)
 }
 
+#[doc = include_str!("../../doc/drd/trace_var.md")]
 #[inline(always)]
-pub fn trace_var<T: Sized>(var: &T, trace: bool) {
-    if trace {
-        client_request!(CR::CG_DRD_TRACE_VAR, var as *const _, size_of::<T>());
-    } else {
-        client_request!(CR::CG_DRD_STOP_TRACING_VAR, var as *const _, size_of::<T>());
-    }
+pub fn trace_var<T: Sized>(var: &T) -> DRDRegionGuard<'_, Tracing> {
+    DRDRegionGuard::new(var)
 }
 
 #[inline(always)]
@@ -133,3 +199,9 @@ pub fn annotate_barrier_wait_before(barrier_t: *const c_void) {
 pub fn annotate_barrier_wait_after(barrier_t: *const c_void) {
     client_request!(CR::CG_ANNOTATE_BARRIER_INIT, barrier_t);
 }
+
+mod sealed {
+    pub trait Sealed {}
+}
+impl sealed::Sealed for Ignoring {}
+impl sealed::Sealed for Tracing {}

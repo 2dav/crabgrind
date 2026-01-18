@@ -128,7 +128,7 @@ pub fn mmap<const N: usize>() -> *mut std::ffi::c_void {
 }
 
 #[inline(never)]
-pub fn contention(pre: fn(*const u16)) -> *const u16 {
+pub fn contention<T>(pre: fn(*const u16) -> T) -> *const u16 {
     use std::{
         sync::{Arc, Barrier, Mutex},
         thread,
@@ -142,7 +142,7 @@ pub fn contention(pre: fn(*const u16)) -> *const u16 {
     let addr = (&*guard) as *const u16;
     drop(guard);
 
-    pre(addr);
+    let _some = pre(addr);
 
     let h1 = thread::spawn(move || {
         b1.wait();

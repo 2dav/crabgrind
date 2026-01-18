@@ -16,7 +16,7 @@ fn thread_id() {
 #[test]
 fn ignore_var() {
     valgrind!(drd --read-var-info=yes --first-race-only=yes => {
-        let var = contention(|addr| dd::ignore_var(unsafe{ &*addr }, true));
+        let var = contention(|addr| dd::ignore_var(unsafe{ &*addr }));
         print_addr(var);
     }, |output: Output|{
         let stderr = as_str!(&output.stderr);
@@ -28,34 +28,11 @@ fn ignore_var() {
     });
 }
 
-/*
-// TODO: figure out why this test messes up with 'ignore_var' from time to time
-#[test]
-fn ignore_var_toggle() {
-    valgrind!(drd --read-var-info=yes --first-race-only=yes => {
-        let var = contention(|addr| {
-            let var = unsafe { &*addr };
-            dd::ignore_var(var, true);
-            dd::ignore_var(var, false);
-        });
-        print_addr(var);
-    }, |output: Output| {
-        let stderr = as_str!(&output.stderr);
-        let stdout = as_str!(&output.stdout);
-
-        let var_addr = parse_addr(stdout);
-        let var_addr = stdout.split_once("||>").unwrap().1.split_once("||").unwrap().0;
-        let conflict_load = format!("{} size 2", &var_addr[2..]);
-
-        assert!(stderr.contains(conflict_load.as_str()));
-    });
-}*/
-
 #[test]
 fn trace_var() {
     valgrind!(drd => {
         let i:i32 = 0;
-        dd::trace_var(&i, true);
+        let _guard = dd::trace_var(&i);
         unsafe { std::ptr::read_volatile(&i as *const _) };
     }, |output: Output| {
         let stderr = as_str!(&output.stderr);
@@ -67,8 +44,8 @@ fn trace_var() {
 fn trace_var_toggle() {
     valgrind!(drd => {
         let i:i32 = 0;
-        dd::trace_var(&i, true);
-        dd::trace_var(&i, false);
+        let guard = dd::trace_var(&i);
+        drop(guard);
         unsafe { std::ptr::read_volatile(&i as *const _) };
     }, |output: Output| {
         let stderr = as_str!(&output.stderr);

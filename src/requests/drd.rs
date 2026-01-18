@@ -9,7 +9,7 @@ use core::{
 
 /// Defines the behavior for a DRD scope operation.
 ///
-/// See [`ignore_var`] and [`trace_var`]
+/// See [`ignore_var`], [`trace_var`], [`annotate_trace_memory`]
 pub trait DRDRegionMode: sealed::Sealed {
     #[doc(hidden)]
     fn enter(addr: usize, size: usize);
@@ -20,11 +20,10 @@ pub trait DRDRegionMode: sealed::Sealed {
 #[doc = include_str!("../../doc/drd/DRDRegionGuard.md")]
 #[clippy::has_significant_drop]
 #[must_use = "The guard activates immediately upon creation. Dropping it instantly reverts the operation."]
-pub struct DRDRegionGuard<'a, M: DRDRegionMode> {
+pub struct DRDRegionGuard<'a, T: Sized, M: DRDRegionMode> {
     addr: usize,
-    size: usize,
-    _marker: PhantomData<&'a ()>,
-    _flavor: PhantomData<M>,
+    _scope: PhantomData<&'a ()>,
+    _marker: PhantomData<(T, M)>,
 }
 
 // Marker type for the "Ignoring" mode (`DRD_IGNORE_VAR`).
@@ -58,22 +57,21 @@ impl DRDRegionMode for Tracing {
     }
 }
 
-impl<M: DRDRegionMode> DRDRegionGuard<'_, M> {
+impl<T: Sized, M: DRDRegionMode> DRDRegionGuard<'_, T, M> {
     #[inline(always)]
-    fn new<T: Sized>(var: &T) -> Self {
-        let addr = var as *const _ as usize;
-        let size = size_of::<T>();
+    fn new(addr: *const T) -> Self {
+        let addr = addr as usize;
 
-        M::enter(addr, size);
+        M::enter(addr, size_of::<T>());
 
-        Self { addr, size, _marker: PhantomData, _flavor: PhantomData }
+        Self { addr, _marker: PhantomData, _scope: PhantomData }
     }
 }
 
-impl<M: DRDRegionMode> Drop for DRDRegionGuard<'_, M> {
+impl<T: Sized, M: DRDRegionMode> Drop for DRDRegionGuard<'_, T, M> {
     #[inline]
     fn drop(&mut self) {
-        M::exit(self.addr, self.size);
+        M::exit(self.addr, size_of::<T>());
     }
 }
 
@@ -91,19 +89,20 @@ pub fn drd_threadid() -> ThreadId {
 
 #[doc = include_str!("../../doc/drd/ignore_var.md")]
 #[inline(always)]
-pub fn ignore_var<T: Sized>(var: &T) -> DRDRegionGuard<'_, Ignoring> {
-    DRDRegionGuard::new(var)
+pub fn ignore_var<T: Sized>(var: &T) -> DRDRegionGuard<'_, T, Ignoring> {
+    DRDRegionGuard::new(var as *const _)
 }
 
 #[doc = include_str!("../../doc/drd/trace_var.md")]
 #[inline(always)]
-pub fn trace_var<T: Sized>(var: &T) -> DRDRegionGuard<'_, Tracing> {
-    DRDRegionGuard::new(var)
+pub fn trace_var<T: Sized>(var: &T) -> DRDRegionGuard<'_, T, Tracing> {
+    DRDRegionGuard::new(var as *const _)
 }
 
+#[doc = include_str!("../../doc/drd/annotate_trace_memory.md")]
 #[inline(always)]
-pub fn annotate_trace_memory(addr: *const c_void) {
-    client_request!(CR::CG_DRD_TRACE_VAR, addr, size_of::<c_char>());
+pub fn annotate_trace_memory<'a>(addr: *const c_void) -> DRDRegionGuard<'a, c_char, Tracing> {
+    DRDRegionGuard::new(addr.cast())
 }
 
 #[inline(always)]

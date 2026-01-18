@@ -19,8 +19,9 @@ pub trait DRDRegionMode: sealed::Sealed {
 
 #[doc = include_str!("../../doc/drd/DRDRegionGuard.md")]
 #[clippy::has_significant_drop]
+#[derive(Debug)]
 #[must_use = "The guard activates immediately upon creation. Dropping it instantly reverts the operation."]
-pub struct DRDRegionGuard<'a, T: Sized, M: DRDRegionMode> {
+pub struct DRDRegionGuard<'a, T, M: DRDRegionMode> {
     addr: usize,
     _scope: PhantomData<&'a ()>,
     _marker: PhantomData<(T, M)>,
@@ -28,9 +29,11 @@ pub struct DRDRegionGuard<'a, T: Sized, M: DRDRegionMode> {
 
 // Marker type for the "Ignoring" mode (`DRD_IGNORE_VAR`).
 #[doc(hidden)]
+#[derive(Debug)]
 pub struct Ignoring;
 // Marker type for the "Tracing" mode (`DRD_TRACE_VAR`).
 #[doc(hidden)]
+#[derive(Debug)]
 pub struct Tracing;
 
 impl DRDRegionMode for Ignoring {
@@ -57,7 +60,7 @@ impl DRDRegionMode for Tracing {
     }
 }
 
-impl<T: Sized, M: DRDRegionMode> DRDRegionGuard<'_, T, M> {
+impl<T, M: DRDRegionMode> DRDRegionGuard<'_, T, M> {
     #[inline(always)]
     fn new(addr: *const T) -> Self {
         let addr = addr as usize;
@@ -68,7 +71,7 @@ impl<T: Sized, M: DRDRegionMode> DRDRegionGuard<'_, T, M> {
     }
 }
 
-impl<T: Sized, M: DRDRegionMode> Drop for DRDRegionGuard<'_, T, M> {
+impl<T, M: DRDRegionMode> Drop for DRDRegionGuard<'_, T, M> {
     #[inline]
     fn drop(&mut self) {
         M::exit(self.addr, size_of::<T>());
@@ -89,13 +92,13 @@ pub fn drd_threadid() -> ThreadId {
 
 #[doc = include_str!("../../doc/drd/ignore_var.md")]
 #[inline(always)]
-pub fn ignore_var<T: Sized>(var: &T) -> DRDRegionGuard<'_, T, Ignoring> {
+pub fn ignore_var<T>(var: &T) -> DRDRegionGuard<'_, T, Ignoring> {
     DRDRegionGuard::new(var as *const _)
 }
 
 #[doc = include_str!("../../doc/drd/trace_var.md")]
 #[inline(always)]
-pub fn trace_var<T: Sized>(var: &T) -> DRDRegionGuard<'_, T, Tracing> {
+pub fn trace_var<T>(var: &T) -> DRDRegionGuard<'_, T, Tracing> {
     DRDRegionGuard::new(var as *const _)
 }
 

@@ -67,10 +67,8 @@ macro_rules! println{
     ($($arg:tt)+) => {{
         let msg = format!("{}\n\0", format_args!($($arg)+));
 
-        unsafe {
-            let msg = core::ffi::CStr::from_bytes_with_nul_unchecked(msg.as_bytes());
-            $crate::__print(msg);
-        }
+        let msg = unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(msg.as_bytes()) };
+        $crate::__print(msg);
     }}
 }
 
@@ -79,9 +77,7 @@ macro_rules! print_stacktrace{
     ($($arg:tt)+) => {{
         let msg = format!("{}\0", format_args!($($arg)+));
 
-        unsafe {
-            let msg = core::ffi::CStr::from_bytes_with_nul_unchecked(msg.as_bytes());
-            $crate::__print_stacktrace(msg);
-        }
+        let msg = unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(msg.as_bytes()) };
+        $crate::__print_stacktrace(msg);
     }}
 }

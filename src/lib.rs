@@ -13,12 +13,12 @@ pub const VALGRIND_VERSION: (u32, u32) =
 
 #[doc(hidden)]
 #[inline(always)]
-pub unsafe fn __print(t: impl AsRef<core::ffi::CStr>) {
-    bindings::vg_print(t.as_ref().as_ptr());
+pub fn __print(t: impl AsRef<core::ffi::CStr>) {
+    unsafe { bindings::vg_print(t.as_ref().as_ptr()) };
 }
 
 #[doc(hidden)]
 #[inline(always)]
-pub unsafe fn __print_stacktrace(t: impl AsRef<core::ffi::CStr>) {
-    bindings::vg_print_backtrace(t.as_ref().as_ptr());
+pub fn __print_stacktrace(t: impl AsRef<core::ffi::CStr>) {
+    unsafe { bindings::vg_print_backtrace(t.as_ref().as_ptr()) };
 }

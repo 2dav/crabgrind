@@ -49,6 +49,7 @@ def variant(definition, cache):
 
     assert api not in cache, f"duplicate API {api}"
     assert vvar not in cache, f"duplicate const {vvar}"
+    assert int(vver) > 0, f"{vver} missing minimum required valgrind version for {api}"
     cache.update([api, vvar])
 
     return api, vname, vvar, vver

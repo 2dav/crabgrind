@@ -35,10 +35,10 @@ Essentially, `crabgrind` acts as a thin wrapper. It adds some type conversions a
 
 If you have installed `Valgrind` using OS-specific package manager, the paths to the headers are likely to be resolved automatically by [`cc`](https://docs.rs/cc/latest/cc/index.html). 
 
-In case of manual installation, you can set the path to the `Valgrind` headers location through the `DEP_VALGRIND` environment variable. For example:
+In case of manual installation, you can set the path to the `Valgrind` headers location through the `VALGRIND_INCLUDE` environment variable. For example:
 
 ```bash
-DEP_VALGRIND=/usr/include cargo build
+VALGRIND_INCLUDE=/usr/include cargo build
 ```
 
 Next, add dependency to `Cargo.toml`

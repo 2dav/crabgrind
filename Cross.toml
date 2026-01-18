@@ -1,0 +1,41 @@
+[build]
+pre-build = [
+ "dpkg --add-architecture $CROSS_DEB_ARCH",
+ "apt-get update",
+ "apt-get install --assume-yes pkg-config valgrind:$CROSS_DEB_ARCH valgrind.dbg:$CROSS_DEB_ARCH"]
+
+[target.x86_64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/x86_64-unknown-linux-gnu:main"
+runner = "qemu-system"
+
+[target.i686-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/i686-unknown-linux-gnu:main"
+runner = "qemu-system"
+
+[target.s390x-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/s390x-unknown-linux-gnu:main"
+runner = "qemu-system"
+
+[target.aarch64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
+runner = "qemu-system"
+
+[target.armv7-unknown-linux-gnueabihf]
+image = "ghcr.io/cross-rs/armv7-unknown-linux-gnueabihf:main"
+runner = "qemu-system"
+
+[target.riscv64gc-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/riscv64gc-unknown-linux-gnu:main"
+runner = "qemu-system"
+
+[target.powerpc64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/powerpc64-unknown-linux-gnu:main"
+runner = "qemu-system"
+
+[target.powerpc64le-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/powerpc64le-unknown-linux-gnu:main"
+runner = "qemu-system"
+
+[target.powerpc-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/powerpc-unknown-linux-gnu:main"
+runner = "qemu-system"

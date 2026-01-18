@@ -1,0 +1,209 @@
+use super::client_request;
+use crate::bindings::CG_MemcheckClientRequest as CR;
+
+use core::ffi::{CStr, c_void};
+
+// TODO: describe these constants: <header.h>: "... comment"
+// non-configurable named constants
+const MAKE_MEM_OK: usize = usize::MAX;
+const CHECK_MEM_OK: usize = 0;
+const DISCARD_MEM_OK: usize = 0;
+const VBITS_OK: usize = 1;
+
+pub type BlockHandle = usize;
+pub type UnaddressableBytes = usize;
+pub type OffendingOffset = usize;
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
+pub enum MemState {
+    NoAccess,
+    Undefined,
+    Defined,
+    DefinedIfAddressable,
+}
+
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
+pub enum LeakCheck {
+    #[default]
+    Full,
+    Added,
+    Quick,
+    Changed,
+    New,
+}
+
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
+pub struct LeaksCount {
+    pub dubious: usize,
+    pub leaked: usize,
+    pub reachable: usize,
+    pub suppressed: usize,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
+pub enum VBitsError {
+    /// Not running under Valgrind
+    NoValgrind,
+    /// (Legacy) arrays not 4‑byte aligned or length not multiple of 4
+    LegacyAlignment,
+    /// Some of the memory is not addressable
+    Unaddressable,
+    /// Unknown VALGRIND_*_VBITS error code
+    Unknown(u8),
+}
+
+/// # Errors
+#[inline(always)]
+pub fn mark_memory(
+    addr: *const c_void,
+    len: usize,
+    mark: MemState,
+) -> Result<(), UnaddressableBytes> {
+    macro_rules! r {
+        ($req:path) => {
+            client_request!($req, addr, len)
+        };
+    }
+
+    let result = match mark {
+        MemState::NoAccess => r!(CR::CG_VALGRIND_MAKE_MEM_NOACCESS),
+        MemState::Undefined => r!(CR::CG_VALGRIND_MAKE_MEM_UNDEFINED),
+        MemState::Defined => r!(CR::CG_VALGRIND_MAKE_MEM_DEFINED),
+        MemState::DefinedIfAddressable => r!(CR::CG_VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE),
+    };
+
+    (result == MAKE_MEM_OK).then_some(()).ok_or(result)
+}
+
+macro_rules! check_mem {
+    ($req:path, $addr:expr, $len:expr) => {
+        match client_request!($req, $addr, $len) {
+            CHECK_MEM_OK => Ok(()),
+            x => Err(x - $addr as usize),
+        }
+    };
+}
+
+/// # Errors
+#[inline(always)]
+pub fn check_mem_addressable(addr: *const c_void, len: usize) -> Result<(), OffendingOffset> {
+    check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_ADDRESSABLE, addr, len)
+}
+
+/// # Errors
+#[inline(always)]
+pub fn check_mem_defined(addr: *const c_void, len: usize) -> Result<(), OffendingOffset> {
+    check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_DEFINED, addr, len)
+}
+
+#[inline(always)]
+pub fn leak_check(check: LeakCheck) {
+    let (a1, a2): (u8, u8) = match check {
+        LeakCheck::Full => (0, 0),
+        LeakCheck::Added => (0, 1),
+        LeakCheck::Quick => (1, 0),
+        LeakCheck::Changed => (0, 2),
+        LeakCheck::New => (0, 3),
+    };
+
+    client_request!(CR::CG_VALGRIND_DO_LEAK_CHECK, a1, a2);
+}
+
+#[inline(always)]
+pub fn count_leaks() -> LeaksCount {
+    let mut leaks = LeaksCount::default();
+
+    client_request!(
+        CR::CG_VALGRIND_COUNT_LEAKS,
+        core::ptr::addr_of_mut!(leaks.leaked),
+        core::ptr::addr_of_mut!(leaks.dubious),
+        core::ptr::addr_of_mut!(leaks.reachable),
+        core::ptr::addr_of_mut!(leaks.suppressed)
+    );
+
+    leaks
+}
+
+#[inline(always)]
+pub fn count_leak_blocks() -> LeaksCount {
+    let mut leaks = LeaksCount::default();
+
+    client_request!(
+        CR::CG_VALGRIND_COUNT_LEAK_BLOCKS,
+        core::ptr::addr_of_mut!(leaks.leaked),
+        core::ptr::addr_of_mut!(leaks.dubious),
+        core::ptr::addr_of_mut!(leaks.reachable),
+        core::ptr::addr_of_mut!(leaks.suppressed)
+    );
+
+    leaks
+}
+
+macro_rules! vbits {
+    ($req:path, $addr:expr, $slice:expr) => {
+        match client_request!($req, $addr, $slice.as_ptr(), $slice.len()) {
+            VBITS_OK => Ok(()),
+            0 => Err(VBitsError::NoValgrind),
+            2 => Err(VBitsError::LegacyAlignment),
+            3 => Err(VBitsError::Unaddressable),
+            x => Err(VBitsError::Unknown(u8::try_from(x).expect("Return code should fit `u8`"))),
+        }
+    };
+}
+
+/// # Errors
+#[inline(always)]
+pub fn vbits(addr: *const c_void, dest: &mut [u8]) -> Result<(), VBitsError> {
+    vbits!(CR::CG_VALGRIND_GET_VBITS, addr, dest)
+}
+
+/// # Errors
+#[inline(always)]
+pub fn set_vbits(addr: *const c_void, vbits: &[u8]) -> Result<(), VBitsError> {
+    vbits!(CR::CG_VALGRIND_SET_VBITS, addr, vbits)
+}
+
+#[inline(always)]
+pub fn create_block(addr: *const c_void, len: usize, desc: impl AsRef<CStr>) -> BlockHandle {
+    client_request!(CR::CG_VALGRIND_CREATE_BLOCK, addr, len, desc.as_ref().as_ptr())
+}
+
+/// # Errors
+/// use type here to describe error, if only single error
+#[inline(always)]
+pub fn discard_block(handle: BlockHandle) -> Result<(), ()> {
+    (client_request!(CR::CG_VALGRIND_DISCARD, handle) == DISCARD_MEM_OK).then_some(()).ok_or(())
+}
+
+#[inline(always)]
+pub fn addr_error_reporting(addr: *const c_void, len: usize, enable: bool) {
+    if enable {
+        enable_error_reporting(addr, len);
+    } else {
+        disable_error_reporting(addr, len);
+    }
+}
+
+#[inline(always)]
+pub fn enable_error_reporting(addr: *const c_void, len: usize) {
+    client_request!(CR::CG_VALGRIND_ENABLE_ADDR_ERROR_REPORTING_IN_RANGE, addr, len);
+}
+
+#[inline(always)]
+pub fn disable_error_reporting(addr: *const c_void, len: usize) {
+    client_request!(CR::CG_VALGRIND_DISABLE_ADDR_ERROR_REPORTING_IN_RANGE, addr, len);
+}
+
+impl core::fmt::Display for VBitsError {
+    #[inline(always)]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            Self::NoValgrind => write!(f, "not running under Valgrind"),
+            Self::LegacyAlignment => write!(f, "legacy alignment issue"),
+            Self::Unaddressable => write!(f, "memory not addressable"),
+            Self::Unknown(x) => write!(f, "unknown VALGRIND_*_VBITS error code: {x}"),
+        }
+    }
+}
+
+impl core::error::Error for VBitsError {}

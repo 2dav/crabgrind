@@ -3,7 +3,7 @@
 mod bindings;
 mod requests;
 
-pub use requests::{cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind};
+pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind};
 
 // TODO: Describe this unsafe contract.
 pub use bindings::valgrind_client_request_expr;

@@ -1,21 +1,15 @@
-Records a DHAT ad-hoc event.
+Retrieves the Valgrind-assigned thread ID for the current thread context.
 
-Wraps `DHAT_AD_HOC_EVENT` to tell Valgrind something happened at this instruction pointer.
+This corresponds to the `DRD_GET_VALGRIND_THREADID` client request. 
+It queries the unique identifier assigned by the Valgrind core to the thread
+executing this request.
 
-The `weight` argument is an arbitrary unit of measurement that you define:
-* [`None`] (which defaults to a weight of `1`) treats all calls as equal occurrences.
-* [`usize`] applies a specific weight, to mark certain events as 'more significant' than others.
+# Mechanics
+Valgrind internally manages thread IDs distinct from OS thread IDs.
+These IDs are **1-based** (the first thread is 1).
 
-DHAT aggregates these weights in the profile, showing them as the total "units" attributed 
-to specific call stacks.
+**Warning:** IDs are recycled. When a thread terminates, its ID may be
+reused for a new thread. 
 
 ## Note
-Requires Valgrind **3.15** (2019) or higher.
-
-This function produces output only when running under Valgrind with DHAT
- configured for [ad-hoc profiling][ad-hoc-profiling]:
-> ```text
-> :~$ valgrind --tool=dhat --mode=ad-hoc ...
-> ```
-
-[ad-hoc-profiling]: https://valgrind.org/docs/manual/dh-manual.html#dh-manual.ad-hoc-profiling
+Requires Valgrind **3.3** (2007) or higher.

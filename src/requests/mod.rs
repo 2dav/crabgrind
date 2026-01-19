@@ -81,3 +81,40 @@ macro_rules! print_stacktrace{
         $crate::__print_stacktrace(msg);
     }}
 }
+
+/// Behavior for a scoped requests.
+pub trait Scope: sealed::Sealed {
+    type Inner: Copy;
+
+    fn enter(arg: Self::Inner);
+    fn exit(arg: Self::Inner);
+}
+
+#[doc = include_str!("../../doc/ScopeGuard.md")]
+#[clippy::has_significant_drop]
+#[derive(Debug)]
+#[must_use = "The guard activates immediately upon creation. Dropping it instantly reverts the operation."]
+pub struct ScopeGuard<S: Scope> {
+    inner: S::Inner,
+    _marker: core::marker::PhantomData<S>,
+}
+
+impl<S: Scope> ScopeGuard<S> {
+    #[inline(always)]
+    fn new(inner: S::Inner) -> Self {
+        S::enter(inner);
+
+        Self { inner, _marker: core::marker::PhantomData }
+    }
+}
+
+impl<S: Scope> Drop for ScopeGuard<S> {
+    #[inline(always)]
+    fn drop(&mut self) {
+        S::exit(self.inner);
+    }
+}
+
+mod sealed {
+    pub trait Sealed {}
+}

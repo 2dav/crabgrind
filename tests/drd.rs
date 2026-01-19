@@ -16,8 +16,9 @@ fn thread_id() {
 #[test]
 fn ignore_var() {
     valgrind!(drd --read-var-info=yes --first-race-only=yes => {
-        let var = contention(|addr| dd::ignore_var(unsafe{ &*addr }));
+        let (var, guard) = contention(|addr| dd::ignore_var(unsafe{ &*addr }));
         print_addr(var);
+        drop(guard);
     }, |output: Output|{
         let stderr = as_str!(&output.stderr);
         let stdout = as_str!(&output.stdout);
@@ -57,13 +58,15 @@ fn trace_var_toggle() {
 fn annotate_reads_and_writes() {
     valgrind!(drd => {
         let mut i:i32 = 0;
-        dd::annotate_ignore_read_and_writes(true);
+        let rg = dd::annotate_ignore_reads();
+        let wg = dd::annotate_ignore_writes();
         unsafe { std::ptr::read_volatile(&i as *const _) };
         unsafe { std::ptr::write_volatile(&mut i as *mut _, 2) };
+        std::mem::forget((rg, wg));
     }, |output: Output| {
         let stderr = as_str!(&output.stderr);
         let num_errors = &ERROR_SUMMARY_RE.captures(stderr).unwrap()[1];
         let num_errors = num_errors.parse::<u16>().unwrap();
-        assert!(num_errors < 2);
+        assert!(num_errors < 2, "{num_errors}");
     });
 }

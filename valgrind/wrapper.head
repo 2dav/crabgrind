@@ -2,8 +2,8 @@
 
 #include "valgrind/valgrind.h"
 #include "valgrind/callgrind.h"
-#include "valgrind/drd.h"
 #include "valgrind/helgrind.h"
+#include "valgrind/drd.h"
 #include "valgrind/memcheck.h"
 #include "valgrind/dhat.h"
 #include "valgrind/cachegrind.h"

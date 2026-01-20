@@ -8,7 +8,6 @@ use crate::{
 use core::{
     ffi::{CStr, c_char, c_void},
     marker::PhantomData,
-    mem::size_of,
 };
 
 // Marker type for the "Suppressing" mode (`DRD_IGNORE_VAR`, `DRD_STOP_IGNORING_VAR`).
@@ -40,7 +39,7 @@ pub struct DRDIgnoringLoads;
 pub struct DRDIgnoringStores;
 
 impl<T> Scope for DRDTracing<'_, T> {
-    type Inner = usize;
+    type Inner = *const T;
 
     #[inline(always)]
     fn enter(addr: Self::Inner) {
@@ -54,7 +53,7 @@ impl<T> Scope for DRDTracing<'_, T> {
 }
 
 impl<T> Scope for DRDSuppressing<'_, T> {
-    type Inner = usize;
+    type Inner = *const T;
 
     #[inline(always)]
     fn enter(addr: Self::Inner) {
@@ -68,29 +67,29 @@ impl<T> Scope for DRDSuppressing<'_, T> {
 }
 
 impl Scope for DRDIgnoringLoads {
-    type Inner = ();
+    type Inner = *const c_void;
 
     #[inline(always)]
-    fn enter((): Self::Inner) {
+    fn enter(_: Self::Inner) {
         client_request!(CR::CG_ANNOTATE_IGNORE_READS_BEGIN, false);
     }
 
     #[inline(always)]
-    fn exit((): Self::Inner) {
+    fn exit(_: Self::Inner) {
         client_request!(CR::CG_ANNOTATE_IGNORE_READS_BEGIN, true);
     }
 }
 
 impl Scope for DRDIgnoringStores {
-    type Inner = ();
+    type Inner = *const c_void;
 
     #[inline(always)]
-    fn enter((): Self::Inner) {
+    fn enter(_: Self::Inner) {
         client_request!(CR::CG_ANNOTATE_IGNORE_WRITES_BEGIN, false);
     }
 
     #[inline(always)]
-    fn exit((): Self::Inner) {
+    fn exit(_: Self::Inner) {
         client_request!(CR::CG_ANNOTATE_IGNORE_WRITES_BEGIN, true);
     }
 }
@@ -110,13 +109,13 @@ pub fn drd_threadid() -> ThreadId {
 #[doc = include_str!("../../doc/drd/ignore_var.md")]
 #[inline(always)]
 pub fn ignore_var<T>(var: &T) -> ScopeGuard<DRDSuppressing<'_, T>> {
-    ScopeGuard::new(var as *const _ as _)
+    ScopeGuard::new(var as _)
 }
 
 #[doc = include_str!("../../doc/drd/trace_var.md")]
 #[inline(always)]
 pub fn trace_var<T>(var: &T) -> ScopeGuard<DRDTracing<'_, T>> {
-    ScopeGuard::new(var as *const _ as _)
+    ScopeGuard::new(var as _)
 }
 
 #[doc = include_str!("../../doc/drd/annotate_trace_memory.md")]
@@ -140,13 +139,13 @@ pub fn annotate_benign_race_sized(addr: *const c_void, size: usize) {
 #[doc = include_str!("../../doc/drd/annotate_ignore_reads.md")]
 #[inline(always)]
 pub fn annotate_ignore_reads() -> ScopeGuard<DRDIgnoringLoads> {
-    ScopeGuard::new(())
+    ScopeGuard::new(core::ptr::null())
 }
 
 #[doc = include_str!("../../doc/drd/annotate_ignore_writes.md")]
 #[inline(always)]
 pub fn annotate_ignore_writes() -> ScopeGuard<DRDIgnoringStores> {
-    ScopeGuard::new(())
+    ScopeGuard::new(core::ptr::null())
 }
 
 #[doc = include_str!("../../doc/drd/annotate_new_memory.md")]

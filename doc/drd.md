@@ -31,6 +31,7 @@ Nothing happens unless the binary runs under DRD:
 > ```
 
 ## Version Requirements
-* **Minimum Valgrind:** `3.5`
+* **Minimum Valgrind:** `3.3`
+* **Recommended Valgrind:** `3.5` or higher to use any of DRD requests
 
 [vg-docs]: https://valgrind.org/docs/manual/drd-manual.html#drd-manual.clientreqs

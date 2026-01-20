@@ -44,9 +44,9 @@ fn clean_memory() {
 #[test]
 fn annotate_happens() {
     valgrind!(helgrind => {
-        hg::annotate_addr(std::ptr::null(), hg::Annotation::HappensAfter);
-        hg::annotate_addr(std::ptr::null(), hg::Annotation::HappensBefore);
-        hg::annotate_addr(std::ptr::null(), hg::Annotation::HappensBeforeForgetAll);
+        hg::annotate_happens_after(std::ptr::null());
+        hg::annotate_happens_before(std::ptr::null());
+        hg::annotate_happens_before_forget_all(std::ptr::null());
     });
 }
 
@@ -54,11 +54,11 @@ fn annotate_happens() {
 fn annotate_rwlock() {
     valgrind!(helgrind => {
         let var = true;
-        hg::annotate_addr(&var as *const _ as _, hg::Annotation::RwLockCreate);
-        hg::annotate_addr(&var as *const _ as _, hg::Annotation::RwLockAcquired(true));
-        hg::annotate_addr(&var as *const _ as _, hg::Annotation::RwLockReleased(true));
-        hg::annotate_addr(&var as *const _ as _, hg::Annotation::RwLockAcquired(false));
-        hg::annotate_addr(&var as *const _ as _, hg::Annotation::RwLockReleased(false));
-        hg::annotate_addr(&var as *const _ as _, hg::Annotation::RwLockDestroy);
+        hg::annotate_rwlock_create(&var as *const _ as _);
+        hg::annotate_rwlock_acquired(&var as *const _ as _, true);
+        hg::annotate_rwlock_released(&var as *const _ as _, true);
+        hg::annotate_rwlock_acquired(&var as *const _ as _, false);
+        hg::annotate_rwlock_released(&var as *const _ as _, false);
+        hg::annotate_rwlock_destroy(&var as *const _ as _);
     });
 }

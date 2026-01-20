@@ -3,7 +3,7 @@ Stops Cachegrind instrumentation if currently enabled.
 Executes the `CACHEGRIND_STOP_INSTRUMENTATION` client request, causing
 Valgrind to pause collection of cache simulation and branch prediction data.
 
-Can be used in conjunction with [`start_instrumentation`] and the [`--instr-at-start`][instr-at-start]
+Can be used in conjunction with [`start_instrumentation`] and the [--instr-at-start][instr-at-start]
 flag to delimit specific regions for profiling.
 
 ## Note

@@ -7,7 +7,7 @@ branch prediction data.
 # Usage Context
 
 By default, Cachegrind instruments the entire program from the start.
-To profile a specific section of code, you can run Valgrind with [`--instr-at-start=no`][instr-at-start] and 
+To profile a specific section of code, you can run Valgrind with [--instr-at-start=no][instr-at-start] and 
 use this function (and its counterpart, [`stop_instrumentation`]) to delimit the region of interest.
 
 ## Note

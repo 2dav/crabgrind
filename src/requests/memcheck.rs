@@ -1,10 +1,11 @@
+#![doc = include_str!("../../doc/memcheck.md")]
+
 use super::client_request;
 use crate::{
     ScopeGuard,
     bindings::CG_MemcheckClientRequest as CR,
     requests::{Scope, sealed::Sealed},
 };
-
 use core::{
     ffi::{CStr, c_void},
     marker::PhantomData,
@@ -19,12 +20,19 @@ const DISCARD_MEM_OK: usize = 0;
 // <valgrind/memcheck.h>: "1   success"
 const VBITS_OK: usize = 1;
 
+/// Identifier for a custom memory block description.
+///
+/// Returned by [`create_block`] and used to remove the association with [`discard_block`]
 pub type BlockHandle = usize;
-pub type UnaddressableBytes = usize;
-pub type OffendingOffset = usize;
 
-/// Error
+/// A handle that was invalid or not found during a discard operation.
 pub type InvalidBlockHandle = BlockHandle;
+
+#[doc = include_str!("../../doc/memcheck/UnaddressableBytes.md")]
+pub type UnaddressableBytes = usize;
+
+#[doc = include_str!("../../doc/memcheck/OffendingOffset.md")]
+pub type OffendingOffset = usize;
 
 #[doc(hidden)]
 #[derive(Debug)]
@@ -44,32 +52,81 @@ impl Scope for DisabledReporting<'_> {
     }
 }
 
+#[doc = include_str!("../../doc/memcheck/MemState.md")]
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
 pub enum MemState {
+    #[doc = include_str!("../../doc/memcheck/memstate/noaccess.md")]
     NoAccess,
+    #[doc = include_str!("../../doc/memcheck/memstate/undefined.md")]
     Undefined,
+    #[doc = include_str!("../../doc/memcheck/memstate/defined.md")]
     Defined,
+    #[doc = include_str!("../../doc/memcheck/memstate/defined_if_addressable.md")]
     DefinedIfAddressable,
 }
 
+#[doc = include_str!("../../doc/memcheck/LeakCheck.md")]
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
 pub enum LeakCheck {
+    #[doc = include_str!("../../doc/memcheck/leakcheck/full.md")]
     #[default]
     Full,
+    #[doc = include_str!("../../doc/memcheck/leakcheck/added.md")]
     Added,
+    #[doc = include_str!("../../doc/memcheck/leakcheck/quick.md")]
     Quick,
+    #[doc = include_str!("../../doc/memcheck/leakcheck/changed.md")]
     Changed,
+    #[doc = include_str!("../../doc/memcheck/leakcheck/new.md")]
     New,
 }
 
+impl LeakCheck {
+    /// Performs a leak check.
+    ///
+    /// This method is a shorthand for [`leak_check`] -> [`count_leaks`]
+    #[inline]
+    pub fn check(self) -> LeaksCount {
+        leak_check(self);
+        count_leaks()
+    }
+
+    /// Performs a leak check.
+    ///
+    /// This method is a shorthand for [`leak_check`] -> [`count_leak_blocks`]
+    #[inline]
+    pub fn check_blocks(self) -> LeaksCount {
+        leak_check(self);
+        count_leak_blocks()
+    }
+}
+
+#[doc = include_str!("../../doc/memcheck/LeaksCount.md")]
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
 pub struct LeaksCount {
-    pub dubious: usize,
+    /// Bytes that are definitely lost (no pointers to the start) or indirectly lost.
+    ///
+    /// This value represents the sum of direct and indirect leaks.
     pub leaked: usize,
+
+    /// Bytes that are "possibly lost".
+    ///
+    /// Typically involves pointers to the middle of a heap block rather than the start,
+    /// suggesting interior pointers that Memcheck cannot verify with 100% certainty.
+    pub dubious: usize,
+
+    /// Bytes that are still reachable.
+    ///
+    /// Pointers to the start of these blocks were found at program exit or during the check.
     pub reachable: usize,
+
+    /// Bytes that were suppressed by a suppression file.
+    ///
+    /// These are leaks matching suppression rules specified in the Valgrind configuration.
     pub suppressed: usize,
 }
 
+/// V-bit (validity bit) manipulation errors.
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
 pub enum VBitsError {
     /// Not running under Valgrind
@@ -82,7 +139,7 @@ pub enum VBitsError {
     Unknown(u8),
 }
 
-/// # Errors
+#[doc = include_str!("../../doc/memcheck/mark_memory.md")]
 #[inline(always)]
 pub fn mark_memory(
     addr: *const c_void,
@@ -114,18 +171,19 @@ macro_rules! check_mem {
     };
 }
 
-/// # Errors
+#[doc = include_str!("../../doc/memcheck/check_mem_addressable.md")]
 #[inline(always)]
 pub fn check_mem_addressable(addr: *const c_void, len: usize) -> Result<(), OffendingOffset> {
     check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_ADDRESSABLE, addr, len)
 }
 
-/// # Errors
+#[doc = include_str!("../../doc/memcheck/check_mem_defined.md")]
 #[inline(always)]
 pub fn check_mem_defined(addr: *const c_void, len: usize) -> Result<(), OffendingOffset> {
     check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_DEFINED, addr, len)
 }
 
+#[doc = include_str!("../../doc/memcheck/leak_check.md")]
 #[inline(always)]
 pub fn leak_check(check: LeakCheck) {
     let (a1, a2): (u8, u8) = match check {
@@ -139,6 +197,7 @@ pub fn leak_check(check: LeakCheck) {
     client_request!(CR::CG_VALGRIND_DO_LEAK_CHECK, a1, a2);
 }
 
+#[doc = include_str!("../../doc/memcheck/count_leaks.md")]
 #[inline(always)]
 pub fn count_leaks() -> LeaksCount {
     let mut leaks = LeaksCount::default();
@@ -154,6 +213,7 @@ pub fn count_leaks() -> LeaksCount {
     leaks
 }
 
+#[doc = include_str!("../../doc/memcheck/count_leak_blocks.md")]
 #[inline(always)]
 pub fn count_leak_blocks() -> LeaksCount {
     let mut leaks = LeaksCount::default();
@@ -181,25 +241,26 @@ macro_rules! vbits {
     };
 }
 
-/// # Errors
+#[doc = include_str!("../../doc/memcheck/vbits.md")]
 #[inline(always)]
 pub fn vbits(addr: *const c_void, dest: &mut [u8]) -> Result<(), VBitsError> {
     vbits!(CR::CG_VALGRIND_GET_VBITS, addr, dest)
 }
 
-/// # Errors
+#[doc = include_str!("../../doc/memcheck/set_vbits.md")]
 #[inline(always)]
 pub fn set_vbits(addr: *const c_void, vbits: &[u8]) -> Result<(), VBitsError> {
     vbits!(CR::CG_VALGRIND_SET_VBITS, addr, vbits)
 }
 
+#[doc = include_str!("../../doc/memcheck/create_block.md")]
 #[inline(always)]
 pub fn create_block(addr: *const c_void, size: usize, desc: impl AsRef<CStr>) -> BlockHandle {
     let desc = desc.as_ref().as_ptr();
     client_request!(CR::CG_VALGRIND_CREATE_BLOCK, addr, size, desc)
 }
 
-/// # Errors
+#[doc = include_str!("../../doc/memcheck/discard_block.md")]
 #[inline(always)]
 pub fn discard_block(handle: BlockHandle) -> Result<(), InvalidBlockHandle> {
     match client_request!(CR::CG_VALGRIND_DISCARD, handle) {
@@ -208,16 +269,19 @@ pub fn discard_block(handle: BlockHandle) -> Result<(), InvalidBlockHandle> {
     }
 }
 
+#[doc = include_str!("../../doc/memcheck/disable_reporting.md")]
 #[inline(always)]
 pub fn disable_reporting(bytes: &[u8]) -> ScopeGuard<DisabledReporting<'_>> {
     ScopeGuard::new((bytes.as_ptr().cast(), bytes.len()))
 }
 
+#[doc = include_str!("../../doc/memcheck/enable_error_reporting.md")]
 #[inline(always)]
 pub fn enable_error_reporting(addr: *const c_void, size: usize) {
     client_request!(CR::CG_VALGRIND_ENABLE_ADDR_ERROR_REPORTING_IN_RANGE, addr, size);
 }
 
+#[doc = include_str!("../../doc/memcheck/disable_error_reporting.md")]
 #[inline(always)]
 pub fn disable_error_reporting(addr: *const c_void, size: usize) {
     client_request!(CR::CG_VALGRIND_DISABLE_ADDR_ERROR_REPORTING_IN_RANGE, addr, size);

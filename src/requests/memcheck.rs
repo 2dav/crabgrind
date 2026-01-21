@@ -1,18 +1,48 @@
 use super::client_request;
-use crate::bindings::CG_MemcheckClientRequest as CR;
+use crate::{
+    ScopeGuard,
+    bindings::CG_MemcheckClientRequest as CR,
+    requests::{Scope, sealed::Sealed},
+};
 
-use core::ffi::{CStr, c_void};
+use core::{
+    ffi::{CStr, c_void},
+    marker::PhantomData,
+};
 
-// TODO: describe these constants: <header.h>: "... comment"
-// non-configurable named constants
+// vg-docs/mc-manual.clientreqs: "They return -1, when run on Valgrind and 0 otherwise."
 const MAKE_MEM_OK: usize = usize::MAX;
+// vg-docs/mc-manual.clientreqs: "... returns zero if the relevant property holds; ... Always returns 0 when not run on Valgrind."
 const CHECK_MEM_OK: usize = 0;
+// <valgrind/memchek.h>: "Returns 1 for an invalid handle, 0 for a valid handle."
 const DISCARD_MEM_OK: usize = 0;
+// <valgrind/memcheck.h>: "1   success"
 const VBITS_OK: usize = 1;
 
 pub type BlockHandle = usize;
 pub type UnaddressableBytes = usize;
 pub type OffendingOffset = usize;
+
+/// Error
+pub type InvalidBlockHandle = BlockHandle;
+
+#[doc(hidden)]
+#[derive(Debug)]
+pub struct DisabledReporting<'a>(PhantomData<&'a ()>);
+
+impl Scope for DisabledReporting<'_> {
+    type Inner = (*const c_void, usize);
+
+    #[inline(always)]
+    fn enter((addr, size): Self::Inner) {
+        disable_error_reporting(addr.cast(), size);
+    }
+
+    #[inline(always)]
+    fn exit((addr, size): Self::Inner) {
+        enable_error_reporting(addr.cast(), size);
+    }
+}
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
 pub enum MemState {
@@ -146,7 +176,7 @@ macro_rules! vbits {
             0 => Err(VBitsError::NoValgrind),
             2 => Err(VBitsError::LegacyAlignment),
             3 => Err(VBitsError::Unaddressable),
-            x => Err(VBitsError::Unknown(u8::try_from(x).expect("Return code should fit `u8`"))),
+            x => Err(VBitsError::Unknown(u8::try_from(x).expect("Return code must fit `u8`"))),
         }
     };
 }
@@ -164,34 +194,33 @@ pub fn set_vbits(addr: *const c_void, vbits: &[u8]) -> Result<(), VBitsError> {
 }
 
 #[inline(always)]
-pub fn create_block(addr: *const c_void, len: usize, desc: impl AsRef<CStr>) -> BlockHandle {
-    client_request!(CR::CG_VALGRIND_CREATE_BLOCK, addr, len, desc.as_ref().as_ptr())
+pub fn create_block(addr: *const c_void, size: usize, desc: impl AsRef<CStr>) -> BlockHandle {
+    let desc = desc.as_ref().as_ptr();
+    client_request!(CR::CG_VALGRIND_CREATE_BLOCK, addr, size, desc)
 }
 
 /// # Errors
-/// use type here to describe error, if only single error
 #[inline(always)]
-pub fn discard_block(handle: BlockHandle) -> Result<(), ()> {
-    (client_request!(CR::CG_VALGRIND_DISCARD, handle) == DISCARD_MEM_OK).then_some(()).ok_or(())
-}
-
-#[inline(always)]
-pub fn addr_error_reporting(addr: *const c_void, len: usize, enable: bool) {
-    if enable {
-        enable_error_reporting(addr, len);
-    } else {
-        disable_error_reporting(addr, len);
+pub fn discard_block(handle: BlockHandle) -> Result<(), InvalidBlockHandle> {
+    match client_request!(CR::CG_VALGRIND_DISCARD, handle) {
+        DISCARD_MEM_OK => Ok(()),
+        _ => Err(handle),
     }
 }
 
 #[inline(always)]
-pub fn enable_error_reporting(addr: *const c_void, len: usize) {
-    client_request!(CR::CG_VALGRIND_ENABLE_ADDR_ERROR_REPORTING_IN_RANGE, addr, len);
+pub fn disable_reporting(bytes: &[u8]) -> ScopeGuard<DisabledReporting<'_>> {
+    ScopeGuard::new((bytes.as_ptr().cast(), bytes.len()))
 }
 
 #[inline(always)]
-pub fn disable_error_reporting(addr: *const c_void, len: usize) {
-    client_request!(CR::CG_VALGRIND_DISABLE_ADDR_ERROR_REPORTING_IN_RANGE, addr, len);
+pub fn enable_error_reporting(addr: *const c_void, size: usize) {
+    client_request!(CR::CG_VALGRIND_ENABLE_ADDR_ERROR_REPORTING_IN_RANGE, addr, size);
+}
+
+#[inline(always)]
+pub fn disable_error_reporting(addr: *const c_void, size: usize) {
+    client_request!(CR::CG_VALGRIND_DISABLE_ADDR_ERROR_REPORTING_IN_RANGE, addr, size);
 }
 
 impl core::fmt::Display for VBitsError {
@@ -207,3 +236,5 @@ impl core::fmt::Display for VBitsError {
 }
 
 impl core::error::Error for VBitsError {}
+
+impl Sealed for DisabledReporting<'_> {}

@@ -17,9 +17,9 @@ check:
 clean: clean-valgrind-out
 	cargo clean
 
-# Clean various valgrind tool's output 
+# Clean various valgrind tool's output and crush dumps
 clean-valgrind-out:
-	find . -type f -regex '.*\(callgrind\|cachegrind\|dhat\)\.out\.[0-9]+.*' -exec rm -f {} +
+	find . -type f -regex '.*\(callgrind\|cachegrind\|dhat\|vgcore\)\(\.out\)?\.[0-9]+.*' -exec rm -f {} +
 
 # Generate doc
 doc:

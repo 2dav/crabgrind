@@ -4,9 +4,9 @@ Wraps `VALGRIND_NON_SIMD_CALL2`. This transfers control from the simulated
 CPU to the host CPU to execute the provided function.
 
 The function `f` **must** accept the current [`ThreadId`] as its first argument.
-> ```rust
-> fn f(ThreadId, usize, usize) -> usize
-> ```
+```text
+fn f(ThreadId, usize, usize) -> usize
+```
 
 Value returned by the provided function is propagated to return value of request.
 

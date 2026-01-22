@@ -1,5 +1,9 @@
 use super::client_request;
-use crate::bindings::CG_ValgrindClientRequest as CR;
+use crate::{
+    ScopeGuard,
+    bindings::CG_ValgrindClientRequest as CR,
+    requests::{Scope, sealed::Sealed},
+};
 
 use core::ffi::{CStr, c_int, c_void};
 
@@ -7,6 +11,24 @@ use core::ffi::{CStr, c_int, c_void};
 const MONITOR_COMMAND_ERROR: usize = 1;
 const ERROR_REPORTING_ENABLE: usize = usize::MAX;
 const ERROR_REPORTING_DISABLE: usize = 1;
+
+#[doc(hidden)]
+#[derive(Debug)]
+pub struct DisabledReporting;
+
+impl Scope for DisabledReporting {
+    type Inner = ();
+
+    #[inline(always)]
+    fn enter((): Self::Inner) {
+        disable_error_reporting();
+    }
+
+    #[inline(always)]
+    fn exit((): Self::Inner) {
+        enable_error_reporting();
+    }
+}
 
 pub type CommandNotFound = ();
 
@@ -37,6 +59,11 @@ pub fn monitor_command(cmd: impl AsRef<CStr>) -> Result<(), CommandNotFound> {
         MONITOR_COMMAND_ERROR => Err(()),
         _ => Ok(()),
     }
+}
+
+#[inline(always)]
+pub fn disable_reporting() -> ScopeGuard<DisabledReporting> {
+    ScopeGuard::new(())
 }
 
 #[inline(always)]
@@ -83,12 +110,16 @@ pub fn load_pdb_debuginfo(fd: RawFd, ptr: *const c_void, total_size: usize, delt
 #[inline(always)]
 #[allow(clippy::needless_lifetimes)]
 pub fn map_ip_to_srcloc<'a>(addr: *const c_void, buf: &'a mut [u8; 64]) -> Option<&'a CStr> {
-    let ptr = buf.as_mut_ptr();
+    client_request!(CR::CG_VALGRIND_MAP_IP_TO_SRCLOC, addr, buf.as_mut_ptr());
 
-    client_request!(CR::CG_VALGRIND_MAP_IP_TO_SRCLOC, addr, ptr);
-
-    // valgrind.h: "If no info is found, the first byte is set to zero."
-    if buf[0] != 0 { Some(unsafe { CStr::from_ptr(ptr as _) }) } else { None }
+    // From valgrind.h: "..If no info is found, the first byte is set to zero."
+    if buf[0] != 0 {
+        // SAFETY: After request finish, buffer is either filled with null-terminated string, or contains
+        // a NULL terminator. Length of the string is limited to 64 bytes by definition.
+        unsafe { Some(CStr::from_ptr(buf.as_mut_ptr().cast())) }
+    } else {
+        None
+    }
 }
 
 #[inline(always)]
@@ -201,3 +232,5 @@ pub fn stack_deregister(stack: StackId) {
 pub fn stack_change(stack: StackId, new_lowest: *const c_void, new_highest: *const c_void) {
     client_request!(CR::CG_VALGRIND_STACK_CHANGE, stack, new_lowest, new_highest);
 }
+
+impl Sealed for DisabledReporting {}

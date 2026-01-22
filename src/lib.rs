@@ -1,3 +1,4 @@
+//! ()
 #![no_std]
 
 mod bindings;
@@ -5,7 +6,6 @@ mod requests;
 
 pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind};
 
-#[doc = include_str!("../doc/valgrind_client_request_expr.md")]
 pub use bindings::valgrind_client_request_expr;
 
 /// Valgrind version this crate was compiled against.

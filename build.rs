@@ -1,4 +1,4 @@
-// Build script for native library wrapping the Valgrind [Client Request API](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
+//! Build script for native library wrapping the Valgrind [Client Request API](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
 use std::{
     env,
     path::{Path, PathBuf},

@@ -31,7 +31,7 @@ libc = "0.2"
 debug = "full"
 
 [lints.rust]
-# missing_docs = "warn"
+missing_docs = "warn"
 unsafe_op_in_unsafe_fn = "warn"
 
 [lints.clippy]

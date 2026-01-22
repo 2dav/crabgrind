@@ -6,8 +6,8 @@ instrumentation of complex memory operations.
 
 # Errors
 - [`UnaddressableBytes`] - containing the number of unaddressable bytes
-if `mark` is set to [`MemState::DefinedIfAddressable`] and not all bytes in the
-range were addressable
+  if `mark` is set to [`MemState::DefinedIfAddressable`] and not all bytes in the
+  range were addressable
 
 ## Note
 Requires Valgrind **3.6** (Released 2010) for [`MemState::DefinedIfAddressable`].

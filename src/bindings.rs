@@ -7,6 +7,7 @@ use core::ffi::{c_char, c_int};
 extern "C" {
     pub fn vg_print(msg: *const c_char) -> c_int;
     pub fn vg_print_backtrace(msg: *const c_char) -> c_int;
+    #[doc = include_str!("../doc/valgrind_client_request_expr.md")]
     pub fn valgrind_client_request_expr(
         zzq_default: usize,
         zzq_request: usize,

@@ -61,8 +61,8 @@ pub fn change_clo(option: impl AsRef<CStr>) {
 
 // TODO: "Throw away all translated (JITed) code for the given address range."
 #[inline(always)]
-pub fn discard_translations(addr: *const c_void, len: usize) {
-    client_request!(CR::CG_VALGRIND_DISCARD_TRANSLATIONS, addr, len);
+pub fn discard_translations(addr: *const c_void, size: usize) {
+    client_request!(CR::CG_VALGRIND_DISCARD_TRANSLATIONS, addr, size);
 }
 
 /// # Panics

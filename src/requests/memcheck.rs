@@ -84,7 +84,7 @@ pub enum LeakCheck {
 impl LeakCheck {
     /// Performs a leak check.
     ///
-    /// This method is a shorthand for [`leak_check`] -> [`count_leaks`]
+    /// This method is a combination of [`leak_check`] and [`count_leaks`]
     #[inline]
     pub fn check(self) -> LeaksCount {
         leak_check(self);
@@ -93,7 +93,7 @@ impl LeakCheck {
 
     /// Performs a leak check.
     ///
-    /// This method is a shorthand for [`leak_check`] -> [`count_leak_blocks`]
+    /// This method is a combination of [`leak_check`] and [`count_leak_blocks`]
     #[inline]
     pub fn check_blocks(self) -> LeaksCount {
         leak_check(self);
@@ -143,12 +143,12 @@ pub enum VBitsError {
 #[inline(always)]
 pub fn mark_memory(
     addr: *const c_void,
-    len: usize,
+    size: usize,
     mark: MemState,
 ) -> Result<(), UnaddressableBytes> {
     macro_rules! r {
         ($req:path) => {
-            client_request!($req, addr, len)
+            client_request!($req, addr, size)
         };
     }
 
@@ -163,8 +163,8 @@ pub fn mark_memory(
 }
 
 macro_rules! check_mem {
-    ($req:path, $addr:expr, $len:expr) => {
-        match client_request!($req, $addr, $len) {
+    ($req:path, $addr:expr, $size:expr) => {
+        match client_request!($req, $addr, $size) {
             CHECK_MEM_OK => Ok(()),
             x => Err(x - $addr as usize),
         }
@@ -173,14 +173,14 @@ macro_rules! check_mem {
 
 #[doc = include_str!("../../doc/memcheck/check_mem_addressable.md")]
 #[inline(always)]
-pub fn check_mem_addressable(addr: *const c_void, len: usize) -> Result<(), OffendingOffset> {
-    check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_ADDRESSABLE, addr, len)
+pub fn check_mem_addressable(addr: *const c_void, size: usize) -> Result<(), OffendingOffset> {
+    check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_ADDRESSABLE, addr, size)
 }
 
 #[doc = include_str!("../../doc/memcheck/check_mem_defined.md")]
 #[inline(always)]
-pub fn check_mem_defined(addr: *const c_void, len: usize) -> Result<(), OffendingOffset> {
-    check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_DEFINED, addr, len)
+pub fn check_mem_defined(addr: *const c_void, size: usize) -> Result<(), OffendingOffset> {
+    check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_DEFINED, addr, size)
 }
 
 #[doc = include_str!("../../doc/memcheck/leak_check.md")]

@@ -13,16 +13,6 @@ instrumentation is insufficient. They are primarily used to:
 * *Describe custom logic:* Annotate custom memory allocators or custom
   synchronization primitives that DRD does not natively recognize.
 
-## Requests categories
-* Thread Id:
-  [`valgrind_threadid`], [`drd_threadid`]
-* Race Suppression:
-  [`ignore_var`], [`annotate_ignore_reads`], [`annotate_ignore_writes`], [`annotate_benign_race`], [`annotate_benign_race_sized`]
-* Memory Tracing:
-  [`trace_var`], [`annotate_trace_memory`]
-* Metadata:
-  [`annotate_thread_name`], [`annotate_new_memory`]
-
 ## Usage
 Nothing happens unless the binary runs under DRD:
 > ```text

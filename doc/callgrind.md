@@ -1,11 +1,7 @@
 # Callgrind Client Requests
 Interface to [Callgrind Client Requests][vg-docs] defined in `valgrind/callgrind.h`.
 Use these to control the profiler, instrumentation state, and dump [Callgrind][callgrind] 
-counters without restarting the process:
-*  **Selective instrumentation:** Bypass uninteresting code sections (e.g. initialization, setup) 
-   code or reduce overhead with [`start_instrumentation`] and [`stop_instrumentation`].
-* **Counter toggling:** Temporarily halt stats collection with [`toggle_collect`].
-* **Data snapshots:** Use [`dump_stats`] to write intermediate profile data to disk.
+counters without restarting the process.
 
 ## Usage
 Nothing happens unless the binary runs under Callgrind:

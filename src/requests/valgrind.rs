@@ -7,9 +7,11 @@ use crate::{
 
 use core::ffi::{CStr, c_int, c_void};
 
-// TODO: describe these constants: <header.h>: "... comment"
+// <valgrind/valgrind.h>: ".. Returns 1 if command not recognised, 0 otherwise"
 const MONITOR_COMMAND_ERROR: usize = 1;
-const ERROR_REPORTING_ENABLE: usize = usize::MAX;
+// <valgrind/valgrind.h>: VALGRIND_ENABLE_ERROR_REPORTING macro implementation
+const ERROR_REPORTING_ENABLE: usize = usize::MAX; // -1
+// <valgrind/valgrind.h>: VALGRIND_DISABLE_ERROR_REPORTING macro implementation
 const ERROR_REPORTING_DISABLE: usize = 1;
 
 #[doc(hidden)]

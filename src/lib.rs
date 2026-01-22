@@ -1,5 +1,6 @@
 //! ()
 #![no_std]
+#![warn(missing_docs)]
 
 mod bindings;
 mod requests;

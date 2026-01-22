@@ -83,12 +83,6 @@ fn main() {
 
     let include = valgrind_include_paths();
 
-    if env::var("DOCS_RS").is_ok() {
-        // build_native(&include); // TODO: are we linking in DOCS_RS env? do we need this at all?
-        gen_bindings(&include);
-        return;
-    }
-
     build_native(&include);
     gen_bindings(&include);
 }

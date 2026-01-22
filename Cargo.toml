@@ -30,6 +30,9 @@ libc = "0.2"
 [profile.release]
 debug = "full"
 
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
 [lints.rust]
 missing_docs = "warn"
 unsafe_op_in_unsafe_fn = "warn"

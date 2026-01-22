@@ -5,10 +5,10 @@ mod requests;
 
 pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind};
 
-// TODO: Describe this unsafe contract.
+#[doc = include_str!("../doc/valgrind_client_request_expr.md")]
 pub use bindings::valgrind_client_request_expr;
 
-/// Valgrind version this crate was compiled against
+/// Valgrind version this crate was compiled against.
 pub const VALGRIND_VERSION: (u32, u32) =
     (bindings::__VALGRIND_MAJOR__, bindings::__VALGRIND_MINOR__);
 

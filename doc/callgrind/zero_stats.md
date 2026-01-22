@@ -24,8 +24,10 @@ map.insert(0, 0);
 callgrind::dump_stats(reason);
 ```
 > ```text
-> :~$ valgrind --tool=callgrind target/debug/zero_stats
-> 
+> :~$ cargo build
+> :~$ valgrind target/debug/zero_stats
+> ```
+> ```text
 > --666538--   Zeroing costs...
 > --666538--   ...done
 > --666538-- Start dumping at BB 223561 (Client Request: HashMap::insert)...

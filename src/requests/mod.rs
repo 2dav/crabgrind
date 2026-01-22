@@ -62,6 +62,7 @@ macro_rules! assert_defined {
 
 pub(crate) use {assert_defined, client_request};
 
+#[doc = include_str!("../../doc/println.md")]
 #[macro_export]
 macro_rules! println{
     ($($arg:tt)+) => {{
@@ -72,6 +73,7 @@ macro_rules! println{
     }}
 }
 
+#[doc = include_str!("../../doc/println_stacktrace.md")]
 #[macro_export]
 macro_rules! print_stacktrace{
     ($($arg:tt)+) => {{
@@ -82,7 +84,7 @@ macro_rules! print_stacktrace{
     }}
 }
 
-/// Behavior for a scoped requests.
+/// Behavior for a logically scoped requests.
 pub trait Scope: sealed::Sealed {
     type Inner: Copy;
 

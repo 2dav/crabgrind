@@ -8,6 +8,7 @@ pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memch
 // TODO: Describe this unsafe contract.
 pub use bindings::valgrind_client_request_expr;
 
+/// Valgrind version this crate was compiled against
 pub const VALGRIND_VERSION: (u32, u32) =
     (bindings::__VALGRIND_MAJOR__, bindings::__VALGRIND_MINOR__);
 

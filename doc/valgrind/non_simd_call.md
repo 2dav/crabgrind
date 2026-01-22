@@ -17,6 +17,6 @@ entanglements frequently cause Valgrind to crash. Use only for simple,
 self-contained logic.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.
 
 [std.println]: https://doc.rust-lang.org/std/macro.println.html

@@ -30,4 +30,4 @@ only set V-bits that were previously retrieved via [`vbits`].
   Contains the raw error code returned by the client request.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

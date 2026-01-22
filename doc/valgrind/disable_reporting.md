@@ -6,4 +6,4 @@ memory range. This ensures that reporting is restored even if the function panic
 See also [`disable_error_reporting`], [`enable_error_reporting`]
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

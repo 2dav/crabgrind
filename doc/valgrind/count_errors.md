@@ -14,4 +14,4 @@ the `--log-fd=-1` option, Valgrind runs silently (suppressing standard output),
 allowing the client program to inspect the error count programmatically.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

@@ -10,7 +10,7 @@ DHAT aggregates these weights in the profile, showing them as the total "units" 
 to specific call stacks.
 
 ## Note
-Requires Valgrind **3.15** (2019) or higher.
+Requires Valgrind **3.15** or higher.
 
 This function produces output only when running under Valgrind with DHAT
  configured for [ad-hoc profiling][ad-hoc-profiling]:

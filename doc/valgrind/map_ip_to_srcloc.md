@@ -20,6 +20,6 @@ debug = "line-directives-only"
 See [Cargo book: profiles.debug][profile.debug] for possible options.
 
 ## Note
-Requires Valgrind **3.6** (Released 2010).
+Requires Valgrind **3.6** or higher.
 
 [profile.debug]: https://doc.rust-lang.org/cargo/reference/profiles.html#debug

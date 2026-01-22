@@ -12,4 +12,4 @@ See [`annotate_rwlock_released`].
   `false` if acquired in shared (read) mode.
 
 ## Note
-Requires Valgrind **3.6** (2010) or higher.
+Requires Valgrind **3.6** or higher.

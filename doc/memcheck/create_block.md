@@ -12,4 +12,4 @@ definedness, or any other physical properties of the memory.
 * `desc` - A null-terminated C string describing the block.
 
 ## Note
-Requires Valgrind **3.2** (Released 2005).
+Requires Valgrind **3.2** or higher.

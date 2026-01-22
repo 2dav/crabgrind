@@ -18,6 +18,6 @@ as benign will suppress valid bug reports.
 See also [`annotate_benign_race_sized`] for raw byte ranges.
 
 ## Note
-Requires Valgrind **3.5** (2009) or higher.
+Requires Valgrind **3.5** or higher.
 
 [std-atomic]: https://doc.rust-lang.org/std/sync/atomic/

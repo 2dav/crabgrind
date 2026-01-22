@@ -22,4 +22,4 @@ For transparent self-modifying-code support, run with `--smc-check=all`
 or execute on ppc32/Linux, ppc64/Linux, or ARM/Linux.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

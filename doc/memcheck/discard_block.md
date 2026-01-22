@@ -10,4 +10,4 @@ Subsequent errors in that region will revert to standard Memcheck reporting.
 * [`InvalidBlockHandle`] - provided handle was not valid.
 
 ## Note
-Requires Valgrind **3.2** (Released 2005).
+Requires Valgrind **3.2** or higher.

@@ -12,4 +12,4 @@ These IDs are **1-based** (the first thread is 1).
 reused for a new thread. 
 
 ## Note
-Requires Valgrind **3.3** (2007) or higher.
+Requires Valgrind **3.3** or higher.

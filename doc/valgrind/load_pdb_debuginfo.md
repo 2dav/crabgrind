@@ -14,4 +14,4 @@ and associate them with the specified memory region.
 Panics if `fd` is less than 0.
 
 ## Note
-Requires Valgrind **3.6** (Released 2010).
+Requires Valgrind **3.6** or higher.

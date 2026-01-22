@@ -9,7 +9,7 @@ routines) to reduce profiling noise and total runtime. It can be
 toggled back on via [`start_instrumentation`] without restarting the process.
 
 ## Note
-Requires Valgrind **3.11**(2017) or higher.
+Requires Valgrind **3.11** or higher.
 
 See also the Callgrind option [--instr-atstart][instr-at-start].
 

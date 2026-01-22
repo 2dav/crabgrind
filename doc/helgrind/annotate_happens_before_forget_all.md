@@ -13,4 +13,4 @@ that is no longer in use or is being recycled.
   synchronization object.
 
 ## Note
-Requires Valgrind **3.7** (2011) or higher.
+Requires Valgrind **3.7** or higher.

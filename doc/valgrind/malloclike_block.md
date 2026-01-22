@@ -24,4 +24,4 @@ Call this immediately after the allocation logic, preferably at the
 outermost level of the allocator function to ensure clean stack traces.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

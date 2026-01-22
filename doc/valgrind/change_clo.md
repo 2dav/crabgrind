@@ -11,6 +11,6 @@ does not support dynamic changes, or is syntactically incorrect, Valgrind
 outputs a warning message to the log.
 
 ## Note
-Requires Valgrind **3.10** (Released 2014).
+Requires Valgrind **3.10** or higher.
 
 [dynopts]: https://valgrind.org/docs/manual/manual-core.html#manual-core.dynopts

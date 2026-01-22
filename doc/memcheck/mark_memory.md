@@ -10,5 +10,5 @@ instrumentation of complex memory operations.
   range were addressable
 
 ## Note
-Requires Valgrind **3.6** (Released 2010) for [`MemState::DefinedIfAddressable`].
-All other variants are supported in Valgrind **3.0** and later.
+Requires Valgrind **3.6** for [`MemState::DefinedIfAddressable`].
+All other variants are supported in Valgrind **3.0** or higher.

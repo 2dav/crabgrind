@@ -18,4 +18,4 @@ Acquiring the guard does **not** hold an active borrow. You may mutate `var` whi
 is active.
 
 ## Note
-Requires Valgrind **3.5** (2009) or higher.
+Requires Valgrind **3.5** or higher.

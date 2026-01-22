@@ -13,4 +13,4 @@ flag).
   synchronization object.
 
 ## Note
-Requires Valgrind **3.7** (2011) or higher.
+Requires Valgrind **3.7** or higher.

@@ -6,4 +6,4 @@ If the pool was created with the [`VALGRIND_MEMPOOL_AUTO_FREE`] flag, this call 
 any nested [`malloclike_block`] structures located within `addr`.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

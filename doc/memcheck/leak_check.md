@@ -13,5 +13,5 @@ immediately preceding leak check.
 ## Note
 Minimum required Valgrind version:
 * `Full`  - **3.0**
-* `Quick` - **3.2** 
+* `Quick` - **3.2**
 * `Added`, `Changed`, `New` - **3.4**

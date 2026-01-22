@@ -4,4 +4,4 @@ This function behaves identically to [`count_leaks`], but populates the [`LeaksC
 fields with the quantity of memory blocks rather than the number of bytes.
 
 ## Note
-Requires Valgrind **3.2** (Released 2005).
+Requires Valgrind **3.2** or higher.

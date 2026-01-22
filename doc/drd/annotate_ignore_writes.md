@@ -18,4 +18,4 @@ Use with caution, as intentional races on writes are rarer and more prone
 to causing subtle memory consistency errors than read races.
 
 ## Note
-Requires Valgrind **3.5** (2009) or higher.
+Requires Valgrind **3.5** or higher.

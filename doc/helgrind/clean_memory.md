@@ -19,4 +19,4 @@ another), Helgrind must "forget" the previous owner's access patterns to prevent
 false positives on the new owner.
 
 ## Note
-Requires Valgrind **3.2** (2006) or higher.
+Requires Valgrind **3.2** or higher.

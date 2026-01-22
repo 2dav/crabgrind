@@ -18,4 +18,4 @@ this generic wrapper to enforce compile-time argument checking.
 - [`CommandNotFound`] – The command was not recognized.
 
 ## Note
-Requires Valgrind **3.6** (Released 2010).
+Requires Valgrind **3.6** or higher.

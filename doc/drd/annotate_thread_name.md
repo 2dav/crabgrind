@@ -10,4 +10,4 @@ trace output, and error messages.
 This operation affects only the thread executing the request.
 
 ## Note
-Requires Valgrind **3.5** (2009) or higher.
+Requires Valgrind **3.5** or higher.

@@ -10,4 +10,4 @@ function panics or exits early.
 See also [`disable_error_reporting`], [`enable_error_reporting`].
 
 ## Note
-Requires Valgrind **3.4** (Released 2008).
+Requires Valgrind **3.4** or higher.

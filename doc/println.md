@@ -13,6 +13,6 @@ initializes, at which point the buffer is flushed.
 nothing (it is a no-op). It does not print to stdout or stderr.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.
 
 [std.println]: https://doc.rust-lang.org/nightly/std/macro.println.html

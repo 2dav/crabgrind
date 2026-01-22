@@ -8,4 +8,4 @@ If any byte is not addressable or contains undefined data, Valgrind emits an err
 [`OffendingOffset`] Contains the offset of the first byte that is not defined.
 
 ## Note
-Requires Valgrind **3.2** (Released 2005).
+Requires Valgrind **3.2** or higher.

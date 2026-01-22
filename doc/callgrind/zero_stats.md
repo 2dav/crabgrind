@@ -36,4 +36,4 @@ callgrind::dump_stats(reason);
 > ```
 
 ## Note
-Requires Valgrind **3.7**(2013) or higher.
+Requires Valgrind **3.7** or higher.

@@ -26,4 +26,4 @@ blocks or complex allocation schemes.
   that memory region.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

@@ -11,6 +11,6 @@ To profile a specific section of code, you can run Valgrind with [--instr-at-sta
 use this function (and its counterpart, [`stop_instrumentation`]) to delimit the region of interest.
 
 ## Note
-Requires Valgrind **3.22**(2023) or higher.
+Requires Valgrind **3.22** or higher.
 
 [instr-at-start]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.instr-atstart

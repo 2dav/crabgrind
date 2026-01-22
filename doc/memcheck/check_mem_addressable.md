@@ -7,4 +7,4 @@ range. If any byte is not addressable, Valgrind emits an error report.
 [`OffendingOffset`] Contains the location of the first byte that is not addressable.
 
 ## Note
-Requires Valgrind **3.2** (Released 2005).
+Requires Valgrind **3.2** or higher.

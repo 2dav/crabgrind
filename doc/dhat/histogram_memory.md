@@ -9,6 +9,6 @@ Place this immediately after the allocator returns.
 call are ignored.
 
 ## Note
-Requires Valgrind **3.15** (2019) or higher.
+Requires Valgrind **3.15** or higher.
 
 [access-counts]: https://valgrind.org/docs/manual/dh-manual.html#dh-access-counts

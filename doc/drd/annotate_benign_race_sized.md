@@ -11,4 +11,4 @@ This is useful for suppressing races on slices, buffers, or memory
 mapped regions where the type information is irrelevant or unavailable.
 
 ## Note
-Requires Valgrind **3.5** (2009) or higher.
+Requires Valgrind **3.5** or higher.

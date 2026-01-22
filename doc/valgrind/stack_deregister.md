@@ -10,4 +10,4 @@ range associated with `stack` is no longer a stack.
 This client request is unreliable and best avoided if possible.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

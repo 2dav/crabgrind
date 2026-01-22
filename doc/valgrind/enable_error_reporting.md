@@ -8,4 +8,4 @@ If the internal counter reaches zero as a result of this call, error
 reporting resumes for the current thread.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

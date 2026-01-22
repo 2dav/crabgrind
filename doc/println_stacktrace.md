@@ -13,6 +13,6 @@ same log.
 nothing (it is a no-op). No message or stack trace is generated.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.
 
 [std.println]: https://doc.rust-lang.org/nightly/std/macro.println.html

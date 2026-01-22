@@ -22,4 +22,4 @@ Call this after the new block is established but before any references to
 the old size are discarded.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

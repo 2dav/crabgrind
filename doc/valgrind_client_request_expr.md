@@ -13,4 +13,4 @@ This function performs no validation.
 The result of the client request, or `zzq_default` if Valgrind isn't present.
 
 ## Note
-Requires Valgrind **3.0** *probably*.
+Requires Valgrind **3.0** or higher.

@@ -19,4 +19,4 @@ buffer offset).
 The lifetime of the guard is tied to caller lifetime.
 
 ## Note
-Requires Valgrind **3.3** (2007) or higher.
+Requires Valgrind **3.3** or higher.

@@ -14,4 +14,4 @@ reporting "Invalid read/write" errors on valid custom-allocated memory and
 ensures race detection is active for the new block.
 
 ## Note
-Requires Valgrind **3.5** (2009) or higher.
+Requires Valgrind **3.5** or higher.

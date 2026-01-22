@@ -36,6 +36,6 @@ collect!(map.entry(2).insert_entry(0));
 > ```
 
 ## Note
-Requires Valgrind **3.7**(2013) or higher.
+Requires Valgrind **3.7** or higher.
 
 [collect-at-start]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.collect-atstart

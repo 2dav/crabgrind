@@ -7,4 +7,4 @@ This only affects the reporting of addressing errors (A-bits). Undefined
 value errors (V-bits) are unaffected.
 
 ## Note
-Requires Valgrind **3.4** (Released 2008).
+Requires Valgrind **3.4** or higher.

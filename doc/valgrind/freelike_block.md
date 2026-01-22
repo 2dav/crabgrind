@@ -19,4 +19,4 @@ out or maintain internal freelists), you must use `MAKE_MEM_UNDEFINED`
 Accessing freed memory without this will trigger invalid write errors.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

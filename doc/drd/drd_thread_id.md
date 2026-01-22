@@ -14,4 +14,4 @@ Unlike the core Valgrind thread IDs, DRD IDs have specific constraints:
   This ensures the ID remains consistent throughout the execution log.
 
 ## Note
-Requires Valgrind **3.3** (2007) or higher.
+Requires Valgrind **3.3** or higher.

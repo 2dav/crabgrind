@@ -10,4 +10,4 @@ See [`annotate_rwlock_create`].
   a valid pointer, only a unique value for the lifetime of the lock.
 
 ## Note
-Requires Valgrind **3.6** (2010) or higher.
+Requires Valgrind **3.6** or higher.

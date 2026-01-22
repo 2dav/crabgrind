@@ -11,7 +11,7 @@ for the target execution path. When instrumentation is paused (via [`stop_instru
     the program runs at the minimum slowdown, comparable to [Nulgrind][nulgrind].
 
 ## Note
-Requires Valgrind **3.11**(2017) or higher.
+Requires Valgrind **3.11** or higher.
 
 [nulgrind]: https://valgrind.org/docs/manual/nl-manual.html
 [instr-at-start]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.instr-atstart

@@ -30,4 +30,4 @@ via [`set_vbits`] or [`mark_memory`] can lead to false negatives or positives in
   Contains the raw error code returned by the client request.
 
 ## Note
-Requires Valgrind **3.0** (Released 2003).
+Requires Valgrind **3.0** or higher.

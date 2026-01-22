@@ -12,4 +12,4 @@ This must be called **immediately before** the real synchronization action
   synchronization object. This is treated as a tag, not a dereferenced pointer.
 
 ## Note
-Requires Valgrind **3.7** (2011) or higher.
+Requires Valgrind **3.7** or higher.

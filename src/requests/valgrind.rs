@@ -114,14 +114,14 @@ pub fn load_pdb_debuginfo(fd: RawFd, ptr: *const c_void, total_size: usize, delt
 pub fn map_ip_to_srcloc<'a>(addr: *const c_void, buf: &'a mut [u8; 64]) -> Option<&'a CStr> {
     client_request!(CR::CG_VALGRIND_MAP_IP_TO_SRCLOC, addr, buf.as_mut_ptr());
 
-    // From valgrind.h: "..If no info is found, the first byte is set to zero."
-    if buf[0] != 0 {
-        // SAFETY: After request finish, buffer is either filled with null-terminated string, or contains
-        // a NULL terminator. Length of the string is limited to 64 bytes by definition.
-        unsafe { Some(CStr::from_ptr(buf.as_mut_ptr().cast())) }
-    } else {
-        None
-    }
+    // From <valgind/valgrind.h>: "..If no info is found, the first byte is set to zero."
+    let is_empty = buf[0] == 0;
+
+    (!is_empty).then(|| {
+        // SAFETY: Request definition guarantees the resulting buffer is a null-terminated ascii string
+        // limited to 64 bytes.
+        unsafe { CStr::from_ptr(buf.as_mut_ptr().cast()) }
+    })
 }
 
 #[inline(always)]

@@ -81,7 +81,10 @@ fn main() {
     println!("cargo:rerun-if-env-changed={ENV_VALGRIND_INCLUDE}");
     println!("cargo:rerun-if-env-changed=TARGET");
 
-    let include = valgrind_include_paths();
+    let include = match std::env::var("DOCS_RS") {
+        Err(_) => valgrind_include_paths(),
+        Ok(_) => vec![],
+    };
 
     build_native(&include);
     gen_bindings(&include);

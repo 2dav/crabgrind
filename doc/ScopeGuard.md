@@ -15,3 +15,10 @@ Consequently, the borrow checker permits `&mut` access to the variable while the
 The guard operates only raw memory addresses, not Rust variable bindings.
 If the variable is moved or dropped while the guard exists, suppression/tracing remains
 active on the **original** address.
+
+Some requests (like [`memcheck::disable_reporting`]) affect the whole thread. They should
+logically be singletons. We can't enforce this in the type system, so it's on you to
+ensure you aren't running multiple global guards at once.
+
+Likewise, nothing stops you from creating two guards for the same operation over same memory 
+address. That will almost certainly break things.

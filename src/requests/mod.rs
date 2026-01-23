@@ -6,6 +6,8 @@ pub mod helgrind;
 pub mod memcheck;
 pub mod valgrind;
 
+pub(crate) mod constants;
+
 macro_rules! client_request {
     (^ $($arg:expr),*) =>  {{
         #[cfg(not(feature = "opt-out"))]

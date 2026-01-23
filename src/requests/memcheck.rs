@@ -1,6 +1,5 @@
 #![doc = include_str!("../../doc/memcheck.md")]
-
-use super::client_request;
+use super::{client_request, constants::memcheck::*};
 use crate::{
     ScopeGuard,
     bindings::CG_MemcheckClientRequest as CR,
@@ -10,15 +9,6 @@ use core::{
     ffi::{CStr, c_void},
     marker::PhantomData,
 };
-
-// vg-docs/mc-manual.clientreqs: "They return -1, when run on Valgrind and 0 otherwise."
-const MAKE_MEM_OK: usize = usize::MAX;
-// vg-docs/mc-manual.clientreqs: "... returns zero if the relevant property holds; ... Always returns 0 when not run on Valgrind."
-const CHECK_MEM_OK: usize = 0;
-// <valgrind/memcheck.h>: "Returns 1 for an invalid handle, 0 for a valid handle."
-const DISCARD_MEM_OK: usize = 0;
-// <valgrind/memcheck.h>: "1   success"
-const VBITS_OK: usize = 1;
 
 /// Identifier for a custom memory block description.
 ///
@@ -186,12 +176,12 @@ pub fn check_mem_defined(addr: *const c_void, size: usize) -> Result<(), Offendi
 #[doc = include_str!("../../doc/memcheck/leak_check.md")]
 #[inline(always)]
 pub fn leak_check(check: LeakCheck) {
-    let (a1, a2): (u8, u8) = match check {
-        LeakCheck::Full => (0, 0),
-        LeakCheck::Added => (0, 1),
-        LeakCheck::Quick => (1, 0),
-        LeakCheck::Changed => (0, 2),
-        LeakCheck::New => (0, 3),
+    let (a1, a2) = match check {
+        LeakCheck::Full => LEAK_CHECK_FULL,
+        LeakCheck::Added => LEAK_CHECK_ADDED,
+        LeakCheck::Quick => LEAK_CHECK_QUICK,
+        LeakCheck::Changed => LEAK_CHECK_CHANGED,
+        LeakCheck::New => LEAK_CHECK_NEW,
     };
 
     client_request!(CR::CG_VALGRIND_DO_LEAK_CHECK, a1, a2);
@@ -233,9 +223,9 @@ macro_rules! vbits {
     ($req:path, $addr:expr, $slice:expr) => {
         match client_request!($req, $addr, $slice.as_ptr(), $slice.len()) {
             VBITS_OK => Ok(()),
-            0 => Err(VBitsError::NoValgrind),
-            2 => Err(VBitsError::LegacyAlignment),
-            3 => Err(VBitsError::Unaddressable),
+            VBITS_NO_VALGRIND => Err(VBitsError::NoValgrind),
+            VBITS_LEGACY => Err(VBitsError::LegacyAlignment),
+            VBITS_UNADDRESSABLE => Err(VBitsError::Unaddressable),
             x => Err(VBitsError::Unknown(u8::try_from(x).expect("Return code must fit `u8`"))),
         }
     };

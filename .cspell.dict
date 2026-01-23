@@ -35,3 +35,6 @@ malloc
 unsynchronized
 crabgrind
 atstart
+zzsrc
+zzvbits
+userreq

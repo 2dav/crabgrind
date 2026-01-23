@@ -1,5 +1,5 @@
 #![doc = include_str!("../../doc/valgrind.md")]
-use super::client_request;
+use super::{client_request, constants::valgrind::*};
 use crate::{
     ScopeGuard,
     bindings::CG_ValgrindClientRequest as CR,
@@ -7,13 +7,6 @@ use crate::{
 };
 
 use core::ffi::{CStr, c_int, c_void};
-
-// <valgrind/valgrind.h>: ".. Returns 1 if command not recognized, 0 otherwise"
-const MONITOR_COMMAND_ERROR: usize = 1;
-// <valgrind/valgrind.h>: VALGRIND_ENABLE_ERROR_REPORTING macro implementation
-const ERROR_REPORTING_ENABLE: usize = usize::MAX; // -1
-// <valgrind/valgrind.h>: VALGRIND_DISABLE_ERROR_REPORTING macro implementation
-const ERROR_REPORTING_DISABLE: usize = 1;
 
 /// Designates the pool as a "meta-pool". See [`create_mempool`]
 pub const VALGRIND_MEMPOOL_AUTO_FREE: u8 = 1;
@@ -62,8 +55,8 @@ pub enum RunningMode {
 #[inline(always)]
 pub fn running_mode() -> RunningMode {
     match client_request!(CR::CG_RUNNING_ON_VALGRIND) {
-        0 => RunningMode::Native,
-        1 => RunningMode::Valgrind,
+        RUNNING_MODE_NATIVE => RunningMode::Native,
+        RUNNING_MODE_VALGRIND => RunningMode::Valgrind,
         x => RunningMode::ValgrindOnValgrind(x),
     }
 }
@@ -130,11 +123,7 @@ pub fn load_pdb_debuginfo(fd: RawFd, ptr: *const c_void, total_size: usize, delt
 #[allow(clippy::needless_lifetimes)]
 pub fn map_ip_to_srcloc<'a>(addr: *const c_void, buf: &'a mut [u8; 64]) -> Option<&'a CStr> {
     client_request!(CR::CG_VALGRIND_MAP_IP_TO_SRCLOC, addr, buf.as_mut_ptr());
-
-    // From <valgrind/valgrind.h>: "..If no info is found, the first byte is set to zero."
-    let is_empty = buf[0] == 0;
-
-    (!is_empty).then(|| {
+    (!is_empty_srcloc(buf)).then(|| {
         // SAFETY: Request definition guarantees the resulting buffer is a null-terminated ascii string
         // limited to 64 bytes.
         unsafe { CStr::from_ptr(buf.as_mut_ptr().cast()) }

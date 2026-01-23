@@ -11,6 +11,8 @@ repository = "https://github.com/2dav/crabgrind"
 homepage = "https://github.com/2dav/crabgrind"
 documentation = "https://docs.rs/crabgrind"
 readme = "README.md"
+exclude = [".gitignore", "Justfile", "Cross.toml", "rustfmt.toml", "rust-toolchain.toml", "shell.nix",
+			"*.sh", "*.py", "*.defs", "*.head", "tests/*"]
 
 [features]
 default = []

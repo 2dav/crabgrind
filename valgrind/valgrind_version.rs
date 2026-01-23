@@ -1,5 +1,4 @@
 impl CG_ValgrindClientRequest {
-    #[allow(clippy::match_same_arms)]
     pub const fn required_version(self) -> u32 {
         match self {
 			Self::CG_RUNNING_ON_VALGRIND => 300,
@@ -32,7 +31,6 @@ impl CG_ValgrindClientRequest {
 	}
 }
 impl CG_CallgrindClientRequest {
-    #[allow(clippy::match_same_arms)]
     pub const fn required_version(self) -> u32 {
         match self {
 			Self::CG_CALLGRIND_DUMP_STATS => 302,
@@ -45,7 +43,6 @@ impl CG_CallgrindClientRequest {
 	}
 }
 impl CG_DHATClientRequest {
-    #[allow(clippy::match_same_arms)]
     pub const fn required_version(self) -> u32 {
         match self {
 			Self::CG_DHAT_AD_HOC_EVENT => 315,
@@ -54,7 +51,6 @@ impl CG_DHATClientRequest {
 	}
 }
 impl CG_MemcheckClientRequest {
-    #[allow(clippy::match_same_arms)]
     pub const fn required_version(self) -> u32 {
         match self {
 			Self::CG_VALGRIND_MAKE_MEM_NOACCESS => 300,
@@ -76,7 +72,6 @@ impl CG_MemcheckClientRequest {
 	}
 }
 impl CG_HelgrindClientRequest {
-    #[allow(clippy::match_same_arms)]
     pub const fn required_version(self) -> u32 {
         match self {
 			Self::CG_VALGRIND_HG_CLEAN_MEMORY => 302,
@@ -91,7 +86,6 @@ impl CG_HelgrindClientRequest {
 	}
 }
 impl CG_DRDClientRequest {
-    #[allow(clippy::match_same_arms)]
     pub const fn required_version(self) -> u32 {
         match self {
 			Self::CG_DRD_GET_VALGRIND_THREADID => 303,
@@ -108,7 +102,6 @@ impl CG_DRDClientRequest {
 	}
 }
 impl CG_CachegrindClientRequest {
-    #[allow(clippy::match_same_arms)]
     pub const fn required_version(self) -> u32 {
         match self {
 			Self::CG_CACHEGRIND_START_INSTRUMENTATION => 322,

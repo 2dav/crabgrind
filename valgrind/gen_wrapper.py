@@ -21,7 +21,6 @@ def variant_name(vname):
 
 def r_impl_prolog(name):
     return f"""impl {name} {{
-    #[allow(clippy::match_same_arms)]
     pub const fn required_version(self) -> u32 {{
         match self {{"""
 

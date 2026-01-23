@@ -1,6 +1,7 @@
 #![allow(unused)]
 #![allow(non_camel_case_types)]
 #![allow(clippy::unreadable_literal)]
+#![allow(clippy::match_same_arms)]
 
 use core::ffi::{c_char, c_int};
 

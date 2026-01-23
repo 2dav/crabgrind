@@ -4,4 +4,4 @@ Displays entries where the number of leaked bytes or blocks has grown.
 
 Corresponds to `VALGRIND_DO_ADDED_LEAK_CHECK`.
 
-Requies Valgrind **3.4** or higher.
+Requires Valgrind **3.4** or higher.

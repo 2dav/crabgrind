@@ -1,0 +1,27 @@
+{
+  "language": "en",
+  "dictionaries": ["custom"],
+  "dictionaryDefinitions": [
+    {
+      "name": "custom",
+      "path": ".cspell.dict",
+      "addWords": true
+    }
+  ],
+  "readonly": true,
+  "enableGlobDot": true,
+  "useGitignore": true,
+  "ignorePaths": [
+    "**/.git/",
+    "**/.gitignore",
+    "**/tests/",
+	"valgrind/**",
+	"*.nix",
+	"LICENSE/",
+	"Justfile",
+	"*.toml",
+	"build.rs",
+	".cspell.json",
+    "**/Cargo.lock"
+  ]
+}

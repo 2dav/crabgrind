@@ -14,7 +14,7 @@ the memory as unaddressable and recording the deallocation for leak checking.
 
 # Allocator Internals
 If your allocator writes to a block *after* freeing it (e.g., to zero it
-out or maintain internal freelists), you must use `MAKE_MEM_UNDEFINED` 
+out or maintain internal free-lists), you must use `MAKE_MEM_UNDEFINED` 
 (see [`memcheck::mark_memory`](crate::memcheck::mark_memory)) before writing. 
 Accessing freed memory without this will trigger invalid write errors.
 

@@ -15,7 +15,7 @@ use core::{
 const MAKE_MEM_OK: usize = usize::MAX;
 // vg-docs/mc-manual.clientreqs: "... returns zero if the relevant property holds; ... Always returns 0 when not run on Valgrind."
 const CHECK_MEM_OK: usize = 0;
-// <valgrind/memchek.h>: "Returns 1 for an invalid handle, 0 for a valid handle."
+// <valgrind/memcheck.h>: "Returns 1 for an invalid handle, 0 for a valid handle."
 const DISCARD_MEM_OK: usize = 0;
 // <valgrind/memcheck.h>: "1   success"
 const VBITS_OK: usize = 1;

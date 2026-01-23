@@ -4,4 +4,4 @@ Displays loss records that did not exist in the previous scan.
 
 Corresponds to `VALGRIND_DO_CHANGED_LEAK_CHECK`.
 
-Requies Valgrind **3.4** or higher.
+Requires Valgrind **3.4** or higher.

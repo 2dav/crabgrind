@@ -8,7 +8,7 @@ use crate::{
 
 use core::ffi::{CStr, c_int, c_void};
 
-// <valgrind/valgrind.h>: ".. Returns 1 if command not recognised, 0 otherwise"
+// <valgrind/valgrind.h>: ".. Returns 1 if command not recognized, 0 otherwise"
 const MONITOR_COMMAND_ERROR: usize = 1;
 // <valgrind/valgrind.h>: VALGRIND_ENABLE_ERROR_REPORTING macro implementation
 const ERROR_REPORTING_ENABLE: usize = usize::MAX; // -1
@@ -131,7 +131,7 @@ pub fn load_pdb_debuginfo(fd: RawFd, ptr: *const c_void, total_size: usize, delt
 pub fn map_ip_to_srcloc<'a>(addr: *const c_void, buf: &'a mut [u8; 64]) -> Option<&'a CStr> {
     client_request!(CR::CG_VALGRIND_MAP_IP_TO_SRCLOC, addr, buf.as_mut_ptr());
 
-    // From <valgind/valgrind.h>: "..If no info is found, the first byte is set to zero."
+    // From <valgrind/valgrind.h>: "..If no info is found, the first byte is set to zero."
     let is_empty = buf[0] == 0;
 
     (!is_empty).then(|| {

@@ -9,9 +9,13 @@ build: check
 	cargo test --release --no-run 
 
 # Run linter
-check:
+check: cspell
 	cargo clippy --no-default-features
 	cargo clippy --all-features
+
+# Spell check
+cspell:
+	cspell lint .
 
 # Cleanup all build and tests artifacts
 clean: clean-valgrind-out

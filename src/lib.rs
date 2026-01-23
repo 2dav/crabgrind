@@ -1,13 +1,12 @@
-//! ()
-#![no_std]
+#![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
+#![no_std]
 
 mod bindings;
 mod requests;
 
-pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind};
-
 pub use bindings::valgrind_client_request_expr;
+pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind};
 
 /// Valgrind version this crate was compiled against.
 pub const VALGRIND_VERSION: (u32, u32) =

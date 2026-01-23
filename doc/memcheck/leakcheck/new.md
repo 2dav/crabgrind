@@ -1,7 +1,7 @@
 Performs a fast summary scan.
 
-Equivalent to [--leak-check=summary][leak-check]. Returns only the total count of
-leaked bytes and blocks; no detailed stack traces are generated.
+Equivalent to [--leak-check=summary][leak-check]. Returns only the total count
+of leaked bytes and blocks; no detailed stack traces are generated.
 
 Corresponds to `VALGRIND_DO_NEW_LEAK_CHECK`.
 

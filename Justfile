@@ -9,13 +9,18 @@ build: check
 	cargo test --release --no-run 
 
 # Run linter
-check: cspell
+check: cspell mdlint
 	cargo clippy --no-default-features
 	cargo clippy --all-features
 
 # Spell check
 cspell:
 	cspell lint .
+
+# Markdown formatting and linting
+mdlint:
+	mdformat doc --wrap 80
+	markdownlint doc
 
 # Cleanup all build and tests artifacts
 clean: clean-valgrind-out

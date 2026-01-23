@@ -1,11 +1,13 @@
 Resets the profile counters to zero
 
 Immediately clears all event counters (instruction fetches, cache misses, etc.)
-without writing a dump file. It is useful for discarding data from setup phases or 
-previous iterations in a benchmarking loop.
+without writing a dump file. It is useful for discarding data from setup phases
+or previous iterations in a benchmarking loop.
 
 # Example
+
 Clearing setup costs to isolate the operation:
+
 ```rust
 use crabgrind::callgrind;
 use std::collections::HashMap;
@@ -23,10 +25,12 @@ map.insert(0, 0);
 // Dump isolated data
 callgrind::dump_stats(reason);
 ```
+
 > ```text
 > :~$ cargo build
 > :~$ valgrind target/debug/zero_stats
 > ```
+>
 > ```text
 > --666538--   Zeroing costs...
 > --666538--   ...done
@@ -36,4 +40,5 @@ callgrind::dump_stats(reason);
 > ```
 
 ## Note
+
 Requires Valgrind **3.7** or higher.

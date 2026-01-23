@@ -6,7 +6,8 @@ unaddressable memory) within the specified range.
 This is distinct from marking memory as defined; it merely silences errors
 related to whether the addresses can be legally accessed.
 
-See [`enable_error_reporting`] for resuming reporting. 
+See [`enable_error_reporting`](enable_error_reporting) for resuming reporting.
 
 ## Note
+
 Requires Valgrind **3.4** or higher.

@@ -44,4 +44,3 @@ inline_always = "allow"
 cast_lossless = "allow"
 must_use_candidate = "allow"
 missing_errors_doc = "deny"
-

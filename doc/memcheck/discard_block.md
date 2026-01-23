@@ -4,10 +4,14 @@ Deletes the mapping between a memory range and its custom description string.
 Subsequent errors in that region will revert to standard Memcheck reporting.
 
 # Arguments
-* `handle` - The [`BlockHandle`] returned by [`create_block`].
+
+- `handle` - The [`BlockHandle`](BlockHandle) returned by
+  [`create_block`](create_block).
 
 # Errors
-* [`InvalidBlockHandle`] - provided handle was not valid.
+
+- [`InvalidBlockHandle`](InvalidBlockHandle) - provided handle was not valid.
 
 ## Note
+
 Requires Valgrind **3.2** or higher.

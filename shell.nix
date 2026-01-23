@@ -13,6 +13,8 @@ pkgs.callPackage ( { stdenv, mkShell }: mkShell {
 	rust-analyzer
 	cargo-cross
 	cspell
+	markdownlint-cli
+	mdformat
 	just
 
 	valgrind

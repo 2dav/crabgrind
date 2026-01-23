@@ -12,31 +12,24 @@ fn env_include() -> Option<PathBuf> {
     Some(path)
 }
 
-fn pkgconfig_include() -> Vec<PathBuf> {
-    let mut cfg = pkg_config::Config::new();
-    cfg.cargo_metadata(false)
+fn pkgconfig_include() -> Option<Vec<PathBuf>> {
+    pkg_config::Config::new()
+        .cargo_metadata(false)
         .env_metadata(false)
         .print_system_libs(false)
-        .print_system_cflags(true);
-
-    let lib = match cfg.probe("valgrind") {
-        Ok(lib) => lib,
-        Err(pkg_config::Error::Command { .. }) => return vec![],
-        Err(e) => panic!(
-            "\n\nCould not find valgrind via pkg-config:\n{e}\n\
-            If valgrind is installed in a non-standard location or built from source without a corresponding .pc file, \
-            run with `{ENV_VALGRIND_INCLUDE}=<valgrind dir>/include`."
-        ),
-    };
-
-    lib.include_paths
-        .into_iter()
-        .map(|path| path.parent().map(Path::to_path_buf).unwrap_or(path))
-        .collect()
+        .print_system_cflags(true)
+        .probe("valgrind")
+        .ok()
+        .map(|lib| {
+            lib.include_paths
+                .into_iter()
+                .map(|path| path.parent().map(Path::to_path_buf).unwrap_or(path))
+                .collect()
+        })
 }
 
 fn valgrind_include_paths() -> Vec<PathBuf> {
-    env_include().map_or_else(pkgconfig_include, |path| vec![path])
+    env_include().map(|p| vec![p]).or_else(pkgconfig_include).unwrap_or_default()
 }
 
 fn build_native(valgrind_include: &[PathBuf]) {
@@ -81,10 +74,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed={ENV_VALGRIND_INCLUDE}");
     println!("cargo:rerun-if-env-changed=TARGET");
 
-    let include = match std::env::var("DOCS_RS") {
-        Err(_) => valgrind_include_paths(),
-        Ok(_) => vec![],
-    };
+    let include = valgrind_include_paths();
 
     build_native(&include);
     gen_bindings(&include);

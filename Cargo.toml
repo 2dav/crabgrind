@@ -16,7 +16,6 @@ exclude = [".gitignore", "Justfile", "Cross.toml", "rustfmt.toml", "rust-toolcha
 
 [features]
 default = []
-mismatch-ignore = []
 opt-out = []
 
 [build-dependencies]

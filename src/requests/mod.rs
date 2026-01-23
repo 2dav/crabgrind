@@ -1,4 +1,3 @@
-#![cfg_attr(feature = "mismatch-ignore", allow(unused, unused_imports))]
 pub mod cachegrind;
 pub mod callgrind;
 pub mod dhat;
@@ -16,9 +15,7 @@ macro_rules! client_request {
         ($($arg as usize),*).0
     }};
     ($request:path, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {{
-        #[cfg(not(feature = "mismatch-ignore"))]
         $crate::requests::assert_defined!($request);
-
         client_request!(^ 0, $request, $arg1, $arg2, $arg3, $arg4, $arg5)
     }};
     ($request:path, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr) => {

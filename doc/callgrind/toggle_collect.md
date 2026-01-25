@@ -32,10 +32,20 @@ let mut map:HashMap<i32, i32> = HashMap::with_capacity(32);
 collect!(map.insert(0, 0));
 map.shrink_to_fit(); // Ignored by profiler
 collect!(map.entry(2).insert_entry(0));
+
+callgrind::dump_stats(None);
 ```
 
+> Run with Callgrind and [disabled collection][collect-at-start]
 > ```text
 > :~$ valgrind --tool=callgrind --collect-atstart=no target/debug/toggle_collect
+> ```
+
+> Resulting dump file can be quickly examined using the [callgrind_annotate][callgrind.annotate] 
+> utility, distributed with Valgrind:
+>
+> ```text
+> :~$ callgrind_annotate <callgrind_dump_file>
 > ```
 
 ## Note
@@ -43,3 +53,4 @@ collect!(map.entry(2).insert_entry(0));
 Requires Valgrind **3.2** or higher.
 
 [collect-at-start]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.collect-atstart
+[callgrind.annotate]: https://valgrind.org/docs/manual/cl-manual.html#cl-manual.callgrind_annotate-options

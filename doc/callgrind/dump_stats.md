@@ -27,7 +27,7 @@ callgrind::dump_stats(None);
 ```
 
 > ```text
-> :~$ valgrind --tool=callgrind target/debug/dump_stats
+> :~$ valgrind --tool=callgrind --verbose target/debug/dump_stats
 >
 > --602275-- Start dumping at BB 223999 (Client Request)...
 > --602275-- Dump to ./callgrind.out.602275.2
@@ -45,7 +45,7 @@ callgrind::dump_stats(reason);
 ```
 
 > ```text
-> :~$ valgrind --tool=callgrind target/debug/dump_stats
+> :~$ valgrind --tool=callgrind --verbose target/debug/dump_stats
 >
 > --602275-- Start dumping at BB 223999 (Client Request: factorial(10))...
 > --602275-- Dump to ./callgrind.out.602275.2

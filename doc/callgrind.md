@@ -13,12 +13,6 @@ Nothing happens unless the binary runs under Callgrind:
 > :~$ valgrind --tool=callgrind target/debug/app
 > ```
 
-## Execution Safety
-
-These requests relies on Valgrind's magic assembly sequences to communicate with
-Valgrind runtime. If your application is running **without** Valgrind, these
-requests execute as harmless machine code. They will not panic or segfault.
-
 ## Version Requirements
 
 - **Minimum Valgrind:** `3.7`

@@ -80,6 +80,11 @@ feature. This turns every request into no-op.
 > crabgrind = { version = "0.2", features = ["opt-out"] }
 > ```
 
+## More Examples
+
+- [Callgrind: Profiling specific code blocks in isolation](https://docs.rs/crabgrind/latest/crabgrind/callgrind/fn.toggle_collect.html#example)
+- [Callgrind: Clearing setup costs to isolate some operation](https://docs.rs/crabgrind/latest/crabgrind/callgrind/fn.zero_stats.html#example)
+
 ## Implementation
 
 [Valgrind's client request][vg-client.req] mechanism is a `C` implementation
@@ -104,6 +109,9 @@ We are coupled to the Valgrind version present during compilation.
 If a request is invoked at runtime that is unsupported by the active Valgrind
 instance (e.g. running under an older Valgrind), the call panics immediately,
 showing the version mismatch message and request requirements.
+
+If your application is running **without** Valgrind, these
+requests execute as harmless machine code. They will not panic or segfault.
 
 ## License
 

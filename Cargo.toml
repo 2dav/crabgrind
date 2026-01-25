@@ -1,6 +1,6 @@
 [package]
 name = "crabgrind"
-version = "0.2.0"
+version = "0.2.1"
 license = "MIT"
 edition = "2021"
 rust-version = "1.64"
@@ -16,6 +16,7 @@ exclude = [".gitignore", "Justfile", "Cross.toml", "rustfmt.toml", "rust-toolcha
 
 [features]
 default = []
+# Turns every request into no-op.
 opt-out = []
 
 [build-dependencies]

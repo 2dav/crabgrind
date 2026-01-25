@@ -2,4 +2,5 @@
   "default": true,
   "no-hard-tabs": false,
   "MD041": false,
+  "MD033": false
 }

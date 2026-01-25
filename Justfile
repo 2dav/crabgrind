@@ -19,8 +19,8 @@ cspell:
 
 # Markdown formatting and linting
 mdlint:
-	mdformat doc --wrap 80
-	markdownlint doc
+	mdformat doc README.md --wrap 80
+	markdownlint doc README.md
 
 # Cleanup all build and tests artifacts
 clean: clean-valgrind-out

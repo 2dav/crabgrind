@@ -1,11 +1,8 @@
-<div align="center">
-	<h1>crabgrind</h1>
-	<p><a href="https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq">Valgrind Client Request</a> interface for Rust programs</p>
+<div style="text-align: center;" align="center">
 
-[crates.io]: https://crates.io/crates/crabgrind
-[libs.rs]: https://lib.rs/crates/crabgrind
-[documentation]: https://docs.rs/crabgrind
-[license]: https://github.com/2dav/crabgrind/blob/main/LICENSE/MIT.LICENSE
+# `crabgrind`
+
+## [Valgrind Client Request](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq) interface for Rust programs
 
 [![crates.io](https://img.shields.io/crates/v/crabgrind)][crates.io]
 [![libs.rs](https://img.shields.io/badge/libs.rs-crabgrind-orange)][libs.rs]
@@ -14,57 +11,47 @@
 
 </div>
 
-`crabgrind` is a small library that enables `Rust` programs to tap into `Valgrind`'s tools and environment.
+## Summary
 
-# Summary
+`crabgrind` is a small library that enables `Rust` programs to tap into
+`Valgrind`'s tools and environment.
 
-[Valgrind's client request][vg-client.req] mechanism is strictly a `C` implementation detail—it relies
-heavily on specific macros and inline assembly. This crate acts as a bridge, translating
-those `C` macros into Rust functions in a light way.
+It exposes full set of [Valgrind's client requests][vg-client.req] in Rust,
+manages the structure, type conversions and enforces static typing where
+possible.
 
-We don't re-implement Valgrind's client request internals — that lives inside the Valgrind.
-This crate just handles the handshake, structure, and type conversion, all the real things
-are done by Valgrind itself.
+## Usage
 
-# `no_std` & `opt-out`
+**Minimum Supported Rust Version:** 1.64
 
-The crate is `no_std` and dependency-free.
+First, add `crabgrind` to `Cargo.toml`
 
-If you need your release builds to be free of Valgrind artifacts, enable the `opt-out` feature. 
-This optimizes every request into a no-op. You can keep your debugging calls in the source code 
-without paying the runtime cost in production.
+```toml
+[dependencies]
+crabgrind = "0.2"
+```
 
-# Build Configuration
+> Note: This crate is `no_std`, dependency free and doesn't need `alloc`
 
-We need to build against local Valgrind installation to read `C` macro definitions and constants.
+### Build Configuration
+
+We need to build against local Valgrind installation to read `C` macro
+definition, constants, and supported requests.
 
 The build script (`build.rs`) attempts to locate headers in this order:
 
-1.  **Environment Variable:** If `VALGRIND_INCLUDE` is set, it is used as the include path.
-2.  **pkg-config:** The system is queried via `pkg-config` for valgrind installation paths.
-3.  **Standard Paths:** The compiler falls back to standard include directories.
+1. **Environment Variable:** If `VALGRIND_INCLUDE` is set, it is used as the
+   include path.
+1. **pkg-config:** The system is queried via `pkg-config`.
+1. **Standard Paths:** Using standard include paths.
 
-The crate compiles successfully even without Valgrind installed. In this case,
-required values default to zero, and any request will trigger a rust-panic.
+If headers cannot be located, the crate compiles using dummy headers; any
+request will \[`panic!`\] at runtime.
 
-# Runtime Safety
+### Example
 
-These bindings are coupled to the Valgrind version present during compilation.
-
-If a request is invoked at runtime that is unsupported by the active Valgrind
-instance (e.g. running under an older Valgrind), the call panics immediately, showing
-the version mismatch message and request requirements.
-
-# Example
-
-Add `crabgrind` to `Cargo.toml`
-
-> ```toml
-> [dependencies]
-> crabgrind = "0.2"
-> ```
-
-Use some of [Valgrind's API](https://docs.rs/crabgrind/latest/crabgrind/#modules)
+Use some of the
+[Client Requests](https://docs.rs/crabgrind/latest/crabgrind/#modules):
 
 ```rust
 use crabgrind::{self as cg, valgrind::RunningMode};
@@ -78,18 +65,57 @@ fn main() {
 }
 ```
 
-Run under `Valgrind` 
+And run under `Valgrind`
 
-> ``` bash
+> ```bash
 > :~$ cargo build
 > :~$ valgrind ./target/debug/app
 > ```
 
+## Implementation
 
-# License
+[Valgrind's client request][vg-client.req] mechanism is a `C` implementation
+detail, exposed strictly via `C` macros. Since `Rust` does not support `C`
+preprocessor, these macros cannot be used directly.
+
+`crabgrind` wraps the foundational `VALGRIND_DO_CLIENT_REQUEST` macro via FFI
+binding. All higher-level client requests are implemented in Rust on top of this
+binding.
+
+The overhead per request, compared to using `C` macros directly is strictly the
+cost of a single function call.
+
+The implementation is independent of any specific Valgrind version. Instead,
+mismatches between requests and local Valgrind instance are handled at
+compile-time in a zero-cost way for supported requests.
+
+## Features
+
+If you need your builds to be free of Valgrind artifacts, enable the `opt-out`
+feature. This turns every request into no-op.
+
+> ```toml
+> crabgrind = { version = "0.2", features = ["opt-out"] }
+> ```
+
+## Runtime Safety
+
+We are coupled to the Valgrind version present during compilation.
+
+If a request is invoked at runtime that is unsupported by the active Valgrind
+instance (e.g. running under an older Valgrind), the call panics immediately,
+showing the version mismatch message and request requirements.
+
+## License
+
 `crabgrind` is distributed under `MIT` license.
 
-`Valgrind` itself is a GPL2, however `valgrind/*.h` headers are distributed under a BSD-style license, 
-so we can use them without worrying about license conflicts.
+`Valgrind` itself is a GPL2, however `valgrind/*.h` headers are distributed
+under a BSD-style license, so we can use them without worrying about license
+conflicts.
 
+[crates.io]: https://crates.io/crates/crabgrind
+[documentation]: https://docs.rs/crabgrind
+[libs.rs]: https://lib.rs/crates/crabgrind
+[license]: https://github.com/2dav/crabgrind/blob/main/LICENSE/MIT.LICENSE
 [vg-client.req]: https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq

@@ -2,7 +2,7 @@
 
 # `crabgrind`
 
-## [Valgrind Client Request](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq) interface for Rust programs
+### [Valgrind Client Request][vg-client.req] interface for Rust programs
 
 [![crates.io](https://img.shields.io/crates/v/crabgrind)][crates.io]
 [![libs.rs](https://img.shields.io/badge/libs.rs-crabgrind-orange)][libs.rs]
@@ -46,12 +46,11 @@ The build script (`build.rs`) attempts to locate headers in this order:
 1. **Standard Paths:** Using standard include paths.
 
 If headers cannot be located, the crate compiles using dummy headers; any
-request will \[`panic!`\] at runtime.
+request will [`panic!`][std.panic] at runtime.
 
 ### Example
 
-Use some of the
-[Client Requests](https://docs.rs/crabgrind/latest/crabgrind/#modules):
+Use some of the [Client Requests][crabgrind.modules]:
 
 ```rust
 use crabgrind::{self as cg, valgrind::RunningMode};
@@ -72,6 +71,15 @@ And run under `Valgrind`
 > :~$ valgrind ./target/debug/app
 > ```
 
+## Features
+
+If you need your builds to be free of Valgrind artifacts, enable the `opt-out`
+feature. This turns every request into no-op.
+
+> ```toml
+> crabgrind = { version = "0.2", features = ["opt-out"] }
+> ```
+
 ## Implementation
 
 [Valgrind's client request][vg-client.req] mechanism is a `C` implementation
@@ -89,15 +97,6 @@ The implementation is independent of any specific Valgrind version. Instead,
 mismatches between requests and local Valgrind instance are handled at
 compile-time in a zero-cost way for supported requests.
 
-## Features
-
-If you need your builds to be free of Valgrind artifacts, enable the `opt-out`
-feature. This turns every request into no-op.
-
-> ```toml
-> crabgrind = { version = "0.2", features = ["opt-out"] }
-> ```
-
 ## Runtime Safety
 
 We are coupled to the Valgrind version present during compilation.
@@ -114,8 +113,10 @@ showing the version mismatch message and request requirements.
 under a BSD-style license, so we can use them without worrying about license
 conflicts.
 
+[crabgrind.modules]: https://docs.rs/crabgrind/latest/crabgrind/#modules
 [crates.io]: https://crates.io/crates/crabgrind
 [documentation]: https://docs.rs/crabgrind
 [libs.rs]: https://lib.rs/crates/crabgrind
 [license]: https://github.com/2dav/crabgrind/blob/main/LICENSE/MIT.LICENSE
+[std.panic]: https://doc.rust-lang.org/std/macro.panic.html
 [vg-client.req]: https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq

@@ -17,9 +17,8 @@ check: cspell mdlint
 cspell:
 	cspell lint .
 
-# Markdown formatting and linting
+# Markdown linting
 mdlint:
-	mdformat doc README.md --wrap 80
 	markdownlint doc README.md
 
 # Cleanup all build and tests artifacts

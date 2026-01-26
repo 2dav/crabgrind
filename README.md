@@ -52,15 +52,16 @@ request will [`panic!`][std.panic] at runtime.
 
 Use some of the [Client Requests][crabgrind.modules]:
 
-```rust
-use crabgrind::{self as cg, valgrind::RunningMode};
+```rust, no_run
+use crabgrind::valgrind::{running_mode, RunningMode};
 
 fn main() {
-    if matches!(cg::valgrind::running_mode(), RunningMode::Native) {
-        println!("Run me under Valgrind");
-    } else {
-        cg::println!("Hey, Valgrind!");
-    }
+    assert_eq!(
+        running_mode(), RunningMode::Valgrind,
+        ":~$ valgrind {}", std::env::current_exe().unwrap().display()
+    );
+
+    crabgrind::println!("Hey, Valgrind!");
 }
 ```
 
@@ -82,10 +83,14 @@ feature. This turns every request into no-op.
 
 ## More Examples
 
+- [Valgrind: Deterministic regression testing(e.g. CI or unit tests)](https://docs.rs/crabgrind/latest/crabgrind/valgrind/fn.count_errors.html#example)
 - [Callgrind: Profiling specific code blocks in isolation](https://docs.rs/crabgrind/latest/crabgrind/callgrind/fn.toggle_collect.html#example)
 - [Callgrind: Clearing setup costs to isolate some operation](https://docs.rs/crabgrind/latest/crabgrind/callgrind/fn.zero_stats.html#example)
+- [Memcheck: Checking for memory leaks at runtime(e.g. CI or unit tests)](https://docs.rs/crabgrind/latest/crabgrind/memcheck/fn.leak_check.html#example)
+- [Memcheck: Enforcing bounds in a custom allocator](https://docs.rs/crabgrind/latest/crabgrind/memcheck/fn.mark_memory.html#example)
 - [DHAT: Tracking data volumes](https://docs.rs/crabgrind/latest/crabgrind/dhat/fn.ad_hoc_event.html#example)
-- [DRD: Tracking races in custom shared memory](https://docs.rs/crabgrind/latest/crabgrind/drd/fn.annotate_new_memory.html#example)
+- [DRD: Tracking races in a custom shared memory](https://docs.rs/crabgrind/latest/crabgrind/drd/fn.annotate_new_memory.html#example)
+- [DRD: Tracing memory accesses over some memory](https://docs.rs/crabgrind/latest/crabgrind/drd/fn.trace_var.html#example)
 
 ## Implementation
 

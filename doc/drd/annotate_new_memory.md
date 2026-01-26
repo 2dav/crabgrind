@@ -44,10 +44,10 @@ fn main() {
 
     // Simulate some race
     let base_addr = ptr as usize;
-    let handle1 = thread::spawn(move || unsafe {
+    let handle1 = std::thread::spawn(move || unsafe {
         *(base_addr as *mut u8) = 1; // Unprotected write
     });
-    let handle2 = thread::spawn(move || unsafe {
+    let handle2 = std::thread::spawn(move || unsafe {
         *(base_addr as *mut u8) = 2; // Unprotected write (Race with Thread 1)
     });
 

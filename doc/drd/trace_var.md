@@ -21,6 +21,28 @@ The lifetime of the guard is tied to `&var`.
 Acquiring the guard does **not** hold an active borrow. You may mutate `var`
 while the guard is active.
 
+## Example
+
+Tracing memory accesses:
+
+```rust
+use crabgrind::drd;
+
+let i:i32 = 0;
+
+// Tell DRD to trace all accesses over memory behind the reference
+let guard = drd::trace_var(&i);
+
+// Following access(read) will be registered by DRD
+unsafe { std::ptr::read_volatile(&i as *const _) };
+```
+
+> Run with DRD
+>
+> ```text
+> :~$ valgrind --tool=drd target/debug/trace_var
+> ```
+
 ## Note
 
 Requires Valgrind **3.3** or higher.

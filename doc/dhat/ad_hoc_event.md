@@ -15,7 +15,7 @@ attributed to specific call stacks.
 
 ## Example
 
-Tracking Data Volumes.
+Tracking data volumes:
 
 [Ad-hoc mode][ad-hoc-profiling] generates a flame graph where execution points
 are weighted by custom values rather than memory traffic. This can be used for

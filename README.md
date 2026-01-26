@@ -31,7 +31,7 @@ First, add `crabgrind` to `Cargo.toml`
 crabgrind = "0.2"
 ```
 
-> Note: This crate is `no_std`, dependency free and doesn't need `alloc`
+> Note: This crate is `no_std` and dependency free
 
 ### Build Configuration
 
@@ -84,6 +84,8 @@ feature. This turns every request into no-op.
 
 - [Callgrind: Profiling specific code blocks in isolation](https://docs.rs/crabgrind/latest/crabgrind/callgrind/fn.toggle_collect.html#example)
 - [Callgrind: Clearing setup costs to isolate some operation](https://docs.rs/crabgrind/latest/crabgrind/callgrind/fn.zero_stats.html#example)
+- [DHAT: Tracking data volumes](https://docs.rs/crabgrind/latest/crabgrind/dhat/fn.ad_hoc_event.html#example)
+- [DRD: Tracking races in custom shared memory](https://docs.rs/crabgrind/latest/crabgrind/drd/fn.annotate_new_memory.html#example)
 
 ## Implementation
 
@@ -91,9 +93,9 @@ feature. This turns every request into no-op.
 detail, exposed strictly via `C` macros. Since `Rust` does not support `C`
 preprocessor, these macros cannot be used directly.
 
-`crabgrind` wraps the foundational `VALGRIND_DO_CLIENT_REQUEST` macro via FFI
-binding. All higher-level client requests are implemented in Rust on top of this
-binding.
+`crabgrind` wraps the foundational `VALGRIND_DO_CLIENT_REQUEST_EXPR` macro via
+FFI binding. All higher-level client requests are implemented in Rust on top of
+this binding.
 
 The overhead per request, compared to using `C` macros directly is strictly the
 cost of a single function call.
@@ -111,7 +113,8 @@ instance (e.g. running under an older Valgrind), the call panics immediately,
 showing the version mismatch message and request requirements.
 
 If your application is running **without** Valgrind, these
-requests execute as harmless machine code. They will not panic or segfault.
+requests execute as harmless machine code. They will not panic or segfault, and
+overhead is probably undetectable except in a tight loops.
 
 ## License
 

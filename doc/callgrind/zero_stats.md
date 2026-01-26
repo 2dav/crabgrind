@@ -6,7 +6,7 @@ or previous iterations in a benchmarking loop.
 
 # Example
 
-Clearing setup costs to isolate the operation:
+Clearing setup costs to isolate some operation:
 
 ```rust
 use crabgrind::callgrind;

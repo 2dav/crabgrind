@@ -3,7 +3,7 @@ default:
 	just --list
 
 # Build library and integration tests
-build: check
+build: check doc
 	cargo build --no-default-features
 	cargo build --all-features
 	cargo test --release --no-run 

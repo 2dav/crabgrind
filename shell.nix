@@ -5,16 +5,15 @@ in
 pkgs.callPackage ( { stdenv, mkShell }: mkShell {
   strictDeps = true;
   nativeBuildInputs = with pkgs; [
+	pkg-config
     rustup
     rustPlatform.bindgenHook
+	rust-analyzer
     python3
 
-	pkg-config
-	rust-analyzer
 	cargo-cross
 	cspell
 	markdownlint-cli
-	mdformat
 	just
 
 	valgrind
@@ -28,8 +27,8 @@ pkgs.callPackage ( { stdenv, mkShell }: mkShell {
   # VALGRIND_INCLUDE = "${pkgs.valgrind.dev}/include";
 
   shellHook = ''
-	export RUSTUP_HOME=$HOME/.rustup
-    export CARGO_HOME=$HOME/.cargo
+	export CARGO_HOME=''${CARGO_HOME:-$HOME/.cargo}
+	export RUSTUP_HOME=''${RUSTUP_HOME:-$HOME/.rustup}
 	export PATH=$PATH:$CARGO_HOME/bin
     export PATH=$PATH:$RUSTUP_HOME/toolchains/$RUSTC_VERSION-${stdenv.hostPlatform.rust.rustcTarget}/bin
 

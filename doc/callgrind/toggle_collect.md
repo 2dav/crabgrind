@@ -37,11 +37,12 @@ callgrind::dump_stats(None);
 ```
 
 > Run with Callgrind and [disabled collection][collect-at-start]
+>
 > ```text
 > :~$ valgrind --tool=callgrind --collect-atstart=no target/debug/toggle_collect
 > ```
-
-> Resulting dump file can be quickly examined using the [callgrind_annotate][callgrind.annotate] 
+>
+> Resulting dump file can be quickly examined using the [callgrind_annotate][callgrind.annotate]
 > utility, distributed with Valgrind:
 >
 > ```text

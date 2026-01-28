@@ -26,9 +26,10 @@ map.insert(0, 0);
 callgrind::dump_stats(reason);
 ```
 
+> Run with Callgrind
+>
 > ```text
-> :~$ cargo build
-> :~$ valgrind target/debug/zero_stats
+> :~$ valgrind --tool=callgrind target/debug/zero_stats
 > ```
 >
 > ```text

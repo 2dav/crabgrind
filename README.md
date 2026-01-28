@@ -2,7 +2,7 @@
 
 # `crabgrind`
 
-### [Valgrind Client Request][vg-client.req] interface for Rust programs
+### [Valgrind Client Request][vg-client.req] interface for Rust
 
 [![crates.io](https://img.shields.io/crates/v/crabgrind)][crates.io]
 [![libs.rs](https://img.shields.io/badge/libs.rs-crabgrind-orange)][libs.rs]

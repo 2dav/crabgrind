@@ -28,7 +28,7 @@ fn check() -> mc::LeaksCount {
 
 assert_eq!(check().leaked, 0);
 // leak 8 bytes
-std::mem::forget(Box::new(0usize));
+std::mem::forget(vec![0u8; 8]);
 
 assert_eq!(check().leaked, 8);
 ```

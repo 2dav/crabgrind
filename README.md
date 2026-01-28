@@ -13,8 +13,8 @@
 
 ## Summary
 
-`crabgrind` is a small library that enables `Rust` programs to tap into
-`Valgrind`'s tools and environment.
+`crabgrind` is a small library that enables Rust programs to tap into
+Valgrind's tools and environment.
 
 It exposes full set of [Valgrind's client requests][vg-client.req] in Rust,
 manages the structure, type conversions and enforces static typing where
@@ -24,29 +24,30 @@ possible.
 
 **Minimum Supported Rust Version:** 1.64
 
-First, add `crabgrind` to `Cargo.toml`
+First, add `crabgrind` as a dependency in `Cargo.toml`
 
 ```toml
 [dependencies]
 crabgrind = "0.2"
 ```
 
-> Note: This crate is `no_std` and dependency free
+> Note: This crate is `no_std` and dependency-free
 
 ### Build Configuration
 
-We need to build against local Valgrind installation to read `C` macro
-definition, constants, and supported requests.
+The crate needs access to a local Valgrind installation(or at least its headers)
+in order to read C macro definitions, constants, and supported requests.
 
 The build script (`build.rs`) attempts to locate headers in this order:
 
-1. **Environment Variable:** If `VALGRIND_INCLUDE` is set, it is used as the
-   include path.
+1. **Environment Variable:** If `VALGRIND_INCLUDE` is set, it's value is added
+  to the search paths.
 1. **pkg-config:** The system is queried via `pkg-config`.
-1. **Standard Paths:** Using standard include paths.
+1. **Compiler defaults:** No additional include paths are provided, and the
+  compiler’s default include paths are used.
 
-If headers cannot be located, the crate compiles using dummy headers; any
-request will [`panic!`][std.panic] at runtime.
+> Note: If headers cannot be located, the crate will still compile without
+> errors, however any request will panic at runtime.
 
 ### Example
 
@@ -65,7 +66,7 @@ fn main() {
 }
 ```
 
-And run under `Valgrind`
+And run under Valgrind
 
 > ```bash
 > :~$ cargo build
@@ -94,20 +95,20 @@ feature. This turns every request into no-op.
 
 ## Implementation
 
-[Valgrind's client request][vg-client.req] mechanism is a `C` implementation
-detail, exposed strictly via `C` macros. Since `Rust` does not support `C`
+[Valgrind's client request][vg-client.req] mechanism is a C implementation
+detail, exposed strictly via C macros. Since Rust does not support C
 preprocessor, these macros cannot be used directly.
 
 `crabgrind` wraps the foundational `VALGRIND_DO_CLIENT_REQUEST_EXPR` macro via
 FFI binding. All higher-level client requests are implemented in Rust on top of
 this binding.
 
-The overhead per request, compared to using `C` macros directly is strictly the
+The overhead per request, compared to using C macros directly is strictly the
 cost of a single function call.
 
 The implementation is independent of any specific Valgrind version. Instead,
 mismatches between requests and local Valgrind instance are handled at
-compile-time in a zero-cost way for supported requests.
+compile-time.
 
 ## Runtime Safety
 
@@ -134,5 +135,4 @@ conflicts.
 [documentation]: https://docs.rs/crabgrind
 [libs.rs]: https://lib.rs/crates/crabgrind
 [license]: https://github.com/2dav/crabgrind/blob/main/LICENSE/MIT.LICENSE
-[std.panic]: https://doc.rust-lang.org/std/macro.panic.html
 [vg-client.req]: https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq

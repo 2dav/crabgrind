@@ -41,7 +41,7 @@ fn main() {
     }
 
     // B: Low frequency, massive payloads.
-    // 10 packets of 1 MB.
+    // 10 packets of ~1 MB.
     for _ in 0..10 {
         process_chunk(&[0u8; 1_000_000]);
     }

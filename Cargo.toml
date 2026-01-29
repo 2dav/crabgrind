@@ -5,14 +5,14 @@ license = "MIT"
 edition = "2021"
 rust-version = "1.64"
 description = "Rust bindings to \"Valgrind Client Request\" interface"
-keywords = ["valgrind", "callgrind", "cachegrind", "helgrind", "drd"]
+keywords = ["valgrind", "callgrind", "cachegrind", "memcheck", "client-requests"]
 categories = ["api-bindings", "development-tools::profiling", "development-tools::testing"]
 repository = "https://github.com/2dav/crabgrind"
 homepage = "https://github.com/2dav/crabgrind"
 documentation = "https://docs.rs/crabgrind"
 readme = "README.md"
 exclude = [".gitignore", "Justfile", "Cross.toml", "rustfmt.toml", "rust-toolchain.toml", "shell.nix",
-			"*.sh", "*.py", "*.defs", "*.head", "tests/*"]
+			"*.sh", "*.py", "*.defs", "*.head", "*.dict", "*.json", "tests/*"]
 
 [features]
 default = []

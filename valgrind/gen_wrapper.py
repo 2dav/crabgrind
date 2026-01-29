@@ -5,7 +5,6 @@ import os
 
 CLIENT_REQUESTS_DEFS_PATH = "client_request.defs"
 WRAPPER_HEAD = "wrapper.head"
-VALGRIND_CLIENT_REQUEST_BASE = 0x1001
 TAB = "\t"
 NEWLINE = "\n"
 PREFIX = "CG_"

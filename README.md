@@ -41,13 +41,13 @@ in order to read C macro definitions, constants, and supported requests.
 The build script (`build.rs`) attempts to locate headers in this order:
 
 1. **Environment Variable:** If `VALGRIND_INCLUDE` is set, it's value is added
-  to the search paths.
+   to the search paths.
 1. **pkg-config:** The system is queried via `pkg-config`.
 1. **Compiler defaults:** No additional include paths are provided, and the
-  compiler’s default include paths are used.
+   compiler’s default include paths are used.
 
-> Note: If headers cannot be located, the crate will still compile without
-> errors, however any request will panic at runtime.
+If headers cannot be located, the crate will still compile without errors,
+however any request will panic at runtime.
 
 ### Example
 

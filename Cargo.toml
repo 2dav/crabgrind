@@ -20,7 +20,7 @@ default = []
 opt-out = []
 
 [build-dependencies]
-cc = { version = "1" }
+cc = "1"
 bindgen = "0.72"
 pkg-config = "0.3"
 

@@ -110,7 +110,7 @@ The implementation is independent of any specific Valgrind version. Instead,
 mismatches between requests and local Valgrind instance are handled at
 compile-time.
 
-## Runtime Safety
+## Runtime Behavior
 
 We are coupled to the Valgrind version present during compilation.
 

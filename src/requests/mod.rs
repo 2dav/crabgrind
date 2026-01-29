@@ -38,12 +38,24 @@ macro_rules! client_request {
 }
 
 // Asserts that a client request is supported by the Valgrind version this crate was compiled against.
-// This assertion is expected to be optimized out by the compiler for supported requests.
+// These assertions are expected to be optimized out by the compiler for supported requests.
 macro_rules! assert_defined {
     ($request:path) => {{
         const REQUIREMENT: u32 = $request.required_version();
         const SYS_VERSION: u32 = crate::VALGRIND_VERSION.0 * 100 + crate::VALGRIND_VERSION.1;
 
+        // check Valgrind headers indeed found 
+        assert_ne!(0, SYS_VERSION,
+            "\n`bindgen(libclang)` failed to locate `<valgrind/valgrind.h>`.\n\
+            \tThis typically means Valgrind headers ain't found on the standard include paths:\n\
+            \t\t<sysroot>/usr/include\n\
+            \t\t<sysroot>/usr/local/include\n\
+            \t\t...\n\
+            \t\t\tnor via 'pkg-config' probe.\n\
+            \tYou might try 'VALGRIND_INCLUDE=<path to valgrind/include>' as a quick workaround.\n\
+            \tBuild configuration doc: https://docs.rs/crabgrind#build-configuration");
+
+        // check request requirement matches local Valgrind version
         assert!(
             REQUIREMENT <= SYS_VERSION,
             "\n'{request}' is not supported by your Valgrind version. \n\

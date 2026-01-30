@@ -21,7 +21,7 @@ The lifetime of the guard is tied to `&var`.
 Acquiring the guard does **not** hold an active borrow. You may mutate `var`
 while the guard is active.
 
-## Example
+# Example
 
 Tracing memory accesses:
 

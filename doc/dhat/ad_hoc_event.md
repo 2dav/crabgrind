@@ -13,7 +13,7 @@ The `weight` argument is an arbitrary unit of measurement that you define:
 DHAT aggregates these weights in the profile, showing them as the total "units"
 attributed to specific call stacks.
 
-## Example
+# Example
 
 Tracking data volumes:
 

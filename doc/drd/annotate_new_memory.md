@@ -14,7 +14,7 @@ allocated by the application and is now in use. It prevents DRD from reporting
 "Invalid read/write" errors on valid custom-allocated memory and ensures race
 detection is active for the new block.
 
-## Example
+# Example
 
 Tracking races in custom shared memory:
 

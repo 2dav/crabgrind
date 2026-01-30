@@ -4,7 +4,7 @@ This performs an immediate check on both A-bits (addressability) and V-bits
 (definedness/initialized values) for the specified range. If any byte is not
 addressable or contains undefined data, Valgrind emits an error report.
 
-## Example
+# Example
 
 ```rust, no_run
 use std::mem::MaybeUninit;
@@ -39,7 +39,7 @@ unsafe { assert_eq!(V!(var.assume_init().as_ptr()), [0x0, 0xFF]) };
 > :~$ valgrind --tool=memcheck target/debug/mem_defined
 > ```
 
-## Errors
+# Errors
 
 [`OffendingOffset`](OffendingOffset) Contains the offset of the first byte that
 is not defined.

@@ -4,7 +4,7 @@ This wrapper injects client requests directly into the execution stream to
 modify Memcheck's shadow memory. It is useful for custom allocators or
 optimizing instrumentation of complex memory operations.
 
-## Example
+# Example
 
 Enforcing bounds in a custom allocator:
 

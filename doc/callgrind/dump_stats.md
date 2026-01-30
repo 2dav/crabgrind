@@ -17,7 +17,7 @@ request.
 - `reason` - An optional C-style string [`CStr`](core::ffi::CStr) describing the
   context of the dump.
 
-# Examples
+# Example
 
 Dumping without a specific reason:
 

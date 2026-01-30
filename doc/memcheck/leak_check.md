@@ -12,7 +12,7 @@ The results are emitted directly to the Valgrind output channel (stderr or xml).
 Differential modes (`Added`, `Changed`, `New`) rely on state saved from the
 immediately preceding leak check.
 
-## Example
+# Example
 
 Checking for memory leaks at runtime:
 

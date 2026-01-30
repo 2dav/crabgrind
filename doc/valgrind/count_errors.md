@@ -15,7 +15,7 @@ This is primarily useful in automated test harnesses. When combined with the
 `--log-fd=-1` option, Valgrind runs silently (suppressing standard output),
 allowing the client program to inspect the error count programmatically.
 
-## Example
+# Example
 
 Deterministic regression testing:
 

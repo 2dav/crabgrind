@@ -42,3 +42,5 @@ Minstr
 munmap
 libclang
 Uninit
+TOOLNAME
+toolname

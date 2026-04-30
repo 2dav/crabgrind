@@ -259,4 +259,23 @@ pub fn stack_change(stack: StackId, new_lowest: *const c_void, new_highest: *con
     client_request!(CR::CG_VALGRIND_STACK_CHANGE, stack, new_lowest, new_highest);
 }
 
+#[doc = include_str!("../../doc/valgrind/replaces_malloc.md")]
+#[inline(always)]
+pub fn replaces_malloc() -> bool {
+    client_request!(CR::CG_VALGRIND_REPLACES_MALLOC) != 0
+}
+
+#[doc = include_str!("../../doc/valgrind/toolname.md")]
+#[inline(always)]
+pub fn toolname(buf: &mut [u8; 64]) -> Option<&CStr> {
+    match client_request!(CR::CG_VALGRIND_GET_TOOLNAME, buf.as_mut_ptr(), 64) {
+        0 => None,
+        n => {
+            // SAFETY: Request definition guarantees the resulting buffer is a null-terminated ascii string
+            // limited to specified length.
+            unsafe { CStr::from_bytes_with_nul_unchecked(&buf[..n]).into() }
+        }
+    }
+}
+
 impl Sealed for DisabledReporting {}

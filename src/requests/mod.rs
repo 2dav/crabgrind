@@ -17,6 +17,7 @@ macro_rules! client_request {
         ($($arg as usize),*).0
     }};
     ($request:path, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {{
+        #[cfg(not(feature = "opt-out"))]
         $crate::requests::assert_defined!($request);
         client_request!(^ 0, $request, $arg1, $arg2, $arg3, $arg4, $arg5)
     }};
@@ -39,6 +40,7 @@ macro_rules! client_request {
 
 // Asserts that a client request is supported by the Valgrind version this crate was compiled against.
 // These assertions are expected to be optimized out by the compiler for supported requests.
+#[cfg(not(feature = "opt-out"))]
 macro_rules! assert_defined {
     ($request:path) => {{
         const REQUIREMENT: u32 = $request.required_version();
@@ -70,7 +72,9 @@ macro_rules! assert_defined {
     }};
 }
 
-pub(crate) use {assert_defined, client_request};
+#[cfg(not(feature = "opt-out"))]
+pub(crate) use assert_defined;
+pub(crate) use client_request;
 
 #[doc = include_str!("../../doc/println.md")]
 #[macro_export]

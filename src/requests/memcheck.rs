@@ -149,7 +149,10 @@ pub fn mark_memory(
         MemState::DefinedIfAddressable => r!(CR::CG_VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE),
     };
 
-    (result == MAKE_MEM_OK).then_some(()).ok_or(result)
+    match result {
+        MAKE_MEM_OK | MAKE_MEM_NO_VALGRIND => Ok(()),
+        unaddressable => Err(unaddressable),
+    }
 }
 
 macro_rules! check_mem {

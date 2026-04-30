@@ -8,6 +8,7 @@ pub mod memcheck {
     // vg-docs/mc-manual.clientreqs:
     // "They return -1, when run on Valgrind and 0 otherwise."
     pub const MAKE_MEM_OK: usize = usize::MAX;
+    pub const MAKE_MEM_NO_VALGRIND: usize = 0;
 
     // vg-docs/mc-manual.clientreqs:
     // "... returns zero if the relevant property holds;

@@ -9,17 +9,28 @@ pub mod valgrind;
 pub(crate) mod constants;
 
 macro_rules! client_request {
-    (^ $($arg:expr),*) =>  {{
+    (^ $default:expr, $request:path, $($arg:expr),*) =>  {{
         #[cfg(not(feature = "opt-out"))]
-        unsafe { $crate::bindings::valgrind_client_request_expr($($arg as usize),*) }
+        {
+            $crate::requests::assert_defined!($request);
+            unsafe { 
+                $crate::bindings::valgrind_client_request_expr(
+                    $default as usize, 
+                    $request as usize, 
+                    $($arg as usize),*
+                )
+            }
+        }
 
         #[cfg(feature = "opt-out")]
         ($($arg as usize),*).0
     }};
-    ($request:path, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {{
-        $crate::requests::assert_defined!($request);
-        client_request!(^ 0, $request, $arg1, $arg2, $arg3, $arg4, $arg5)
-    }};
+    ($request:path, $default:expr, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {
+        client_request!(^ $default, $request, $arg1, $arg2, $arg3, $arg4, $arg5)
+    };
+    ($request:path, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {
+        client_request!($request, 0, $arg1, $arg2, $arg3, $arg4, $arg5)
+    };
     ($request:path, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr) => {
         client_request!($request, $arg1, $arg2, $arg3, $arg4, 0)
     };

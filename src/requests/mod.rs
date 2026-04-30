@@ -23,7 +23,7 @@ macro_rules! client_request {
         }
 
         #[cfg(feature = "opt-out")]
-        ($($arg as usize),*).0
+        $default
     }};
     ($request:path, $default:expr, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {
         client_request!(^ $default, $request, $arg1, $arg2, $arg3, $arg4, $arg5)

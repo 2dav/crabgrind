@@ -138,7 +138,7 @@ pub fn mark_memory(
 ) -> Result<(), UnaddressableBytes> {
     macro_rules! r {
         ($req:path) => {
-            client_request!($req, addr, size)
+            client_request!($req, MAKE_MEM_OK, addr, size, 0, 0, 0)
         };
     }
 

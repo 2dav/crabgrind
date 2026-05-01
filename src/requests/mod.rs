@@ -55,8 +55,9 @@ macro_rules! assert_defined {
         const REQUIREMENT: u32 = $request.required_version();
         const SYS_VERSION: u32 = crate::VALGRIND_VERSION.0 * 100 + crate::VALGRIND_VERSION.1;
 
-        // check Valgrind headers indeed found 
-        assert_ne!(0, SYS_VERSION,
+        // check Valgrind headers indeed found
+        assert_ne!(
+            0, SYS_VERSION,
             "\n`bindgen(libclang)` failed to locate `<valgrind/valgrind.h>`.\n\
             \tThis typically means Valgrind headers ain't found on the standard include paths:\n\
             \t\t<sysroot>/usr/include\n\
@@ -64,7 +65,8 @@ macro_rules! assert_defined {
             \t\t...\n\
             \t\t\tnor via 'pkg-config' probe.\n\
             \tYou might try 'VALGRIND_INCLUDE=<path to valgrind/include>' as a quick workaround.\n\
-            \tBuild configuration doc: https://docs.rs/crabgrind#build-configuration");
+            \tBuild configuration doc: https://docs.rs/crabgrind#build-configuration"
+        );
 
         // check request requirement matches local Valgrind version
         assert!(
@@ -81,7 +83,8 @@ macro_rules! assert_defined {
     }};
 }
 
-pub(crate) use {assert_defined, client_request};
+pub(crate) use assert_defined;
+pub(crate) use client_request;
 
 #[doc = include_str!("../../doc/println.md")]
 #[macro_export]

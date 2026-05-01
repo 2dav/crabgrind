@@ -138,7 +138,7 @@ pub fn mark_memory(
 ) -> Result<(), UnaddressableBytes> {
     macro_rules! r {
         ($req:path) => {
-            client_request!($req, addr, size)
+            client_request!($req, MAKE_MEM_OK, addr, size, 0, 0, 0)
         };
     }
 
@@ -149,10 +149,7 @@ pub fn mark_memory(
         MemState::DefinedIfAddressable => r!(CR::CG_VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE),
     };
 
-    match result {
-        MAKE_MEM_OK | MAKE_MEM_NO_VALGRIND => Ok(()),
-        unaddressable => Err(unaddressable),
-    }
+    (result == MAKE_MEM_OK).then_some(()).ok_or(result)
 }
 
 macro_rules! check_mem {

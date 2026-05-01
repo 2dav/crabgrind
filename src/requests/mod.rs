@@ -13,10 +13,10 @@ macro_rules! client_request {
         #[cfg(not(feature = "opt-out"))]
         {
             $crate::requests::assert_defined!($request);
-            unsafe {
+            unsafe { 
                 $crate::bindings::valgrind_client_request_expr(
-                    $default as usize,
-                    $request as usize,
+                    $default as usize, 
+                    $request as usize, 
                     $($arg as usize),*
                 )
             }

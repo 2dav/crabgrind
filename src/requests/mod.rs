@@ -9,18 +9,28 @@ pub mod valgrind;
 pub(crate) mod constants;
 
 macro_rules! client_request {
-    (^ $($arg:expr),*) =>  {{
+    (^ $default:expr, $request:path, $($arg:expr),*) =>  {{
         #[cfg(not(feature = "opt-out"))]
-        unsafe { $crate::bindings::valgrind_client_request_expr($($arg as usize),*) }
+        {
+            $crate::requests::assert_defined!($request);
+            unsafe {
+                $crate::bindings::valgrind_client_request_expr(
+                    $default as usize,
+                    $request as usize,
+                    $($arg as usize),*
+                )
+            }
+        }
 
         #[cfg(feature = "opt-out")]
-        ($($arg as usize),*).0
+        $default
     }};
-    ($request:path, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {{
-        #[cfg(not(feature = "opt-out"))]
-        $crate::requests::assert_defined!($request);
-        client_request!(^ 0, $request, $arg1, $arg2, $arg3, $arg4, $arg5)
-    }};
+    ($request:path, $default:expr, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {
+        client_request!(^ $default, $request, $arg1, $arg2, $arg3, $arg4, $arg5)
+    };
+    ($request:path, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {
+        client_request!($request, 0, $arg1, $arg2, $arg3, $arg4, $arg5)
+    };
     ($request:path, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr) => {
         client_request!($request, $arg1, $arg2, $arg3, $arg4, 0)
     };
@@ -40,14 +50,14 @@ macro_rules! client_request {
 
 // Asserts that a client request is supported by the Valgrind version this crate was compiled against.
 // These assertions are expected to be optimized out by the compiler for supported requests.
-#[cfg(not(feature = "opt-out"))]
 macro_rules! assert_defined {
     ($request:path) => {{
         const REQUIREMENT: u32 = $request.required_version();
         const SYS_VERSION: u32 = crate::VALGRIND_VERSION.0 * 100 + crate::VALGRIND_VERSION.1;
 
-        // check Valgrind headers indeed found 
-        assert_ne!(0, SYS_VERSION,
+        // check Valgrind headers indeed found
+        assert_ne!(
+            0, SYS_VERSION,
             "\n`bindgen(libclang)` failed to locate `<valgrind/valgrind.h>`.\n\
             \tThis typically means Valgrind headers ain't found on the standard include paths:\n\
             \t\t<sysroot>/usr/include\n\
@@ -55,7 +65,8 @@ macro_rules! assert_defined {
             \t\t...\n\
             \t\t\tnor via 'pkg-config' probe.\n\
             \tYou might try 'VALGRIND_INCLUDE=<path to valgrind/include>' as a quick workaround.\n\
-            \tBuild configuration doc: https://docs.rs/crabgrind#build-configuration");
+            \tBuild configuration doc: https://docs.rs/crabgrind#build-configuration"
+        );
 
         // check request requirement matches local Valgrind version
         assert!(
@@ -72,7 +83,6 @@ macro_rules! assert_defined {
     }};
 }
 
-#[cfg(not(feature = "opt-out"))]
 pub(crate) use assert_defined;
 pub(crate) use client_request;
 

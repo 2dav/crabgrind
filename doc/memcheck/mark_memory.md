@@ -88,10 +88,7 @@ fn main() {
 
 # Errors
 
-- [`UnaddressableBytes`](UnaddressableBytes) - containing the number of
-  unaddressable bytes if `mark` is set to
-  [`MemState::DefinedIfAddressable`](MemState::DefinedIfAddressable) and not all
-  bytes in the range were addressable
+- [`NoValgrind`](NoValgrind) - when called not running under Valgrind 
 
 ## Note
 

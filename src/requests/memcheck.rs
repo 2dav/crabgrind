@@ -237,12 +237,28 @@ macro_rules! vbits {
     };
 }
 
+#[cfg(feature = "opt-out")]
+#[doc = include_str!("../../doc/memcheck/vbits.md")]
+#[inline(always)]
+pub fn vbits(_addr: *const c_void, _dest: &mut [u8]) -> Result<(), VBitsError> {
+    Ok(())
+}
+
+#[cfg(not(feature = "opt-out"))]
 #[doc = include_str!("../../doc/memcheck/vbits.md")]
 #[inline(always)]
 pub fn vbits(addr: *const c_void, dest: &mut [u8]) -> Result<(), VBitsError> {
     vbits!(CR::CG_VALGRIND_GET_VBITS, addr, dest)
 }
 
+#[cfg(feature = "opt-out")]
+#[doc = include_str!("../../doc/memcheck/set_vbits.md")]
+#[inline(always)]
+pub fn set_vbits(_addr: *const c_void, _vbits: &[u8]) -> Result<(), VBitsError> {
+    Ok(())
+}
+
+#[cfg(not(feature = "opt-out"))]
 #[doc = include_str!("../../doc/memcheck/set_vbits.md")]
 #[inline(always)]
 pub fn set_vbits(addr: *const c_void, vbits: &[u8]) -> Result<(), VBitsError> {

@@ -118,6 +118,15 @@ pub fn load_pdb_debuginfo(fd: RawFd, ptr: *const c_void, total_size: usize, delt
     );
 }
 
+#[cfg(feature = "opt-out")]
+#[doc = include_str!("../../doc/valgrind/map_ip_to_srcloc.md")]
+#[inline(always)]
+#[allow(clippy::needless_lifetimes)]
+pub fn map_ip_to_srcloc<'a>(_addr: *const c_void, _buf: &'a mut [u8; 64]) -> Option<&'a CStr> {
+    None
+}
+
+#[cfg(not(feature = "opt-out"))]
 #[doc = include_str!("../../doc/valgrind/map_ip_to_srcloc.md")]
 #[inline(always)]
 #[allow(clippy::needless_lifetimes)]
@@ -265,6 +274,14 @@ pub fn replaces_malloc() -> bool {
     client_request!(CR::CG_VALGRIND_REPLACES_MALLOC) != 0
 }
 
+#[cfg(feature = "opt-out")]
+#[doc = include_str!("../../doc/valgrind/toolname.md")]
+#[inline(always)]
+pub fn toolname(_buf: &mut [u8; 64]) -> Option<&CStr> {
+    None
+}
+
+#[cfg(not(feature = "opt-out"))]
 #[doc = include_str!("../../doc/valgrind/toolname.md")]
 #[inline(always)]
 pub fn toolname(buf: &mut [u8; 64]) -> Option<&CStr> {

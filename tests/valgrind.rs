@@ -28,6 +28,20 @@ fn toolname() {
 }
 
 #[test]
+fn replaces_malloc() {
+    valgrind!(memcheck => {
+        assert!(vg::replaces_malloc());
+    });
+}
+
+#[test]
+fn not_replaces_malloc() {
+    valgrind!(cachegrind => {
+        assert_eq!(false, vg::replaces_malloc());
+    });
+}
+
+#[test]
 fn monitor_command() {
     valgrind!(memcheck --leak-check=no => {
         assert!(vg::monitor_command(cstr!("invalid_command")).is_err());

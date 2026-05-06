@@ -7,7 +7,7 @@ Valgrind.
 # Arguments
 
 - `buf` – A mutable 64-byte buffer. Valgrind writes the tool name string
-    into this memory.
+  into this memory.
 
 ## Note
 

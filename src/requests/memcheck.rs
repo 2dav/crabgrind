@@ -135,7 +135,7 @@ pub enum VBitsError {
 #[doc = include_str!("../../doc/memcheck/mark_memory.md")]
 #[inline(always)]
 pub fn mark_memory(_addr: *const c_void, _size: usize, _mark: MemState) -> Result<(), NoValgrind> {
-    return Ok(());
+    Ok(())
 }
 
 #[cfg(not(feature = "opt-out"))]

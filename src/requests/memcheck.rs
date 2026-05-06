@@ -18,8 +18,10 @@ pub type BlockHandle = usize;
 /// A handle that was invalid or not found during a discard operation.
 pub type InvalidBlockHandle = BlockHandle;
 
-#[doc = include_str!("../../doc/memcheck/UnaddressableBytes.md")]
-pub type UnaddressableBytes = usize;
+/// Error indicating client-request was called when not running under Valgrind.
+///
+/// See [`mark_memory`](mark_memory)
+pub type NoValgrind = ();
 
 #[doc = include_str!("../../doc/memcheck/OffendingOffset.md")]
 pub type OffendingOffset = usize;
@@ -129,16 +131,20 @@ pub enum VBitsError {
     Unknown(u8),
 }
 
+#[cfg(feature = "opt-out")]
 #[doc = include_str!("../../doc/memcheck/mark_memory.md")]
 #[inline(always)]
-pub fn mark_memory(
-    addr: *const c_void,
-    size: usize,
-    mark: MemState,
-) -> Result<(), UnaddressableBytes> {
+pub fn mark_memory(_addr: *const c_void, _size: usize, _mark: MemState) -> Result<(), NoValgrind> {
+    return Ok(());
+}
+
+#[cfg(not(feature = "opt-out"))]
+#[doc = include_str!("../../doc/memcheck/mark_memory.md")]
+#[inline(always)]
+pub fn mark_memory(addr: *const c_void, size: usize, mark: MemState) -> Result<(), NoValgrind> {
     macro_rules! r {
         ($req:path) => {
-            client_request!($req, MAKE_MEM_OK, addr, size, 0, 0, 0)
+            client_request!($req, addr, size)
         };
     }
 
@@ -149,7 +155,7 @@ pub fn mark_memory(
         MemState::DefinedIfAddressable => r!(CR::CG_VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE),
     };
 
-    (result == MAKE_MEM_OK).then_some(()).ok_or(result)
+    if result == MAKE_MEM_OK { Ok(()) } else { Err(()) }
 }
 
 macro_rules! check_mem {

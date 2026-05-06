@@ -89,7 +89,7 @@ fn count_leak_blocks() {
 #[test]
 fn mark_memory_no_valgrind() {
     let res = mc::mark_memory(std::ptr::null(), 1, mc::MemState::Undefined);
-    assert_eq!(res, Ok(()));
+    assert!(res.is_err());
 }
 
 #[test]

@@ -1,14 +1,14 @@
-Records a DHAT ad-hoc event.
+Recording of a DHAT Ad-Hoc Event
 
-Wraps `DHAT_AD_HOC_EVENT` to tell Valgrind something happened at this
+Wraps `DHAT_AD_HOC_EVENT` to record that an event occurred at the current
 instruction pointer.
 
 The `weight` argument is an arbitrary unit of measurement that you define:
 
-- [`None`](Option::None) (which defaults to weight of `1`) treats all calls as
-  equal occurrences.
-- [`usize`](usize) applies a specific weight, to mark certain events as 'more
-  significant' than others.
+- [`None`](Option::None) (which defaults to a weight of `1`) treats all calls
+  as equally weighted occurrences.
+- A [`usize`](usize) value applies a specific weight, marking certain events as
+  "more significant" than others.
 
 DHAT aggregates these weights in the profile, showing them as the total "units"
 attributed to specific call stacks.
@@ -54,7 +54,7 @@ fn main() {
 > :~$ valgrind --tool=dhat --mode=ad-hoc target/debug/ad_hoc_event
 > ```
 >
-> Resulting dhat profile can be quickly examined using the [dhat-viewer][dhat.viewer]
+> The resulting DHAT profile can be quickly examined using the [dhat-viewer][dhat.viewer]
 > utility, distributed with Valgrind.
 >
 > ```text

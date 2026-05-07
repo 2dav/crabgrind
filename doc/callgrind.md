@@ -16,7 +16,7 @@ Nothing happens unless the binary runs under Callgrind:
 ## Version Requirements
 
 - **Minimum Valgrind:** `3.7`
-- **Recommended Valgrind:** `3.11` or higher to use any of Callgrind requests
+- **Recommended Valgrind:** `3.11` or higher to use any of Callgrind's requests
 
 [callgrind]: https://valgrind.org/docs/manual/cl-manual.html
 [vg-docs]: https://valgrind.org/docs/manual/cl-manual.html#cl-manual.clientrequests

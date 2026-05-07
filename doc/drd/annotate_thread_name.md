@@ -1,4 +1,4 @@
-Assigns a human-readable name to the current thread.
+Assignment of a human-readable name to the current thread
 
 Wraps the `ANNOTATE_THREAD_NAME` client request.
 

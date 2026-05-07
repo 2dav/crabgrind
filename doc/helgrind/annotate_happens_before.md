@@ -1,4 +1,4 @@
-Marks the "signaller" side of a custom synchronization event.
+Annotation of the "signaller" side of a custom synchronization event
 
 Creates a happens-before edge. Memory accesses prior to this call in the current
 thread will be considered visible to any thread that subsequently executes

@@ -1,4 +1,4 @@
-Sets validity (V) bits for a memory range.
+Setting of validity (V) bits for a memory range
 
 Copies V-bit metadata from `vbits` into Memcheck's shadow memory for the range
 `[addr, addr + len)`. This overwrites the current validity state tracked by
@@ -18,18 +18,17 @@ set V-bits that were previously retrieved via [`vbits`](vbits).
 
 # Errors
 
-- [`VBitsError::NoValgrind`](VBitsError::NoValgrind) The client request is not
+- [`VBitsError::NoValgrind`](VBitsError::NoValgrind) - The client request is not
   running on Valgrind. The function has no effect and returns this error.
-- [`VBitsError::LegacyAlignment`](VBitsError::LegacyAlignment) Legacy alignment
+- [`VBitsError::LegacyAlignment`](VBitsError::LegacyAlignment) - Legacy alignment
   constraint triggered. Historically, `addr` and `vbits` were required to be
   4-byte aligned, and `len` was required to be a multiple of 4. Valgrind 3.8.0
   and later relaxed this restriction, treating this case as success.
-- [`VBitsError::Unaddressable`](VBitsError::Unaddressable) A memory access
+- [`VBitsError::Unaddressable`](VBitsError::Unaddressable) - A memory access
   failure occurred during the operation. This indicates that the source address
   range or the destination buffer (or parts thereof) were not addressable.
-- [`VBitsError::Unknown`](VBitsError::Unknown) An unknown error code was
-  returned from Valgrind. Contains the raw error code returned by the client
-  request.
+- [`VBitsError::Unknown`](VBitsError::Unknown) - An unknown error code was
+  returned from Valgrind.
 
 ## Note
 

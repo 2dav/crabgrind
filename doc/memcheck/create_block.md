@@ -1,4 +1,4 @@
-Associates a custom name with a memory range.
+Association of a custom name with a memory range
 
 Registering a block allows Memcheck to report errors (invalid accesses,
 uninitialized reads) using a specific description string rather than the generic

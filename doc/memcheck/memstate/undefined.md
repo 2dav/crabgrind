@@ -1,4 +1,4 @@
-Addressable but containing undefined data.
+Addressable memory containing undefined data
 
 The bytes may be read or written, but their values are considered uninitialized.
 Memcheck will report an error if these values influence program behavior.

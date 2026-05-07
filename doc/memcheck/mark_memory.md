@@ -1,6 +1,6 @@
-Manipulates the accessibility and validity state of a memory range.
+Manipulation of accessibility and validity state for a memory range
 
-This wrapper injects client requests directly into the execution stream to
+This function injects client requests directly into the execution stream to
 modify Memcheck's shadow memory. It is useful for custom allocators or
 optimizing instrumentation of complex memory operations.
 
@@ -10,11 +10,11 @@ Enforcing bounds in a custom allocator:
 
 For custom memory management (e.g. arenas, bump allocators), Memcheck sees only
 a single large block. Overflows within that block or reading from uninitialized
-regions only triggers a generic "uninitialized value" errors.
+regions only trigger generic 'uninitialized value' errors.
 
-By explicitly defining accessible regions ([`MemState::Undefined`]) and
-restricting access to free space ([`MemState::NoAccess`]), we can turn generic
-errors into precise reports.
+By explicitly marking allocated regions as accessible-but-uninitialized
+([`MemState::Undefined`]) and restricting access to free space
+([`MemState::NoAccess`]), we can turn generic errors into precise reports.
 
 ```rust, no_run
 use crabgrind::memcheck as mc;
@@ -88,7 +88,7 @@ fn main() {
 
 # Errors
 
-- [`NoValgrind`](NoValgrind) - when called not running under Valgrind 
+- [`NoValgrind`](NoValgrind) - when not running under Valgrind
 
 ## Note
 

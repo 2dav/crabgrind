@@ -8,4 +8,6 @@ target/
 **/dhat.out.*
 **/cachegrind.out.*
 
+scripts/merge_docs.sh
+
 todo/

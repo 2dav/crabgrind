@@ -1,5 +1,4 @@
-Toggles data race suppression for memory **writes** performed by the current
-thread.
+Suppression of Data Race Reports for memory **writes**
 
 Instructs DRD to stop reporting data races involving store operations performed
 by the current thread. Suppression is immediate. The returned RAII guard manages
@@ -16,8 +15,8 @@ coarse-grained suppression mechanism, distinct from [`ignore_var`](ignore_var)
 which targets specific addresses.
 
 **Warning:** Ignoring writes significantly reduces the effectiveness of DRD. Use
-with caution, as intentional races on writes are rarer and more prone to causing
-subtle memory consistency errors than read races.
+with caution, as intentional write races are less common and more likely to
+cause subtle memory consistency errors than read races.
 
 ## Note
 

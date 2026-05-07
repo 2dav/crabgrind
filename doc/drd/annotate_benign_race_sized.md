@@ -1,4 +1,4 @@
-Marks a raw memory range as "benign raced".
+Annotation of a memory range as a "benign race"
 
 Corresponds to the `ANNOTATE_BENIGN_RACE_SIZED` client request.
 

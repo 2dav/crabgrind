@@ -1,4 +1,4 @@
-Notifies DRD that a custom memory allocator has initialized a new memory range.
+Notification of custom memory initialization to DRD
 
 Wraps the `ANNOTATE_NEW_MEMORY` client request.
 
@@ -6,7 +6,7 @@ Wraps the `ANNOTATE_NEW_MEMORY` client request.
 
 DRD automatically tracks memory state by intercepting standard allocation
 functions (`malloc`, `free`, `new`, `delete`). If the client program uses a
-custom memory allocator (e.g. memory pools, arenas, or direct `mmap`), DRD
+custom memory allocator (e.g., memory pools, arenas, or direct `mmap`), DRD
 treats those memory regions as *unallocated* or *inaccessible*.
 
 This request explicitly informs DRD that the range `[addr, addr+size)` has been
@@ -33,9 +33,11 @@ fn main() {
     let ptr = unsafe {
         libc::mmap(
             std::ptr::null_mut(),
-            PAGE_SIZE, 
-            PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE,
-            -1, 0
+            PAGE_SIZE,
+            PROT_READ | PROT_WRITE,
+            MAP_ANONYMOUS | MAP_PRIVATE,
+            -1,
+            0
         )
     };
 
@@ -64,14 +66,14 @@ fn main() {
 > :~$ valgrind --tool=drd target/debug/annotate_new_memory
 > ```
 >
-> Because range is registered, DRD detects the conflicting access and reports a
-> data race:
+> Because the range is registered, DRD detects the conflicting access and
+> reports a data race:
 >
 > ```text
 > ...
-> Conflicting load by thread 3 at 0x04d53ee6 size 1
+> Conflicting store by thread 3 at 0x04d53ee6 size 1
 > ...
->```
+> ```
 
 ## Note
 

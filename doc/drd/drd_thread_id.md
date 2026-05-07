@@ -1,4 +1,4 @@
-Retrieves the DRD-specific thread ID for the current thread context.
+Retrieval of the DRD-specific thread ID
 
 Executes the `DRD_GET_DRD_THREADID` client request to retrieve the thread ID
 assigned by DRD to the current context.

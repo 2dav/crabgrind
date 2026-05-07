@@ -1,4 +1,4 @@
-Marks a variable as "benign raced", suppressing DRD error reports.
+Annotation of a memory address as a "benign race"
 
 Corresponds to the `ANNOTATE_BENIGN_RACE` client request.
 

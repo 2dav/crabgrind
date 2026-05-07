@@ -1,4 +1,4 @@
-Removes a previously registered memory block description.
+Removal of a previously registered memory block description
 
 Deletes the mapping between a memory range and its custom description string.
 Subsequent errors in that region will revert to standard Memcheck reporting.
@@ -10,7 +10,8 @@ Subsequent errors in that region will revert to standard Memcheck reporting.
 
 # Errors
 
-- [`InvalidBlockHandle`](InvalidBlockHandle) - provided handle was not valid.
+- [`InvalidBlockHandle`](InvalidBlockHandle) - The provided handle was not
+  valid.
 
 ## Note
 

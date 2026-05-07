@@ -1,7 +1,7 @@
-Prints formatted text to the Valgrind output channel.
+Printing of formatted text to the Valgrind output channel
 
 This macro wraps the C client request `VALGRIND_PRINTF`. It behaves similarly to
-[`std::println`](std.println) in terms of syntax, accepting a format string and
+[`std::println`][std-println] in terms of syntax, accepting a format string and
 a list of arguments.
 
 # Mechanics
@@ -16,3 +16,5 @@ is a no-op). It does not print to stdout or stderr.
 ## Note
 
 Requires Valgrind **3.0** or higher.
+
+[std-println]: https://doc.rust-lang.org/std/macro.println.html

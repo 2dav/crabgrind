@@ -1,4 +1,4 @@
-Updates Memcheck records for a chunk within a memory pool.
+Update of Memcheck records for a chunk within a memory pool
 
 Use this when a specific block inside a custom allocator is moved or resized,
 such as during a superblock reallocation or a chunk extension.

@@ -1,4 +1,4 @@
-Disables full Callgrind instrumentation if not already switched off
+Stopping of Callgrind instrumentation
 
 Flushes Valgrind's translation cache, effectively halting further data
 collection. Subsequent code execution runs with minimal overhead, comparable to
@@ -13,7 +13,7 @@ restarting the process.
 
 Requires Valgrind **3.11** or higher.
 
-See also the Callgrind option [--instr-atstart][instr-at-start].
+See also the Callgrind option [--instr-atstart][instr-atstart].
 
-[instr-at-start]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.instr-atstart
+[instr-atstart]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.instr-atstart
 [nulgrind]: https://valgrind.org/docs/manual/nl-manual.html

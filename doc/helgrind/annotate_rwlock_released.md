@@ -1,4 +1,4 @@
-Informs Helgrind that a reader-writer lock is about to be **released**.
+Notification of reader-writer lock **release**
 
 Signals that the calling thread is relinquishing ownership of the lock.
 Subsequent acquires will establish happens-before edges from this point.

@@ -1,4 +1,4 @@
-Activates data race suppression and returns a RAII guard.
+Activation of data race suppression
 
 Suppression is immediate. The returned guard manages the duration: detection
 resumes automatically when the guard is dropped.

@@ -1,4 +1,4 @@
-Checks if a memory pool is known to Valgrind.
+Check of whether a memory pool is known to Valgrind
 
 Wraps `VALGRIND_MEMPOOL_EXISTS`.
 

@@ -1,4 +1,4 @@
-Defined only if they are already addressable.
+Defined state conditional on addressability
 
 Accessibility is not altered; bytes that are addressable become defined, while
 non-addressable bytes remain unchanged. Corresponds to

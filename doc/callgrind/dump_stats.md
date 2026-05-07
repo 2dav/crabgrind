@@ -1,11 +1,9 @@
-Forces a Callgrind profile dump for the current thread and resets all counters
+Callgrind Profile Dump
 
-Triggers a dump of the current cost center state(instruction fetches, cache
+Triggers a dump of the current cost center state (instruction fetches, cache
 misses, etc.) to the output file. The operation is strictly thread-local:
 calling this from one thread has no effect on the profiling data of other
 threads. Counters are reset to zero immediately after the dump.
-
-The data is written to the output file (usually `callgrind.out.<N>.<pid>`).
 
 The optional `reason` argument maps to `CALLGRIND_DUMP_STATS_AT`. If provided,
 the string is appended to the description field in the profile data dump.

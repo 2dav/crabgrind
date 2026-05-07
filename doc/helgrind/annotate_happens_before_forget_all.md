@@ -1,4 +1,4 @@
-Resets the synchronization state associated with a specific object ID.
+Reset of the synchronization state for a specific object ID
 
 Instructs Helgrind to discard all pending happens-before relationships
 established for `addr`. This returns the object to its original state,

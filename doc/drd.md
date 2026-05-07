@@ -1,4 +1,4 @@
-# DRD(Data Race Detector) Client Requests
+# DRD Client Requests
 
 Interface to [DRD Client Requests][vg-docs] defined in `valgrind/drd.h`.
 
@@ -27,6 +27,6 @@ Nothing happens unless the binary runs under DRD:
 ## Version Requirements
 
 - **Minimum Valgrind:** `3.3`
-- **Recommended Valgrind:** `3.5` or higher to use any of DRD requests
+- **Recommended Valgrind:** `3.5` or higher to use any of DRD's requests
 
 [vg-docs]: https://valgrind.org/docs/manual/drd-manual.html#drd-manual.clientreqs

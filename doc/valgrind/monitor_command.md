@@ -1,4 +1,4 @@
-Executes a monitor command
+Execution of a monitor command
 
 This function wraps the `VALGRIND_MONITOR_COMMAND` macro. It sends the provided
 string directly to the Valgrind core, which parses and executes it as if it were
@@ -18,7 +18,7 @@ function over this generic wrapper to enforce compile-time argument checking.
 
 # Errors
 
-- [`CommandNotFound`](CommandNotFound) – The command was not recognized.
+- [`CommandNotFound`](CommandNotFound) - The command was not recognized.
 
 ## Note
 

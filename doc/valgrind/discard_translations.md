@@ -1,4 +1,4 @@
-Discards Valgrind's translations for a specific address range.
+Discarding of Valgrind translations for a specific address range
 
 This function wraps the `VALGRIND_DISCARD_TRANSLATIONS` macro. It forces
 Valgrind to discard any existing cached translations for the specified memory

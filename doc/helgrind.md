@@ -20,6 +20,6 @@ Nothing happens unless the binary runs under Helgrind:
 ## Version Requirements
 
 - **Minimum Valgrind:** `3.2` (required for [`clean_memory`](clean_memory))
-- **Recommended Valgrind:** `3.7` or higher to use any of Helgrind requests
+- **Recommended Valgrind:** `3.7` or higher to use any of Helgrind's requests
 
 [vg-docs]: https://valgrind.org/docs/manual/hg-manual.html#hg-manual.client-requests

@@ -1,6 +1,4 @@
-Reports leaks that have increased or decreased since the last check.
-
-Displays entries for any changes in leaked bytes or block counts.
+Performs a fast summary scan.
 
 Corresponds to `VALGRIND_DO_QUICK_LEAK_CHECK`.
 

@@ -1,4 +1,4 @@
-Completely inaccessible.
+Completely inaccessible memory
 
 Memcheck will report an error if any byte in this range is accessed. Corresponds
 to `VALGRIND_MAKE_MEM_NOACCESS`.

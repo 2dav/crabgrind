@@ -1,8 +1,8 @@
-Retrieves the count of leaked blocks from the most recent leak check.
+Retrieval of leaked block counts from the most recent leak check
 
 This function behaves identically to [`count_leaks`](count_leaks), but populates
-the [`LeaksCount`](LeaksCount) fields with the quantity of memory blocks rather
-than the number of bytes.
+the [`LeaksCount`](LeaksCount) fields with the block counts rather than byte
+counts.
 
 ## Note
 

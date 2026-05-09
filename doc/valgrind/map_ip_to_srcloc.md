@@ -1,4 +1,4 @@
-Maps a code address to a source file name and line number.
+Mapping of a code address to a source file name and line number
 
 This function wraps the `VALGRIND_MAP_IP_TO_SRCLOC` macro. It queries the debug
 information available to Valgrind for the specified instruction address and
@@ -6,8 +6,8 @@ writes the result into the provided buffer.
 
 # Arguments
 
-- `addr` – The instruction pointer address to resolve.
-- `buf` – A mutable 64-byte buffer. Valgrind writes the resulting source
+- `addr` - The instruction pointer address to resolve.
+- `buf` - A mutable 64-byte buffer. Valgrind writes the resulting source
   location string directly into this memory. The result is always
   null-terminated.
 

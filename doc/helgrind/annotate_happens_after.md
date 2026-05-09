@@ -1,4 +1,4 @@
-Marks the "waiter" side of a custom synchronization event.
+Annotation of the "waiter" side of a custom synchronization event
 
 Completes the happens-before edge initiated by
 [`annotate_happens_before`](annotate_happens_before). Helgrind treats all memory

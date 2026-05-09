@@ -1,4 +1,4 @@
-Determines the current execution environment
+Determination of the current execution environment
 
 This function wraps the `RUNNING_ON_VALGRIND` client request. It returns the
 nesting level of Valgrind instances overseeing the current process.

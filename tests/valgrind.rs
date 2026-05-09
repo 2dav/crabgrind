@@ -18,6 +18,30 @@ fn running_mode_valgrind() {
 }
 
 #[test]
+fn toolname() {
+    valgrind!(memcheck => {
+        let mut buf = [0;64];
+        let toolname = vg::toolname(&mut buf);
+        assert!(toolname.is_some());
+        assert!(toolname.unwrap().to_str().unwrap().to_lowercase().contains("memcheck"));
+    });
+}
+
+#[test]
+fn replaces_malloc() {
+    valgrind!(memcheck => {
+        assert!(vg::replaces_malloc());
+    });
+}
+
+#[test]
+fn not_replaces_malloc() {
+    valgrind!(cachegrind => {
+        assert_eq!(false, vg::replaces_malloc());
+    });
+}
+
+#[test]
 fn monitor_command() {
     valgrind!(memcheck --leak-check=no => {
         assert!(vg::monitor_command(cstr!("invalid_command")).is_err());

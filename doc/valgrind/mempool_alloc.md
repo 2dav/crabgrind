@@ -1,4 +1,4 @@
-Associates a piece of memory with a memory pool.
+Association of a piece of memory with a memory pool
 
 Wraps `VALGRIND_MEMPOOL_ALLOC`. Use this when handing out memory from your
 custom pool.

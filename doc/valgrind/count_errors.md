@@ -1,4 +1,4 @@
-Retrieves the number of errors recorded by the Valgrind tool.
+Retrieval of the error count recorded by the Valgrind tool
 
 This function wraps the `VALGRIND_COUNT_ERRORS` macro. It returns the current
 count of errors encountered during execution.
@@ -6,22 +6,23 @@ count of errors encountered during execution.
 # Tool Specifics
 
 The return value depends entirely on the active tool. Tools that report errors
-(e.g. Memcheck) return a non-zero count. Tools that do not report errors in the
+(e.g., Memcheck) return a non-zero count. Tools that do not report errors in the
 traditional sense (e.g., Cachegrind) will always return zero.
 
 # Usage
 
 This is primarily useful in automated test harnesses. When combined with the
-`--log-fd=-1` option, Valgrind runs silently (suppressing standard output),
-allowing the client program to inspect the error count programmatically.
+`--log-fd=-1` option, Valgrind runs silently (redirecting log output away from
+stderr), allowing the client program to inspect the error count
+programmatically.
 
 # Example
 
 Deterministic regression testing:
 
-Running Valgrind is often a manual step: run the binary, scroll through the log
-hoping for "ERROR SUMMARY: 0 errors". [`count_errors`] request allows to
-automate assertions that fail, if Valgrind detects any issues.
+Running Valgrind is often a manual step: run the binary, scroll through the log,
+and hope for "ERROR SUMMARY: 0 errors". The [`count_errors`] request allows
+automating assertions that fail if Valgrind detects any issues.
 
 ```rust, no_run
 use crabgrind::valgrind as vg;

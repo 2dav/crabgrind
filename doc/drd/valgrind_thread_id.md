@@ -1,4 +1,4 @@
-Retrieves the Valgrind-assigned thread ID for the current thread context.
+Retrieval of the Valgrind-assigned thread ID
 
 This corresponds to the `DRD_GET_VALGRIND_THREADID` client request. It queries
 the unique identifier assigned by the Valgrind core to the thread executing this

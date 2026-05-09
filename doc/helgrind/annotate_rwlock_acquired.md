@@ -1,4 +1,4 @@
-Informs Helgrind that a reader-writer lock has been **acquired**.
+Notification of reader-writer lock **acquisition**
 
 Establishes a happens-before relationship from the previous release of this lock
 to the current thread. Helgrind updates its internal lockset state to reflect

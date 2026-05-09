@@ -1,4 +1,4 @@
-Resets the profile counters to zero
+Reset of Profile Counters
 
 Immediately clears all event counters (instruction fetches, cache misses, etc.)
 without writing a dump file. It is useful for discarding data from setup phases
@@ -13,7 +13,7 @@ use crabgrind::callgrind;
 use std::collections::HashMap;
 use std::ffi::CStr;
 
-let mut map:HashMap<u8, u8> = HashMap::with_capacity(1024);
+let mut map: HashMap<u8, u8> = HashMap::with_capacity(1024);
 let reason = CStr::from_bytes_with_nul(b"HashMap::insert\0").unwrap();
 
 // Reset counters to ignore initialization overhead

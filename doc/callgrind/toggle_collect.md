@@ -1,4 +1,4 @@
-Toggles the recording of profiling events
+Toggling of Profiling Event Recording
 
 Switches the counter collection state on or off. When collection is disabled,
 the instrumented code still executes with full overhead, but the counters are
@@ -7,7 +7,7 @@ cost of flushing Valgrind's translation cache (unlike
 [`stop_instrumentation`](stop_instrumentation)).
 
 You can disable collection at startup using the Callgrind option
-[--collect-atstart=no][collect-at-start].
+[--collect-atstart=no][collect-atstart].
 
 # Example
 
@@ -17,7 +17,7 @@ Profiling specific code blocks in isolation:
 use crabgrind::callgrind;
 use std::collections::HashMap;
 
-macro_rules! collect{
+macro_rules! collect {
     ($expr:expr) => {{
         callgrind::toggle_collect();
         let ret = $expr;
@@ -27,7 +27,7 @@ macro_rules! collect{
 }
 
 // Profile only the insertion, ignoring setup overhead
-let mut map:HashMap<i32, i32> = HashMap::with_capacity(32);
+let mut map: HashMap<i32, i32> = HashMap::with_capacity(32);
 
 collect!(map.insert(0, 0));
 map.shrink_to_fit(); // Ignored by profiler
@@ -36,13 +36,13 @@ collect!(map.entry(2).insert_entry(0));
 callgrind::dump_stats(None);
 ```
 
-> Run with Callgrind and [disabled collection][collect-at-start]
+> Run with Callgrind and [disabled collection][collect-atstart]
 >
 > ```text
 > :~$ valgrind --tool=callgrind --collect-atstart=no target/debug/toggle_collect
 > ```
 >
-> Resulting dump file can be quickly examined using the [callgrind_annotate][callgrind.annotate]
+> The resulting dump file can be quickly examined using the [callgrind_annotate][callgrind-annotate]
 > utility, distributed with Valgrind:
 >
 > ```text
@@ -53,5 +53,5 @@ callgrind::dump_stats(None);
 
 Requires Valgrind **3.2** or higher.
 
-[collect-at-start]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.collect-atstart
-[callgrind.annotate]: https://valgrind.org/docs/manual/cl-manual.html#cl-manual.callgrind_annotate-options
+[collect-atstart]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.collect-atstart
+[callgrind-annotate]: https://valgrind.org/docs/manual/cl-manual.html#cl-manual.callgrind_annotate-options

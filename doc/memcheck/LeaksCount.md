@@ -1,4 +1,4 @@
-Aggregated memory leak statistics.
+Aggregated memory leak statistics
 
 Contains byte counts for different categories of memory loss as recorded by
 Memcheck. These values reflect the state of the heap as of the most recent leak

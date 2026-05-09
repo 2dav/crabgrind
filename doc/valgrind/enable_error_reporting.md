@@ -1,4 +1,4 @@
-Re-enables error reporting for the current thread.
+Re-enabling of error reporting for the current thread
 
 This function wraps the `VALGRIND_ENABLE_ERROR_REPORTING` macro. It decrements
 the internal suppression counter established by

@@ -1,9 +1,6 @@
 # DHAT Client Requests
 
-Interface to DHAT Client Requests defined in `valgrind/dhat.h`.
-
-Refer to the [DHAT Valgrind documentation][vg-docs] for tool configuration and
-profile interpretation.
+Interface to [DHAT Client Requests][vg-docs] defined in `valgrind/dhat.h`.
 
 ## Usage
 

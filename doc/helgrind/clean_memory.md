@@ -1,4 +1,4 @@
-Resets Helgrind's tracking state for a specific memory range.
+Reset of Helgrind's tracking state for a specific memory range
 
 This function instructs Helgrind to discard all existing lock-set and access
 history for the addresses defined by `start` and `size`. Post-call, the range is

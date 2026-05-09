@@ -1,4 +1,4 @@
-Disassociates a piece of memory from a memory pool.
+Disassociation of a piece of memory from a memory pool
 
 Wraps `VALGRIND_MEMPOOL_FREE`. Use this when returning memory to the pool.
 

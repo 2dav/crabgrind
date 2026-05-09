@@ -1,4 +1,4 @@
-Temporarily disables error reporting for a memory slice.
+Temporary disabling of error reporting for a memory range
 
 This function suppresses addressing errors for the provided byte range and
 returns a guard. Reporting remains disabled until the guard is dropped.

@@ -20,6 +20,6 @@ Nothing happens unless the binary runs under Memcheck:
 ## Version Requirements
 
 - **Minimum Valgrind:** `3.0`
-- **Recommended Valgrind:** `3.6` or higher to use any of Memcheck requests
+- **Recommended Valgrind:** `3.6` or higher to use any of Memcheck's requests
 
 [vg-docs]: https://valgrind.org/docs/manual/mc-manual.html#mc-manual.clientreqs

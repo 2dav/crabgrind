@@ -1,9 +1,9 @@
-Changes the value of a dynamically changeable command line option at runtime.
+Modification of a dynamically changeable command line option at runtime
 
 This function wraps the `VALGRIND_CLO_CHANGE` macro. It modifies the specified
 option as if it were passed on the command line at startup.
 
-See [Dynamically Change Options][dynopts] for list of changeable options.
+See [Dynamically Change Options][dynopts] for a list of changeable options.
 
 # Behavior
 

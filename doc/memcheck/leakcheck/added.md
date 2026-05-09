@@ -1,6 +1,5 @@
-Reports only leaks that have increased since the last check.
-
-Displays entries where the number of leaked bytes or blocks has grown.
+Reports only loss records whose byte or block counts have increased since the
+last check.
 
 Corresponds to `VALGRIND_DO_ADDED_LEAK_CHECK`.
 

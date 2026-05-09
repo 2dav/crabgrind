@@ -1,4 +1,4 @@
-Executes a function on the real CPU, bypassing Valgrind's simulation.
+Execution of a function on the real CPU, bypassing Valgrind's simulation
 
 Wraps `VALGRIND_NON_SIMD_CALL2`. This transfers control from the simulated CPU
 to the host CPU to execute the provided function.
@@ -10,13 +10,13 @@ argument.
 fn f(ThreadId, usize, usize) -> usize
 ```
 
-Value returned by the provided function is propagated to return value of
-request.
+The value returned by the provided function is propagated to the return value of
+the request.
 
 # Reliability Warning
 
 These calls are not entirely reliable. Avoid calling functions that depend on
-global variables, libc (e.g. `printf`, [`std::println`][std.println]), or
+global variables, libc (e.g., `printf`, [`std::println`][std.println]), or
 dynamic linking. Such entanglements frequently cause Valgrind to crash. Use only
 for simple, self-contained logic.
 

@@ -1,4 +1,4 @@
-Informs Helgrind that a reader-writer lock has been **initialized**.
+Notification of reader-writer lock **initialization**
 
 Intended for user-implemented synchronization primitives that mirror the
 behavior of `pthread_rwlock_t`. Helgrind treats `addr` strictly as a unique
@@ -8,7 +8,7 @@ See [`annotate_rwlock_destroy`](annotate_rwlock_destroy).
 
 # Arguments
 
-- `addr`- A unique address(identifier or tag) of the lock instance. This does
+- `addr` - A unique address (identifier or tag) of the lock instance. This does
   not need to be a valid pointer, only a unique value for the lifetime of the
   lock.
 

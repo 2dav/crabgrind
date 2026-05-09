@@ -1,4 +1,4 @@
-Disables error reporting for the current thread.
+Disabling of error reporting for the current thread
 
 This function wraps the `VALGRIND_DISABLE_ERROR_REPORTING` macro.
 

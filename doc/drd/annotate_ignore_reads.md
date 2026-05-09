@@ -1,5 +1,4 @@
-Toggles data race suppression for memory **reads** performed by the current
-thread.
+Suppression of Data Race Reports for memory **reads**
 
 Instructs DRD to stop reporting data races involving load operations performed
 by the current thread. Suppression is immediate. The returned RAII guard manages

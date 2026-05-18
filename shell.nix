@@ -1,6 +1,15 @@
 { pkgs ? import <nixpkgs> { } }:
 let
   overrides = (builtins.fromTOML (builtins.readFile ./rust-toolchain.toml));
+  latestValgrind = pkgs.valgrind.overrideAttrs (old: rec {
+    version = "3.27.0";
+
+    src = pkgs.fetchurl {
+      url = "https://www.sourceware.org/pub/valgrind/valgrind-${version}.tar.bz2";
+	  sha256 = "sha256-W1k33oJX7o9RaY6nG5cRrc6YBhqgfapKaF78OvkhW+8=";
+      # sha256 = pkgs.lib.fakeSha256;
+    };
+  });
 in 
 pkgs.callPackage ( { stdenv, mkShell }: mkShell {
   strictDeps = true;
@@ -16,15 +25,15 @@ pkgs.callPackage ( { stdenv, mkShell }: mkShell {
 	markdownlint-cli
 	just
 
-	valgrind
+	latestValgrind
   ];
 
   buildInputs = with pkgs; [
-	valgrind.dev
+	latestValgrind.dev
   ];
 
   RUSTC_VERSION = overrides.toolchain.channel;
-  # VALGRIND_INCLUDE = "${pkgs.valgrind.dev}/include";
+  # VALGRIND_INCLUDE = "${latestValgrind.dev}/include";
 
   shellHook = ''
 	export CARGO_HOME=''${CARGO_HOME:-$HOME/.cargo}

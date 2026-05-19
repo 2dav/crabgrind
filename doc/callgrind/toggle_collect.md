@@ -53,5 +53,5 @@ callgrind::dump_stats(None);
 
 Requires Valgrind **3.2** or higher.
 
-[collect-atstart]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.collect-atstart
+[collect-atstart]: https://valgrind.org/docs/manual/cl-manual.html#opt.collect-atstart
 [callgrind-annotate]: https://valgrind.org/docs/manual/cl-manual.html#cl-manual.callgrind_annotate-options

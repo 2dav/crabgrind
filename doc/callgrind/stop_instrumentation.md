@@ -15,5 +15,5 @@ Requires Valgrind **3.11** or higher.
 
 See also the Callgrind option [--instr-atstart][instr-atstart].
 
-[instr-atstart]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.instr-atstart
+[instr-atstart]: https://valgrind.org/docs/manual/cl-manual.html#opt.instr-atstart
 [nulgrind]: https://valgrind.org/docs/manual/nl-manual.html

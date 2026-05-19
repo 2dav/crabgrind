@@ -14,4 +14,4 @@ region of interest.
 
 Requires Valgrind **3.22** or higher.
 
-[instr-atstart]: https://courses.cs.vt.edu/~cs3214/fall2011/projects/valgrind/valgrind-3.4.0/docs/html/cl-manual.html#opt.instr-atstart
+[instr-atstart]: https://valgrind.org/docs/manual/cg-manual.html#opt.instr-atstart

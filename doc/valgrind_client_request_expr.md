@@ -7,7 +7,7 @@ high-level abstractions, you do not need this.
 # Safety
 
 This function is intended only for advanced use cases. Passing invalid request
-codes or malformed arguments will crash the program or corrupt Valgrind's state.
+codes or malformed arguments might corrupt Valgrind's state.
 No validation is performed.
 
 # Returns

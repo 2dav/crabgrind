@@ -4,8 +4,6 @@
 
 mod bindings;
 mod requests;
-
-pub use bindings::valgrind_client_request_expr;
 pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind};
 
 /// Valgrind version this crate was compiled against.

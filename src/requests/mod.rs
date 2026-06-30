@@ -53,11 +53,11 @@ macro_rules! client_request {
 macro_rules! assert_defined {
     ($request:path) => {{
         const REQUIREMENT: u32 = $request.required_version();
-        const SYS_VERSION: u32 = crate::VALGRIND_VERSION.0 * 100 + crate::VALGRIND_VERSION.1;
 
         // check Valgrind headers indeed found
         assert_ne!(
-            0, SYS_VERSION,
+            crate::VALGRIND_VERSION.0,
+            0xBEDA_BEDA,
             "\n`bindgen(libclang)` failed to locate `<valgrind/valgrind.h>`.\n\
             \tThis typically means Valgrind headers ain't found on the standard include paths:\n\
             \t\t<sysroot>/usr/include\n\
@@ -70,7 +70,7 @@ macro_rules! assert_defined {
 
         // check request requirement matches local Valgrind version
         assert!(
-            REQUIREMENT <= SYS_VERSION,
+            $request as u32 > 0x1000,
             "\n'{request}' is not supported by your Valgrind version. \n\
                 \t You are compiling against <valgrind/valgrind.h> {major}.{minor}. \n\
                 \t This request requires Valgrind {req_major}.{req_minor} or higher.\n",

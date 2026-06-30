@@ -8,6 +8,11 @@
 #include "valgrind/dhat.h"
 #include "valgrind/cachegrind.h"
 
+#ifndef __VALGRIND_MAJOR__
+#define __VALGRIND_MAJOR__    0
+#define __VALGRIND_MINOR__    0
+#endif
+
 typedef enum {
 #ifdef RUNNING_ON_VALGRIND 
 	CG_RUNNING_ON_VALGRIND = VG_USERREQ__RUNNING_ON_VALGRIND,

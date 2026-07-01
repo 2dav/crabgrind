@@ -13,7 +13,7 @@ fn running_mode_native() {
 #[test]
 fn running_mode_valgrind() {
     valgrind!(memcheck => {
-        assert_eq!(vg::running_mode(), RunningMode::Valgrind)
+        assert_eq!(vg::running_mode(), RunningMode::Valgrind);
     });
 }
 
@@ -28,16 +28,16 @@ fn toolname() {
 }
 
 #[test]
-fn replaces_malloc() {
-    valgrind!(memcheck => {
-        assert!(vg::replaces_malloc());
+fn not_replace_malloc() {
+    valgrind!(cachegrind => {
+        assert_eq!(false, vg::replaces_malloc());
     });
 }
 
 #[test]
-fn not_replaces_malloc() {
-    valgrind!(cachegrind => {
-        assert_eq!(false, vg::replaces_malloc());
+fn replaces_malloc() {
+    valgrind!(memcheck => {
+        assert!(vg::replaces_malloc());
     });
 }
 

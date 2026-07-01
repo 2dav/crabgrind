@@ -31,6 +31,12 @@ First, add `crabgrind` as a dependency in `Cargo.toml`
 crabgrind = "0.2"
 ```
 
+or
+
+```bash
+cargo add crabgrind
+```
+
 > Note: This crate is `no_std` and dependency-free
 
 ### Build Configuration

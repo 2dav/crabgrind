@@ -1,3 +1,4 @@
+#![cfg(feature = "valgrind")]
 use crabgrind::helgrind as hg;
 
 use std::process::Output;

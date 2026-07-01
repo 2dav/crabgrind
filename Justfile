@@ -4,14 +4,14 @@ default:
 
 # Build library and integration tests
 build: check doc
+	cargo build
 	cargo build --no-default-features
-	cargo build --all-features
 	cargo test --release --no-run 
 
 # Run linter
 check: cspell mdlint
+	cargo clippy
 	cargo clippy --no-default-features
-	cargo clippy --all-features
 
 # Spell check
 cspell:
@@ -36,6 +36,7 @@ doc:
 # Test integration and documentation
 test: check test-doc
 	cargo test --release
+	cargo test --release --no-default-features
 
 # Test doc examples
 test-doc:

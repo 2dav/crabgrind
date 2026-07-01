@@ -1,3 +1,4 @@
+#![cfg(feature = "valgrind")]
 use crabgrind::callgrind as cg;
 
 use std::process::Output;

@@ -1,3 +1,4 @@
+#![cfg(feature = "valgrind")]
 use crabgrind::{self as crab, valgrind as vg, valgrind::RunningMode};
 
 use std::{ffi::c_void, process::Output};

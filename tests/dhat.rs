@@ -1,3 +1,4 @@
+#![cfg(feature = "valgrind")]
 use crabgrind::dhat as dh;
 use crabgrind::valgrind::count_errors;
 

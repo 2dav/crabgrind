@@ -1,9 +1,9 @@
-use crabgrind::{memcheck as mc, valgrind as vg};
-
-use std::{mem::MaybeUninit, process::Output};
+#![cfg(feature = "valgrind")]
 
 mod common;
 use common::*;
+use crabgrind::{memcheck as mc, valgrind as vg};
+use std::{mem::MaybeUninit, process::Output};
 
 #[test]
 fn leak_check_quick() {

@@ -33,7 +33,8 @@ libc = "0.2"
 debug = "full"
 
 [package.metadata.docs.rs]
-targets = ["x86_64-unknown-linux-gnu"]
+targets = []
+no-default-features = true
 
 [lints.rust]
 unsafe_op_in_unsafe_fn = "warn"

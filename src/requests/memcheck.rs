@@ -2,13 +2,15 @@
 use super::{client_request, constants::memcheck::*};
 use crate::{
     ScopeGuard,
-    bindings::CG_MemcheckClientRequest as CR,
     requests::{Scope, sealed::Sealed},
 };
 use core::{
     ffi::{CStr, c_void},
     marker::PhantomData,
 };
+
+#[cfg(feature = "valgrind")]
+use crate::bindings::CG_MemcheckClientRequest as CR;
 
 /// Identifier for a custom memory block description.
 ///
@@ -131,17 +133,13 @@ pub enum VBitsError {
     Unknown(u8),
 }
 
-#[cfg(feature = "opt-out")]
 #[doc = include_str!("../../doc/memcheck/mark_memory.md")]
-#[inline(always)]
-pub fn mark_memory(_addr: *const c_void, _size: usize, _mark: MemState) -> Result<(), NoValgrind> {
-    Ok(())
-}
-
-#[cfg(not(feature = "opt-out"))]
-#[doc = include_str!("../../doc/memcheck/mark_memory.md")]
+#[allow(clippy::match_same_arms)]
 #[inline(always)]
 pub fn mark_memory(addr: *const c_void, size: usize, mark: MemState) -> Result<(), NoValgrind> {
+    #[cfg(not(feature = "valgrind"))]
+    return Ok(());
+
     macro_rules! r {
         ($req:path) => {
             client_request!($req, addr, size)
@@ -237,31 +235,21 @@ macro_rules! vbits {
     };
 }
 
-#[cfg(feature = "opt-out")]
-#[doc = include_str!("../../doc/memcheck/vbits.md")]
-#[inline(always)]
-pub fn vbits(_addr: *const c_void, _dest: &mut [u8]) -> Result<(), VBitsError> {
-    Ok(())
-}
-
-#[cfg(not(feature = "opt-out"))]
 #[doc = include_str!("../../doc/memcheck/vbits.md")]
 #[inline(always)]
 pub fn vbits(addr: *const c_void, dest: &mut [u8]) -> Result<(), VBitsError> {
+    #[cfg(not(feature = "valgrind"))]
+    return Ok(());
+
     vbits!(CR::CG_VALGRIND_GET_VBITS, addr, dest)
 }
 
-#[cfg(feature = "opt-out")]
-#[doc = include_str!("../../doc/memcheck/set_vbits.md")]
-#[inline(always)]
-pub fn set_vbits(_addr: *const c_void, _vbits: &[u8]) -> Result<(), VBitsError> {
-    Ok(())
-}
-
-#[cfg(not(feature = "opt-out"))]
 #[doc = include_str!("../../doc/memcheck/set_vbits.md")]
 #[inline(always)]
 pub fn set_vbits(addr: *const c_void, vbits: &[u8]) -> Result<(), VBitsError> {
+    #[cfg(not(feature = "valgrind"))]
+    return Ok(());
+
     vbits!(CR::CG_VALGRIND_SET_VBITS, addr, vbits)
 }
 

@@ -10,19 +10,19 @@ pub(crate) mod constants;
 
 macro_rules! client_request {
     (^ $default:expr, $request:path, $($arg:expr),*) =>  {{
-        #[cfg(not(feature = "opt-out"))]
+        #[cfg(feature = "valgrind")]
         {
             $crate::requests::assert_defined!($request);
-            unsafe { 
+            unsafe {
                 $crate::bindings::valgrind_client_request_expr(
-                    $default as usize, 
-                    $request as usize, 
+                    $default as usize,
+                    $request as usize,
                     $($arg as usize),*
                 )
             }
         }
 
-        #[cfg(feature = "opt-out")]
+        #[cfg(not(feature = "valgrind"))]
         $default
     }};
     ($request:path, $default:expr, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {
@@ -85,28 +85,6 @@ macro_rules! assert_defined {
 
 pub(crate) use assert_defined;
 pub(crate) use client_request;
-
-#[doc = include_str!("../../doc/println.md")]
-#[macro_export]
-macro_rules! println{
-    ($($arg:tt)+) => {{
-        let msg = format!("{}\n\0", format_args!($($arg)+));
-
-        let msg = unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(msg.as_bytes()) };
-        $crate::__print(msg);
-    }}
-}
-
-#[doc = include_str!("../../doc/println_stacktrace.md")]
-#[macro_export]
-macro_rules! print_stacktrace{
-    ($($arg:tt)+) => {{
-        let msg = format!("{}\0", format_args!($($arg)+));
-
-        let msg = unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(msg.as_bytes()) };
-        $crate::__print_stacktrace(msg);
-    }}
-}
 
 /// Behavior for a logically scoped requests.
 pub trait Scope: sealed::Sealed {

@@ -1,5 +1,7 @@
 #![doc = include_str!("../../doc/callgrind.md")]
 use super::client_request;
+
+#[cfg(feature = "valgrind")]
 use crate::bindings::CG_CallgrindClientRequest as CR;
 
 use core::ffi::CStr;

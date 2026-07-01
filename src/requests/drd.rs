@@ -1,9 +1,9 @@
 #![doc = include_str!("../../doc/drd.md")]
 use super::{client_request, valgrind::ThreadId};
-use crate::{
-    bindings::CG_DRDClientRequest as CR,
-    requests::{Scope, ScopeGuard, sealed::Sealed},
-};
+use crate::requests::{Scope, ScopeGuard, sealed::Sealed};
+
+#[cfg(feature = "valgrind")]
+use crate::bindings::CG_DRDClientRequest as CR;
 
 use core::{
     ffi::{CStr, c_char, c_void},

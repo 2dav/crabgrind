@@ -2,9 +2,11 @@
 use super::{client_request, constants::valgrind::*};
 use crate::{
     ScopeGuard,
-    bindings::CG_ValgrindClientRequest as CR,
     requests::{Scope, sealed::Sealed},
 };
+
+#[cfg(feature = "valgrind")]
+use crate::bindings::CG_ValgrindClientRequest as CR;
 
 use core::ffi::{CStr, c_int, c_void};
 
@@ -118,19 +120,13 @@ pub fn load_pdb_debuginfo(fd: RawFd, ptr: *const c_void, total_size: usize, delt
     );
 }
 
-#[cfg(feature = "opt-out")]
-#[doc = include_str!("../../doc/valgrind/map_ip_to_srcloc.md")]
-#[inline(always)]
-#[allow(clippy::needless_lifetimes)]
-pub fn map_ip_to_srcloc<'a>(_addr: *const c_void, _buf: &'a mut [u8; 64]) -> Option<&'a CStr> {
-    None
-}
-
-#[cfg(not(feature = "opt-out"))]
 #[doc = include_str!("../../doc/valgrind/map_ip_to_srcloc.md")]
 #[inline(always)]
 #[allow(clippy::needless_lifetimes)]
 pub fn map_ip_to_srcloc<'a>(addr: *const c_void, buf: &'a mut [u8; 64]) -> Option<&'a CStr> {
+    #[cfg(not(feature = "valgrind"))]
+    return None;
+
     client_request!(CR::CG_VALGRIND_MAP_IP_TO_SRCLOC, addr, buf.as_mut_ptr());
     (!is_empty_srcloc(buf)).then(|| {
         // SAFETY: Request definition guarantees the resulting buffer is a null-terminated ascii string
@@ -274,14 +270,6 @@ pub fn replaces_malloc() -> bool {
     client_request!(CR::CG_VALGRIND_REPLACES_MALLOC) != 0
 }
 
-#[cfg(feature = "opt-out")]
-#[doc = include_str!("../../doc/valgrind/toolname.md")]
-#[inline(always)]
-pub fn toolname(_buf: &mut [u8; 64]) -> Option<&CStr> {
-    None
-}
-
-#[cfg(not(feature = "opt-out"))]
 #[doc = include_str!("../../doc/valgrind/toolname.md")]
 #[inline(always)]
 pub fn toolname(buf: &mut [u8; 64]) -> Option<&CStr> {

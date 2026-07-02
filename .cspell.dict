@@ -44,3 +44,8 @@ libclang
 Uninit
 TOOLNAME
 toolname
+bindgen
+cstr
+MSRV
+armv
+riscv

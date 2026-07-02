@@ -90,5 +90,13 @@ mod imp {
 }
 
 fn main() {
+    // MSRV(1.71) compatibility workaround
+    if rustversion::cfg!(since(1.81)) {
+        // `has_core_error` indicates that `core::error::Error` is available
+        // on the current compiler.
+        println!("cargo:rustc-check-cfg=cfg(has_core_error)");
+        println!("cargo:rustc-cfg=has_core_error");
+    }
+
     imp::main();
 }

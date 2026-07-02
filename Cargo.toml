@@ -1,9 +1,9 @@
 [package]
 name = "crabgrind"
-version = "0.2.6"
+version = "0.2.7"
 license = "MIT"
 edition = "2021"
-rust-version = "1.64"
+rust-version = "1.71"
 description = "Rust bindings to \"Valgrind Client Request\" interface"
 keywords = ["valgrind", "callgrind", "cachegrind", "memcheck", "client-requests"]
 categories = ["api-bindings", "development-tools::profiling", "development-tools::testing"]
@@ -26,6 +26,7 @@ opt-out = []
 cc = { version = "1", optional = true }
 bindgen = { version = "0.72", optional = true }
 pkg-config = { version = "0.3", optional = true }
+rustversion = "1.0"
 
 [dev-dependencies]
 regex = "1"

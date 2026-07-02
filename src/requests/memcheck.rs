@@ -299,6 +299,8 @@ impl core::fmt::Display for VBitsError {
     }
 }
 
+// `has_core_error` is set by build.rs
+#[cfg(has_core_error)]
 impl core::error::Error for VBitsError {}
 
 impl Sealed for DisabledReporting<'_> {}

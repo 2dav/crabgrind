@@ -22,7 +22,7 @@ possible.
 
 ## Usage
 
-**Minimum Supported Rust Version:** 1.64
+**Minimum Supported Rust Version:** 1.71
 
 First, add `crabgrind` as a dependency in `Cargo.toml`
 

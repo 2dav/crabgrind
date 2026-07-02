@@ -8,6 +8,7 @@ use crate::bindings::CG_DRDClientRequest as CR;
 use core::{
     ffi::{CStr, c_char, c_void},
     marker::PhantomData,
+    mem::size_of,
 };
 
 // Marker type for the "Suppressing" mode (`DRD_IGNORE_VAR`, `DRD_STOP_IGNORING_VAR`).

@@ -8,6 +8,11 @@ build: check doc
 	cargo build --no-default-features
 	cargo test --release --no-run 
 
+# Test build with MSRV toolchain
+msrv-build:
+    rustup toolchain install 1.71.0
+    cargo +1.71.0 build
+
 # Run linter
 check: cspell mdlint
 	cargo clippy
@@ -34,7 +39,7 @@ doc:
 	cargo doc
 
 # Test integration and documentation
-test: check test-doc
+test: check test-doc msrv-build
 	cargo test --release
 	cargo test --release --no-default-features
 

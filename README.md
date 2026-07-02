@@ -28,7 +28,7 @@ First, add `crabgrind` as a dependency in `Cargo.toml`
 
 ```toml
 [dependencies]
-crabgrind = "0.2"
+crabgrind = "0.3"
 ```
 
 or
@@ -81,12 +81,19 @@ And run under Valgrind
 
 ## Features
 
-If you need your builds to be free of Valgrind artifacts, enable the `opt-out`
-feature. This turns every request into no-op.
+- **valgrind** *(default)* Enables execution of requests, C-shim compilation and
+  bindings generation.
 
-> ```toml
-> crabgrind = { version = "0.2", features = ["opt-out"] }
-> ```
+With `default-features = false`, all requests turn into no-op stubs and are
+optimized out by the compiler. No build dependencies are pulled in.
+
+```toml
+[dependencies]
+crabgrind = { version = "0.3", default-features = false }
+
+[build-dependencies]
+crabgrind = "0.3"
+```
 
 ## More Examples
 

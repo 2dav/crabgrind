@@ -1,3 +1,4 @@
+#![cfg(feature = "valgrind")]
 use crabgrind::drd as dd;
 
 use std::process::Output;

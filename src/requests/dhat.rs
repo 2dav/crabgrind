@@ -1,6 +1,9 @@
 #![doc = include_str!("../../doc/dhat.md")]
 use super::{client_request, constants::dhat::AD_HOC_EVENT_DEFAULT_WEIGHT};
+
+#[cfg(feature = "valgrind")]
 use crate::bindings::CG_DHATClientRequest as CR;
+
 use core::ffi::c_void;
 
 #[doc = include_str!("../../doc/dhat/ad_hoc_event.md")]

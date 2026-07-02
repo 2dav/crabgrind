@@ -15,14 +15,17 @@ exclude = [".gitignore", "Justfile", "Cross.toml", "rustfmt.toml", "rust-toolcha
 			"*.sh", "*.py", "*.defs", "*.head", "*.dict", "*.json", "tests/*"]
 
 [features]
-default = []
-# Turns every request into no-op.
+default = ["valgrind"]
+# Enables execution of client requests.
+# When disabled, all requests are no-ops and no native build steps or build dependencies are used.
+valgrind = ["dep:cc", "dep:bindgen", "dep:pkg-config"]
+# `opt-out` was removed (v0.3). Use `default-features = false`.
 opt-out = []
 
 [build-dependencies]
-cc = "1"
-bindgen = "0.72"
-pkg-config = "0.3"
+cc = { version = "1", optional = true }
+bindgen = { version = "0.72", optional = true }
+pkg-config = { version = "0.3", optional = true }
 
 [dev-dependencies]
 regex = "1"

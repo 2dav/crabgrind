@@ -53,6 +53,18 @@ pub enum RunningMode {
     ValgrindOnValgrind(usize),
 }
 
+impl RunningMode {
+    /// Whether running natively without Valgrind.
+    pub fn is_native(self) -> bool {
+        self == Self::Native
+    }
+
+    /// Whether running under Valgrind (possibly nested).
+    pub fn is_valgrind(self) -> bool {
+        !self.is_native()
+    }
+}
+
 #[doc = include_str!("../../doc/valgrind/running_mode.md")]
 #[inline(always)]
 pub fn running_mode() -> RunningMode {

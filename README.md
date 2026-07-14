@@ -60,11 +60,9 @@ however any request will panic at runtime.
 Use some of the [Client Requests][crabgrind.modules]:
 
 ```rust, no_run
-use crabgrind::valgrind::{running_mode, RunningMode};
-
 fn main() {
     assert_eq!(
-        running_mode(), RunningMode::Valgrind,
+        crabgrind::valgrind::running_mode().is_native(),
         ":~$ valgrind {}", std::env::current_exe().unwrap().display()
     );
 

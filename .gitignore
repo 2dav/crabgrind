@@ -11,3 +11,4 @@ target/
 scripts/merge_docs.sh
 
 todo/
+AGENTS.md

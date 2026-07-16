@@ -61,7 +61,7 @@ Use some of the [Client Requests][crabgrind.modules]:
 
 ```rust, no_run
 fn main() {
-    assert_eq!(
+    assert!(
         crabgrind::valgrind::running_mode().is_native(),
         ":~$ valgrind {}", std::env::current_exe().unwrap().display()
     );

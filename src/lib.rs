@@ -13,7 +13,7 @@ pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memch
 
 /// Valgrind version this crate was compiled against.
 pub const VALGRIND_VERSION: (u32, u32) = imp::VALGRIND_VERSION;
-/// Whether Valgrind headers were available when `crabgrind` was compiled.
+#[doc = include_str!("../doc/VALGRIND_AVAILABLE.md")]
 pub const VALGRIND_AVAILABLE: bool = VALGRIND_VERSION.0 != 0xBEDA_BEDA;
 
 #[doc(hidden)]

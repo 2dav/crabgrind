@@ -94,4 +94,4 @@ fn main() {
 
 Requires Valgrind **3.6** for
 [`MemState::DefinedIfAddressable`](MemState::DefinedIfAddressable). All other
-variants are supported in Valgrind **3.0** or higher.
+variants are supported since Valgrind **3.0**.

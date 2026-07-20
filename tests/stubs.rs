@@ -62,3 +62,8 @@ fn vbits() {
 
     assert!(mc::vbits(data.as_ptr() as _, &mut vbits).is_ok());
 }
+
+#[test]
+fn valgrind_available() {
+    assert!(crabgrind::VALGRIND_AVAILABLE == false);
+}

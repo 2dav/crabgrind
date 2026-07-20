@@ -57,7 +57,7 @@ pub mod imp {
 
 #[cfg(not(feature = "valgrind"))]
 mod imp {
-    pub const VALGRIND_VERSION: (u32, u32) = (0, 0);
+    pub const VALGRIND_VERSION: (u32, u32) = (0xBEDA_BEDA, 0xBEDA_BEDA);
 
     #[doc = include_str!("../doc/println.md")]
     #[macro_export]

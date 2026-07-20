@@ -69,12 +69,5 @@ fn main() {
 
 Requires Valgrind **3.15** or higher.
 
-This function produces output only when running under Valgrind with DHAT
-configured for [ad-hoc profiling][ad-hoc-profiling]:
-
-> ```text
-> :~$ valgrind --tool=dhat --mode=ad-hoc ...
-> ```
-
 [ad-hoc-profiling]: https://valgrind.org/docs/manual/dh-manual.html#dh-manual.ad-hoc-profiling
 [dhat.viewer]: https://valgrind.org/docs/manual/dh-manual.html#dh-manual.viewer

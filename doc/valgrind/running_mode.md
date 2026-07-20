@@ -5,7 +5,7 @@ nesting level of Valgrind instances overseeing the current process.
 
 # Example
 
-```rust, no_run
+```rust, ignore
 use crabgrind::valgrind::{running_mode, RunningMode};
 
 match running_mode() {

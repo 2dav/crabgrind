@@ -37,7 +37,7 @@ or
 cargo add crabgrind
 ```
 
-> Note: This crate is `no_std` and dependency-free
+> Note: This crate is `no_std`
 
 ### Build Configuration
 

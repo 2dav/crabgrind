@@ -290,7 +290,16 @@ pub fn toolname(buf: &mut [u8; 64]) -> Option<&CStr> {
         n => {
             // SAFETY: Request definition guarantees the resulting buffer is a null-terminated ascii string
             // limited to specified length.
-            unsafe { CStr::from_bytes_with_nul_unchecked(&buf[..n]).into() }
+
+            // The buffer length is chosen following 'map_ip_to_srcloc' request, which guarantees
+            // the 'srcloc' won't be longer [63] + NULL.
+            // 'toolname'(memcheck/callgrind/etc) is presumably shorter than 'srcloc'(path/to/file), but
+            // who knows.
+            if n > 64 || buf[n - 1] != b'\0' {
+                None
+            } else {
+                unsafe { CStr::from_bytes_with_nul_unchecked(&buf[..n]).into() }
+            }
         }
     }
 }

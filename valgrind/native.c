@@ -1,11 +1,11 @@
 #include <stddef.h>
 #include "valgrind/valgrind.h"
 
-int vg_print(char *msg) { 
+int vg_print(const char *msg) { 
   return VALGRIND_PRINTF("%s", msg); 
 }
 
-int vg_print_backtrace(char *msg) {
+int vg_print_backtrace(const char *msg) {
   return VALGRIND_PRINTF_BACKTRACE("%s", msg);
 }
 

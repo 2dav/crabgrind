@@ -11,7 +11,7 @@ mod imp {
 
     fn env_include() -> Option<PathBuf> {
         let Ok(path) = env::var(ENV_VALGRIND_INCLUDE).map(PathBuf::from) else { return None };
-        assert!(path.exists(), "{ENV_VALGRIND_INCLUDE}={} Path does not exists", path.display());
+        assert!(path.exists(), "{ENV_VALGRIND_INCLUDE}={} Path does not exist", path.display());
         Some(path)
     }
 

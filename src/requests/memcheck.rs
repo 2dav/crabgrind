@@ -59,6 +59,17 @@ pub enum MemState {
     DefinedIfAddressable,
 }
 
+impl MemState {
+    /// Manipulation of accessibility and validity state for a memory region
+    ///
+    /// Typed wrapper over [`mark_memory`].
+    #[allow(clippy::missing_errors_doc)]
+    #[inline(always)]
+    pub fn mark<T, R: AsRef<[T]>>(self, region: R) -> Result<(), NoValgrind> {
+        mark_region(region, self)
+    }
+}
+
 #[doc = include_str!("../../doc/memcheck/LeakCheck.md")]
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
 pub enum LeakCheck {
@@ -154,6 +165,16 @@ pub fn mark_memory(addr: *const c_void, size: usize, mark: MemState) -> Result<(
     };
 
     if result == MAKE_MEM_OK { Ok(()) } else { Err(()) }
+}
+
+/// Manipulation of accessibility and validity state for a memory region
+///
+/// Typed wrapper over [`mark_memory`].
+#[allow(clippy::missing_errors_doc)]
+#[inline(always)]
+pub fn mark_region<T, R: AsRef<[T]>>(region: R, mark: MemState) -> Result<(), NoValgrind> {
+    let region = region.as_ref();
+    mark_memory(region.as_ptr().cast(), core::mem::size_of_val(region), mark)
 }
 
 macro_rules! check_mem {

@@ -118,17 +118,15 @@ this binding.
 The overhead per request, compared to using C macros directly is strictly the
 cost of a single function call.
 
-The implementation is independent of any specific Valgrind version. Instead,
-mismatches between requests and local Valgrind instance are handled at
-compile-time.
+The implementation itself is not tied to a particular Valgrind version. However,
+the Valgrind version available at compile time determines which requests are
+supported by the resulting binary
 
 ## Runtime Behavior
 
-We are coupled to the Valgrind version present during compilation.
-
-If a request is invoked at runtime that is unsupported by the active Valgrind
-instance (e.g. running under an older Valgrind), the call panics immediately,
-showing the version mismatch message and request requirements.
+Requests are bound to the Valgrind version available at compile time.
+If a request is not supported by that version, it compiles successfully but
+panics when executed, regardless of which Valgrind version is used at runtime.
 
 If your application is running **without** Valgrind, these
 requests execute as harmless machine code. They will not panic or segfault, and

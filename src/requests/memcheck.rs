@@ -192,10 +192,36 @@ pub fn check_mem_addressable(addr: *const c_void, size: usize) -> Result<(), Off
     check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_ADDRESSABLE, addr, size)
 }
 
+/// Check of memory range addressability
+///
+/// This is the typed counterpart to [`check_mem_addressable`]. On error,
+/// [`OffendingOffset`] contains the index of the first offending `T` rather
+/// than the byte offset.
+#[allow(clippy::missing_errors_doc)]
+#[inline(always)]
+pub fn check_addressable<T, R: AsRef<[T]>>(region: R) -> Result<(), OffendingOffset> {
+    let region = region.as_ref();
+    check_mem_addressable(region.as_ptr().cast(), core::mem::size_of_val(region))
+        .map_err(|e| e / core::mem::size_of::<T>())
+}
+
 #[doc = include_str!("../../doc/memcheck/check_mem_defined.md")]
 #[inline(always)]
 pub fn check_mem_defined(addr: *const c_void, size: usize) -> Result<(), OffendingOffset> {
     check_mem!(CR::CG_VALGRIND_CHECK_MEM_IS_DEFINED, addr, size)
+}
+
+/// Check of memory range addressability and definedness
+///
+/// This is the typed counterpart to [`check_mem_defined`]. On error,
+/// [`OffendingOffset`] contains the index of the first offending `T` rather
+/// than the byte offset.
+#[allow(clippy::missing_errors_doc)]
+#[inline(always)]
+pub fn check_defined<T, R: AsRef<[T]>>(region: R) -> Result<(), OffendingOffset> {
+    let region = region.as_ref();
+    check_mem_defined(region.as_ptr().cast(), core::mem::size_of_val(region))
+        .map_err(|e| e / core::mem::size_of::<T>())
 }
 
 #[doc = include_str!("../../doc/memcheck/leak_check.md")]

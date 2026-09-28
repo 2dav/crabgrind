@@ -111,6 +111,18 @@ fn mark_memory_defined() {
 }
 
 #[test]
+fn mark_range() {
+    valgrind!(memcheck => {
+        let range = &[0u16; 5];
+
+        assert!(mc::check_defined(range).is_ok());
+
+        mc::MemState::Undefined.mark(&range[3..]).unwrap();
+        assert_eq!(mc::check_defined(range), Err(3));
+    });
+}
+
+#[test]
 fn mark_memory_addressable() {
     valgrind!(memcheck => {
         const N:usize = 5;

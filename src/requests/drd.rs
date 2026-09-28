@@ -122,7 +122,7 @@ pub fn trace_var<T>(var: &T) -> ScopeGuard<DRDTracing<'_, T>> {
 #[doc = include_str!("../../doc/drd/annotate_trace_memory.md")]
 #[inline(always)]
 pub fn annotate_trace_memory<'a>(addr: *const c_void) -> ScopeGuard<DRDTracing<'a, c_char>> {
-    ScopeGuard::new(addr.cast::<c_char>().cast())
+    ScopeGuard::new(addr.cast())
 }
 
 #[doc = include_str!("../../doc/drd/annotate_benign_race.md")]

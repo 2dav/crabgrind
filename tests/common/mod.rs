@@ -101,9 +101,9 @@ macro_rules! as_str {
 #[inline(never)]
 pub unsafe fn oob_read_heap() {
     let v = vec![0u8; 3];
-    let p = v.as_ptr().add(v.len());
+    let p = unsafe { v.as_ptr().add(v.len()) };
 
-    std::ptr::read_volatile(p);
+    unsafe { std::ptr::read_volatile(p) };
 }
 
 #[inline(never)]

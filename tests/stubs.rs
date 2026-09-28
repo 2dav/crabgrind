@@ -3,7 +3,6 @@
 mod common;
 use std::ffi::c_void;
 
-use common::*;
 use crabgrind::{memcheck as mc, valgrind as vg};
 
 #[test]

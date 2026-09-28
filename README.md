@@ -60,14 +60,12 @@ however any request will panic at runtime.
 Use some of the [Client Requests][crabgrind.modules]:
 
 ```rust, no_run
-fn main() {
-    assert!(
-        crabgrind::valgrind::running_mode().is_valgrind(),
-        ":~$ valgrind {}", std::env::current_exe().unwrap().display()
-    );
+assert!(
+    crabgrind::valgrind::running_mode().is_valgrind(),
+    ":~$ valgrind {}", std::env::current_exe().unwrap().display()
+);
 
-    crabgrind::println!("Hey, Valgrind!");
-}
+crabgrind::println!("Hey, Valgrind!");
 ```
 
 And run under Valgrind

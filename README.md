@@ -99,6 +99,7 @@ crabgrind = "0.3"
 - [Memcheck: Checking for memory leaks at runtime(e.g. CI or unit tests)](https://docs.rs/crabgrind/latest/crabgrind/memcheck/fn.leak_check.html#example)
 - [Memcheck: Enforcing bounds in a custom allocator](https://docs.rs/crabgrind/latest/crabgrind/memcheck/fn.mark_memory.html#example)
 - [Memcheck: Checking for memory 'definedness' feat. MaybeUninit](https://docs.rs/crabgrind/latest/crabgrind/memcheck/fn.check_mem_defined.html#example)
+- [Memcheck: Convenient slice-based API](https://docs.rs/crabgrind/latest/crabgrind/memcheck/trait.Memcheck.html#example)
 - [DHAT: Tracking data volumes](https://docs.rs/crabgrind/latest/crabgrind/dhat/fn.ad_hoc_event.html#example)
 - [DRD: Tracking races in a custom shared memory](https://docs.rs/crabgrind/latest/crabgrind/drd/fn.annotate_new_memory.html#example)
 - [DRD: Tracing memory accesses over some memory](https://docs.rs/crabgrind/latest/crabgrind/drd/fn.trace_var.html#example)

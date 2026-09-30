@@ -2,7 +2,7 @@
 
 mod common;
 use common::*;
-use crabgrind::{memcheck as mc, valgrind as vg};
+use crabgrind::{memcheck as mc, memcheck::Memcheck as _, valgrind as vg};
 use std::{mem::MaybeUninit, process::Output};
 
 #[test]
@@ -113,12 +113,13 @@ fn mark_memory_defined() {
 #[test]
 fn mark_range() {
     valgrind!(memcheck => {
-        let range = &[0u16; 5];
+            let range = vec![0u16; 5];
 
-        assert!(mc::check_defined(range).is_ok());
+            assert!(range.check_defined().is_ok());
 
-        mc::MemState::Undefined.mark(&range[3..]).unwrap();
-        assert_eq!(mc::check_defined(range), Err(3));
+            range[3..].mark(mc::MemState::Undefined).unwrap();
+
+            assert_eq!(range.check_defined(), Err(3));
     });
 }
 

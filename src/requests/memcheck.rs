@@ -7,6 +7,7 @@ use crate::{
 use core::{
     ffi::{CStr, c_void},
     marker::PhantomData,
+    mem::{size_of, size_of_val},
 };
 
 #[cfg(feature = "valgrind")]
@@ -318,8 +319,11 @@ pub fn discard_block(handle: BlockHandle) -> Result<(), InvalidBlockHandle> {
 
 #[doc = include_str!("../../doc/memcheck/disable_reporting.md")]
 #[inline(always)]
-pub fn disable_reporting(bytes: &[u8]) -> ScopeGuard<DisabledReporting<'_>> {
-    ScopeGuard::new((bytes.as_ptr().cast(), bytes.len()))
+pub fn disable_reporting<'a>(
+    addr: *const c_void,
+    size: usize,
+) -> ScopeGuard<DisabledReporting<'a>> {
+    ScopeGuard::new((addr, size))
 }
 
 #[doc = include_str!("../../doc/memcheck/enable_error_reporting.md")]

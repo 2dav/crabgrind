@@ -243,7 +243,7 @@ macro_rules! check_mem {
     ($req:path, $addr:expr, $size:expr) => {
         match client_request!($req, $addr, $size) {
             CHECK_MEM_OK => Ok(()),
-            x => Err(x - $addr as usize),
+            x => Err(x.checked_sub($addr as usize).expect("Valgrind contract violation.")),
         }
     };
 }

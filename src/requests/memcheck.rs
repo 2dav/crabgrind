@@ -186,12 +186,13 @@ impl<T> Memcheck for [T] {
     #[inline(always)]
     fn check_addressable(&self) -> Result<(), OffendingOffset> {
         check_mem_addressable(self.as_ptr().cast(), size_of_val(self))
-            .map_err(|e| e / size_of::<T>())
+            .map_err(|e| e.checked_div(size_of::<T>()).unwrap_or(e))
     }
 
     #[inline(always)]
     fn check_defined(&self) -> Result<(), OffendingOffset> {
-        check_mem_defined(self.as_ptr().cast(), size_of_val(self)).map_err(|e| e / size_of::<T>())
+        check_mem_defined(self.as_ptr().cast(), size_of_val(self))
+            .map_err(|e| e.checked_div(size_of::<T>()).unwrap_or(e))
     }
 
     #[inline(always)]

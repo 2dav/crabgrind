@@ -44,7 +44,7 @@ impl BumpAllocator {
 
         // Name the block for better error messages.
         let block_description = std::ffi::CString::new("BumpAllocator").unwrap();
-        mc::create_block(ptr as _, capacity, block_description);
+        mc::create_block(ptr as _, capacity, &block_description);
 
         BumpAllocator {
             start: ptr as *mut u8,

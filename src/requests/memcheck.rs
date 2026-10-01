@@ -200,7 +200,9 @@ pub trait Memcheck {
     /// Association of a custom name with a memory range
     ///
     /// This is the typed counterpart to [`create_block`].
-    fn create_block(&self, desc: impl AsRef<CStr>) -> BlockHandle;
+    fn create_block<C>(&self, desc: &C) -> BlockHandle
+    where
+        C: AsRef<CStr> + ?Sized;
 
     /// Temporary disabling of error reporting for a memory range
     ///
@@ -237,7 +239,10 @@ impl<T> Memcheck for [T] {
     }
 
     #[inline(always)]
-    fn create_block(&self, desc: impl AsRef<CStr>) -> BlockHandle {
+    fn create_block<C>(&self, desc: &C) -> BlockHandle
+    where
+        C: AsRef<CStr> + ?Sized,
+    {
         create_block(self.as_ptr().cast(), size_of_val(self), desc)
     }
 
@@ -369,7 +374,10 @@ pub fn set_vbits(addr: *const c_void, vbits: &[u8]) -> Result<(), VBitsError> {
 
 #[doc = include_str!("../../doc/memcheck/create_block.md")]
 #[inline(always)]
-pub fn create_block(addr: *const c_void, size: usize, desc: impl AsRef<CStr>) -> BlockHandle {
+pub fn create_block<C>(addr: *const c_void, size: usize, desc: &C) -> BlockHandle
+where
+    C: AsRef<CStr> + ?Sized,
+{
     let desc = desc.as_ref().as_ptr();
     client_request!(CR::CG_VALGRIND_CREATE_BLOCK, addr, size, desc)
 }

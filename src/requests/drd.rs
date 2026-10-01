@@ -157,7 +157,10 @@ pub fn annotate_new_memory(addr: *const c_void, size: usize) {
 
 #[doc = include_str!("../../doc/drd/annotate_thread_name.md")]
 #[inline(always)]
-pub fn annotate_thread_name(name: impl AsRef<CStr>) {
+pub fn annotate_thread_name<C>(name: &C)
+where
+    C: AsRef<CStr> + ?Sized,
+{
     client_request!(CR::CG_ANNOTATE_THREAD_NAME, name.as_ref().as_ptr());
 }
 

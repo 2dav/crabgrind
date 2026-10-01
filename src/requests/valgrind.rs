@@ -115,7 +115,10 @@ pub fn count_errors() -> usize {
 
 #[doc = include_str!("../../doc/valgrind/change_clo.md")]
 #[inline(always)]
-pub fn change_clo(option: impl AsRef<CStr>) {
+pub fn change_clo<C>(option: &C)
+where
+    C: AsRef<CStr> + ?Sized,
+{
     client_request!(CR::CG_VALGRIND_CLO_CHANGE, option.as_ref().as_ptr());
 }
 

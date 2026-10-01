@@ -8,6 +8,7 @@ use core::{
     ffi::{CStr, c_void},
     marker::PhantomData,
     mem::{size_of, size_of_val},
+    ops::{Deref, DerefMut},
 };
 
 #[cfg(feature = "valgrind")]
@@ -19,15 +20,72 @@ use crate::bindings::CG_MemcheckClientRequest as CR;
 pub type BlockHandle = usize;
 
 /// A handle that was invalid or not found during a discard operation.
-pub type InvalidBlockHandle = BlockHandle;
+#[derive(Debug)]
+pub struct InvalidBlockHandle(BlockHandle);
+
+// `has_core_error` is set by build.rs
+#[cfg(has_core_error)]
+impl core::error::Error for InvalidBlockHandle {}
+impl core::fmt::Display for InvalidBlockHandle {
+    #[inline(always)]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Invalid block handle:{}", self.0)
+    }
+}
 
 /// Error indicating client-request was called when not running under Valgrind.
 ///
 /// See [`mark_memory`](mark_memory)
-pub type NoValgrind = ();
+#[derive(Debug)]
+pub struct NoValgrind;
+
+// `has_core_error` is set by build.rs
+#[cfg(has_core_error)]
+impl core::error::Error for NoValgrind {}
+impl core::fmt::Display for NoValgrind {
+    #[inline(always)]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("No Valgrind")
+    }
+}
 
 #[doc = include_str!("../../doc/memcheck/OffendingOffset.md")]
-pub type OffendingOffset = usize;
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct OffendingOffset(usize);
+
+// `has_core_error` is set by build.rs
+#[cfg(has_core_error)]
+impl core::error::Error for OffendingOffset {}
+impl core::fmt::Display for OffendingOffset {
+    #[inline(always)]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Offending offset {}", self.0)
+    }
+}
+
+impl Deref for OffendingOffset {
+    type Target = usize;
+
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for OffendingOffset {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl From<usize> for OffendingOffset {
+    #[inline(always)]
+    fn from(value: usize) -> Self {
+        Self(value)
+    }
+}
 
 #[doc(hidden)]
 #[derive(Debug)]
@@ -186,13 +244,13 @@ impl<T> Memcheck for [T] {
     #[inline(always)]
     fn check_addressable(&self) -> Result<(), OffendingOffset> {
         check_mem_addressable(self.as_ptr().cast(), size_of_val(self))
-            .map_err(|e| e.checked_div(size_of::<T>()).unwrap_or(e))
+            .map_err(|e| e.checked_div(size_of::<T>()).unwrap_or(e.0).into())
     }
 
     #[inline(always)]
     fn check_defined(&self) -> Result<(), OffendingOffset> {
         check_mem_defined(self.as_ptr().cast(), size_of_val(self))
-            .map_err(|e| e.checked_div(size_of::<T>()).unwrap_or(e))
+            .map_err(|e| e.checked_div(size_of::<T>()).unwrap_or(e.0).into())
     }
 
     #[inline(always)]
@@ -236,14 +294,14 @@ pub fn mark_memory(addr: *const c_void, size: usize, mark: MemState) -> Result<(
         MemState::DefinedIfAddressable => r!(CR::CG_VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE),
     };
 
-    if result == MAKE_MEM_OK { Ok(()) } else { Err(()) }
+    if result == MAKE_MEM_OK { Ok(()) } else { Err(NoValgrind) }
 }
 
 macro_rules! check_mem {
     ($req:path, $addr:expr, $size:expr) => {
         match client_request!($req, $addr, $size) {
             CHECK_MEM_OK => Ok(()),
-            x => Err(x.checked_sub($addr as usize).expect("Valgrind contract violation.")),
+            x => Err(x.checked_sub($addr as usize).expect("Valgrind contract violation.").into()),
         }
     };
 }
@@ -348,7 +406,7 @@ pub fn create_block(addr: *const c_void, size: usize, desc: impl AsRef<CStr>) ->
 pub fn discard_block(handle: BlockHandle) -> Result<(), InvalidBlockHandle> {
     match client_request!(CR::CG_VALGRIND_DISCARD, handle) {
         DISCARD_MEM_OK => Ok(()),
-        _ => Err(handle),
+        _ => Err(InvalidBlockHandle(handle)),
     }
 }
 

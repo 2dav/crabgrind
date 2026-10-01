@@ -21,13 +21,15 @@ macro_rules! V {
     () => { V!(var.as_ptr()) };
 }
 
-assert_eq!(memcheck::check_mem_defined(var.as_ptr().cast(), 2), Err(0));
+assert_eq!(memcheck::check_mem_defined(var.as_ptr().cast(), 2),
+Err(0.into()));
 assert_eq!(V!(), [0xFF, 0xFF], "all bytes should be 'undefined' at this point");
 
 // Initialize first byte
 unsafe { (*var.as_mut_ptr())[0] = 42 };
 
-assert_eq!(memcheck::check_mem_defined(var.as_ptr().cast(), 2), Err(1));
+assert_eq!(memcheck::check_mem_defined(var.as_ptr().cast(), 2),
+Err(1.into()));
 assert_eq!(V!(), [0x0, 0xFF], "only the first byte is 'defined'");
 ```
 

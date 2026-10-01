@@ -100,10 +100,10 @@ fn mark_memory_defined() {
         let ptr = uninit.as_ptr() as _;
 
         mc::mark_memory(ptr, N, mc::MemState::Undefined).unwrap();
-        assert_eq!(mc::check_mem_defined(ptr, N), Err(0));
+        assert_eq!(mc::check_mem_defined(ptr, N), Err(0.into()));
 
         mc::mark_memory(ptr, 2, mc::MemState::Defined).unwrap();
-        assert_eq!(mc::check_mem_defined(ptr, N), Err(2));
+        assert_eq!(mc::check_mem_defined(ptr, N), Err(2.into()));
 
         mc::mark_memory(unsafe{ ptr.offset(2) }, N - 2, mc::MemState::DefinedIfAddressable).unwrap();
         assert!(mc::check_mem_defined(ptr, N).is_ok());
@@ -119,7 +119,7 @@ fn mark_range() {
 
             range[3..].mark(mc::MemState::Undefined).unwrap();
 
-            assert_eq!(range.check_defined(), Err(3));
+            assert_eq!(range.check_defined(), Err(3.into()));
     });
 }
 
@@ -132,7 +132,7 @@ fn mark_memory_addressable() {
         let ptr_offset2 = unsafe{ ptr.offset(2) };
 
         mc::mark_memory(ptr_offset2, N - 2, mc::MemState::NoAccess).unwrap();
-        assert_eq!(mc::check_mem_addressable(ptr, N), Err(2));
+        assert_eq!(mc::check_mem_addressable(ptr, N), Err(2.into()));
         assert!(mc::check_mem_addressable(ptr, 2).is_ok());
 
         mc::mark_memory(ptr_offset2, N - 2, mc::MemState::Defined).unwrap();

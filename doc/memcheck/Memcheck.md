@@ -17,7 +17,7 @@ use crabgrind::memcheck::Memcheck as _;
 let range = vec![0u16; 5];
 
 range[3..].mark(mc::MemState::Undefined).unwrap();
-assert_eq!(range.check_defined(), Err(3));
+assert_eq!(range.check_defined(), Err(3.into()));
 ```
 
 The equivalent operations using the raw API are:
@@ -37,6 +37,6 @@ mc::mark_memory(
 
 assert_eq!(
     mc::check_mem_defined(range.as_ptr() as *const c_void, size_of_val(&range)),
-    Err(6),
+    Err(6.into()),
 );
 ```

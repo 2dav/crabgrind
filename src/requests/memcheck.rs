@@ -20,8 +20,8 @@ use crate::bindings::CG_MemcheckClientRequest as CR;
 pub type BlockHandle = usize;
 
 /// A handle that was invalid or not found during a discard operation.
-#[derive(Debug)]
 #[repr(transparent)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct InvalidBlockHandle(pub BlockHandle);
 
 impl Deref for InvalidBlockHandle {
@@ -36,7 +36,7 @@ impl Deref for InvalidBlockHandle {
 /// Error indicating client-request was called when not running under Valgrind.
 ///
 /// See [`mark_memory`](mark_memory)
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct NoValgrind;
 
 #[doc = include_str!("../../doc/memcheck/OffendingOffset.md")]

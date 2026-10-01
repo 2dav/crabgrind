@@ -157,25 +157,29 @@ pub fn map_ip_to_srcloc(addr: *const c_void, buf: &mut [u8; 64]) -> Option<&CStr
 
 #[doc = include_str!("../../doc/valgrind/non_simd_call.md")]
 #[inline(always)]
-pub fn non_simd_call(f: fn(ThreadId) -> usize) -> usize {
+pub unsafe fn non_simd_call(f: fn(ThreadId) -> usize) -> usize {
     client_request!(CR::CG_VALGRIND_NON_SIMD_CALL0, f)
 }
 
 #[doc = include_str!("../../doc/valgrind/non_simd_call1.md")]
 #[inline(always)]
-pub fn non_simd_call1(f: fn(ThreadId, usize) -> usize, arg1: usize) -> usize {
+pub unsafe fn non_simd_call1(f: fn(ThreadId, usize) -> usize, arg1: usize) -> usize {
     client_request!(CR::CG_VALGRIND_NON_SIMD_CALL1, f, arg1)
 }
 
 #[doc = include_str!("../../doc/valgrind/non_simd_call2.md")]
 #[inline(always)]
-pub fn non_simd_call2(f: fn(ThreadId, usize, usize) -> usize, arg1: usize, arg2: usize) -> usize {
+pub unsafe fn non_simd_call2(
+    f: fn(ThreadId, usize, usize) -> usize,
+    arg1: usize,
+    arg2: usize,
+) -> usize {
     client_request!(CR::CG_VALGRIND_NON_SIMD_CALL2, f, arg1, arg2)
 }
 
 #[doc = include_str!("../../doc/valgrind/non_simd_call3.md")]
 #[inline(always)]
-pub fn non_simd_call3(
+pub unsafe fn non_simd_call3(
     f: fn(ThreadId, usize, usize, usize) -> usize,
     arg1: usize,
     arg2: usize,

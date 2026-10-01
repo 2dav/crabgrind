@@ -136,7 +136,7 @@ fn map_ip_to_srcloc() {
 
 #[test]
 fn non_simd_call() {
-    valgrind!(memcheck => {
+    valgrind!(memcheck => unsafe {
         const T: usize = 2;
         let tid = vg::non_simd_call(|tid| tid);
         assert_eq!(tid, T);

@@ -58,7 +58,7 @@ macro_rules! valgrind {
 
         let output = cmd
             .args([test_bin, test_name.into()])
-            .args(["--no-capture"])
+            .args(["--nocapture"])
             .env(TEST_RUNNER, "")
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())

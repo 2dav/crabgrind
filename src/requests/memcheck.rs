@@ -8,7 +8,7 @@ use core::{
     ffi::{CStr, c_void},
     marker::PhantomData,
     mem::{size_of, size_of_val},
-    ops::{Deref, DerefMut},
+    ops::Deref,
 };
 
 #[cfg(feature = "valgrind")]
@@ -22,17 +22,7 @@ pub type BlockHandle = usize;
 /// A handle that was invalid or not found during a discard operation.
 #[derive(Debug)]
 #[repr(transparent)]
-pub struct InvalidBlockHandle(BlockHandle);
-
-// `has_core_error` is set by build.rs
-#[cfg(has_core_error)]
-impl core::error::Error for InvalidBlockHandle {}
-impl core::fmt::Display for InvalidBlockHandle {
-    #[inline(always)]
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Invalid block handle:{}", self.0)
-    }
-}
+pub struct InvalidBlockHandle(pub BlockHandle);
 
 impl Deref for InvalidBlockHandle {
     type Target = BlockHandle;
@@ -49,30 +39,10 @@ impl Deref for InvalidBlockHandle {
 #[derive(Debug)]
 pub struct NoValgrind;
 
-// `has_core_error` is set by build.rs
-#[cfg(has_core_error)]
-impl core::error::Error for NoValgrind {}
-impl core::fmt::Display for NoValgrind {
-    #[inline(always)]
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str("No Valgrind")
-    }
-}
-
 #[doc = include_str!("../../doc/memcheck/OffendingOffset.md")]
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct OffendingOffset(usize);
-
-// `has_core_error` is set by build.rs
-#[cfg(has_core_error)]
-impl core::error::Error for OffendingOffset {}
-impl core::fmt::Display for OffendingOffset {
-    #[inline(always)]
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Offending offset {}", self.0)
-    }
-}
+pub struct OffendingOffset(pub usize);
 
 impl Deref for OffendingOffset {
     type Target = usize;
@@ -80,13 +50,6 @@ impl Deref for OffendingOffset {
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.0
-    }
-}
-
-impl DerefMut for OffendingOffset {
-    #[inline(always)]
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
     }
 }
 
@@ -453,8 +416,35 @@ impl core::fmt::Display for VBitsError {
     }
 }
 
+impl core::fmt::Display for InvalidBlockHandle {
+    #[inline(always)]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Invalid block handle:{}", self.0)
+    }
+}
+
+impl core::fmt::Display for NoValgrind {
+    #[inline(always)]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("No Valgrind")
+    }
+}
+
+impl core::fmt::Display for OffendingOffset {
+    #[inline(always)]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Offending offset {}", self.0)
+    }
+}
+
 // `has_core_error` is set by build.rs
 #[cfg(has_core_error)]
 impl core::error::Error for VBitsError {}
+#[cfg(has_core_error)]
+impl core::error::Error for InvalidBlockHandle {}
+#[cfg(has_core_error)]
+impl core::error::Error for NoValgrind {}
+#[cfg(has_core_error)]
+impl core::error::Error for OffendingOffset {}
 
 impl Sealed for DisabledReporting<'_> {}

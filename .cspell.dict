@@ -49,3 +49,4 @@ cstr
 MSRV
 armv
 riscv
+docsrs

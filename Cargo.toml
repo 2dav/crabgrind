@@ -21,6 +21,8 @@ default = ["valgrind"]
 valgrind = ["dep:cc", "dep:bindgen", "dep:pkg-config"]
 # `opt-out` was removed (v0.3). Use `default-features = false`.
 opt-out = []
+# Enables the `println!` and `println_stacktrace!` macros
+alloc = []
 
 [build-dependencies]
 cc = { version = "1", optional = true }
@@ -39,6 +41,7 @@ debug = "full"
 [package.metadata.docs.rs]
 targets = []
 no-default-features = true
+features = ["alloc"]
 
 [lints.rust]
 unsafe_op_in_unsafe_fn = "warn"

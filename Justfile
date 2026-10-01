@@ -36,16 +36,16 @@ clean-valgrind-out:
 
 # Generate doc
 doc:
-	cargo doc
+	cargo doc --features alloc --open
 
 # Test integration and documentation
 test: check test-doc msrv-build
-	cargo test --release
-	cargo test --release --no-default-features
+	cargo test --release --features alloc
+	cargo test --release --no-default-features --features alloc
 
 # Test doc examples
 test-doc:
-	cargo test --doc
+	cargo test --doc --features alloc
 
 # Generate wrapper.h and valgrind_version.rs
 [working-directory: 'valgrind']

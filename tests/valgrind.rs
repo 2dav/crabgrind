@@ -70,6 +70,18 @@ fn println_macro() {
 }
 
 #[test]
+fn vg_print() {
+    valgrind!(memcheck => {
+        crab::vg_print(c"vg_print_msg");
+        crab::vg_print_stacktrace(c"vg_print_stacktrace");
+    }, |output: Output| {
+        let stderr = as_str!(&output.stderr);
+        assert!(stderr.contains("vg_print_msg"));
+        assert!(stderr.contains("vg_print_stacktrace"));
+    });
+}
+
+#[test]
 fn error_reporting() {
     valgrind!(memcheck => unsafe {
         let before = vg::count_errors();

@@ -63,7 +63,7 @@ pub mod imp {
 
             let msg = unsafe { core::ffi::CStr::from_ptr(msg.as_bytes().as_ptr().cast()) };
             $crate::vg_print(msg);
-        }}
+        }};
     }
 
     #[cfg(feature = "alloc")]
@@ -76,7 +76,7 @@ pub mod imp {
 
             let msg = unsafe { core::ffi::CStr::from_ptr(msg.as_bytes().as_ptr().cast()) };
             $crate::vg_print_stacktrace(msg);
-        }}
+        }};
     }
 }
 
@@ -89,7 +89,9 @@ mod imp {
     #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
     #[macro_export]
     macro_rules! println {
-        ($($arg:tt)+) => {};
+        ($($arg:tt)+) => {
+            ()
+        };
     }
 
     #[cfg(feature = "alloc")]
@@ -97,6 +99,8 @@ mod imp {
     #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
     #[macro_export]
     macro_rules! print_stacktrace {
-        ($($arg:tt)+) => {};
+        ($($arg:tt)+) => {
+            ()
+        };
     }
 }

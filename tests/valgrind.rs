@@ -45,8 +45,8 @@ fn replaces_malloc() {
 #[test]
 fn monitor_command() {
     valgrind!(memcheck --leak-check=no => {
-        assert!(vg::monitor_command(cstr!("invalid_command")).is_err());
-        assert!(vg::monitor_command(cstr!("leak_check")).is_ok());
+        assert!(vg::monitor_command(c"invalid_command").is_err());
+        assert!(vg::monitor_command(c"leak_check").is_ok());
     }, |output: Output| {
         let stderr = as_str!(&output.stderr);
         assert!(stderr.contains("LEAK SUMMARY:"));
@@ -120,7 +120,7 @@ fn error_reporting_toggle() {
 #[test]
 fn change_clo() {
     valgrind!(memcheck --leak-check=no => {
-        vg::change_clo(cstr!("--leak-check=summary"));
+        vg::change_clo(c"--leak-check=summary");
     }, |output: Output| {
         let stderr = as_str!(&output.stderr);
         assert!(stderr.contains("Handling new value --leak-check=summary"));

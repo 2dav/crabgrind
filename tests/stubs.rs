@@ -33,7 +33,7 @@ fn map_ip_to_srcloc() {
 
 #[test]
 fn monitor_command() {
-    assert!(vg::monitor_command(cstr!("invalid_command")).is_ok());
+    assert!(vg::monitor_command(c"invalid_command").is_ok());
 }
 
 #[test]

@@ -84,13 +84,6 @@ macro_rules! valgrind {
 }
 
 #[macro_export]
-macro_rules! cstr {
-    ($arg:expr) => {
-        unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(concat!($arg, "\0").as_bytes()) }
-    };
-}
-
-#[macro_export]
 macro_rules! as_str {
     ($arg:expr) => {
         unsafe { std::str::from_utf8_unchecked($arg) }

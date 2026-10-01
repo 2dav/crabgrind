@@ -171,7 +171,7 @@ fn create_discard_block() {
         const N:usize = 5;
         let heap = Box::new([0u8; N]);
         let ptr = heap.as_ptr() as _;
-        let desc = cstr!("b");
+        let desc = c"b";
 
         let id = mc::create_block(ptr, N, desc);
         assert_eq!(id, 0);

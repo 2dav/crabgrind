@@ -16,7 +16,7 @@ fn dump_stats() {
         factorial(10);
         cg::dump_stats(None);
         factorial(10);
-        cg::dump_stats(cstr!("DUMP"));
+        cg::dump_stats(c"DUMP");
     }, |output: Output| {
         let stderr = as_str!(&output.stderr);
         assert!(stderr.contains("(Client Request)..."));
@@ -28,7 +28,7 @@ fn dump_stats() {
 fn zero_stats() {
     valgrind!(callgrind --verbose => {
         cg::zero_stats();
-        cg::dump_stats(cstr!("HashMap::insert"));
+        cg::dump_stats(c"HashMap::insert");
     }, |output: Output| {
         let stderr = as_str!(&output.stderr);
         assert!(stderr.contains("Zeroing costs..."));

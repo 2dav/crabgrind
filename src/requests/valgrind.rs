@@ -34,7 +34,20 @@ impl Scope for DisabledReporting {
 }
 
 /// Monitor Command error - command not recognized
-pub type CommandNotFound = ();
+#[derive(Debug, PartialEq, Eq)]
+pub struct CommandNotFound<'a>(&'a CStr);
+
+// `has_core_error` is set by build.rs
+#[cfg(has_core_error)]
+impl core::error::Error for CommandNotFound<'_> {}
+
+impl core::fmt::Display for CommandNotFound<'_> {
+    #[inline(always)]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Command not found: {:?}", self.0)
+    }
+}
+
 /// File descriptor
 pub type RawFd = c_int;
 /// Valgrind/DRD Thread Identifier.
@@ -77,9 +90,12 @@ pub fn running_mode() -> RunningMode {
 
 #[doc = include_str!("../../doc/valgrind/monitor_command.md")]
 #[inline(always)]
-pub fn monitor_command(cmd: impl AsRef<CStr>) -> Result<(), CommandNotFound> {
+pub fn monitor_command<C>(cmd: &C) -> Result<(), CommandNotFound<'_>>
+where
+    C: AsRef<CStr> + ?Sized,
+{
     match client_request!(CR::CG_VALGRIND_MONITOR_COMMAND, cmd.as_ref().as_ptr()) {
-        MONITOR_COMMAND_ERROR => Err(()),
+        MONITOR_COMMAND_ERROR => Err(CommandNotFound(cmd.as_ref())),
         _ => Ok(()),
     }
 }

@@ -1,6 +1,7 @@
 #![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
 #![cfg_attr(not(feature = "valgrind"), allow(unused, missing_docs, clippy::needless_pass_by_value))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![no_std]
 
 #[cfg(feature = "opt-out")]

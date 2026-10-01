@@ -33,6 +33,15 @@ impl core::fmt::Display for InvalidBlockHandle {
     }
 }
 
+impl Deref for InvalidBlockHandle {
+    type Target = BlockHandle;
+
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 /// Error indicating client-request was called when not running under Valgrind.
 ///
 /// See [`mark_memory`](mark_memory)

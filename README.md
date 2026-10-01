@@ -28,7 +28,7 @@ First, add `crabgrind` as a dependency in `Cargo.toml`
 
 ```toml
 [dependencies]
-crabgrind = "0.3"
+crabgrind = "0.4"
 ```
 
 or
@@ -88,10 +88,10 @@ optimized out by the compiler. No build dependencies are pulled in.
 
 ```toml
 [dependencies]
-crabgrind = { version = "0.3", default-features = false }
+crabgrind = { version = "0.4", default-features = false }
 
 [build-dependencies]
-crabgrind = "0.3"
+crabgrind = "0.4"
 ```
 
 ## More Examples

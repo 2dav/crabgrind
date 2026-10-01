@@ -28,7 +28,7 @@ pub mod imp {
         ($($arg:tt)+) => {{
             let msg = format!("{}\n\0", format_args!($($arg)+));
 
-            let msg = unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(msg.as_bytes()) };
+            let msg = unsafe { core::ffi::CStr::from_ptr(msg.as_bytes().as_ptr().cast()) };
             $crate::imp::__print(msg);
         }}
     }
@@ -39,7 +39,7 @@ pub mod imp {
         ($($arg:tt)+) => {{
             let msg = format!("{}\0", format_args!($($arg)+));
 
-            let msg = unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(msg.as_bytes()) };
+            let msg = unsafe { core::ffi::CStr::from_ptr(msg.as_bytes().as_ptr().cast()) };
             $crate::imp::__print_stacktrace(msg);
         }}
     }

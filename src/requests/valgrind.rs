@@ -310,7 +310,7 @@ pub fn toolname(buf: &mut [u8; 64]) -> Option<&CStr> {
             if n > 64 || buf[n - 1] != b'\0' {
                 None
             } else {
-                unsafe { CStr::from_bytes_with_nul_unchecked(&buf[..n]).into() }
+                unsafe { CStr::from_ptr(buf.as_ptr().cast()).into() }
             }
         }
     }

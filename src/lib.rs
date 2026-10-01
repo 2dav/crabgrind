@@ -14,13 +14,36 @@ pub extern crate alloc;
 mod bindings;
 mod requests;
 
-pub use imp::{vg_print, vg_print_stacktrace};
 pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind};
 
 /// Valgrind version this crate was compiled against.
 pub const VALGRIND_VERSION: (u32, u32) = imp::VALGRIND_VERSION;
 #[doc = include_str!("../doc/VALGRIND_AVAILABLE.md")]
 pub const VALGRIND_AVAILABLE: bool = VALGRIND_VERSION.0 != 0xBEDA_BEDA;
+
+/// Printing to the Valgrind output channel
+#[inline(always)]
+pub fn vg_print<C>(t: &C)
+where
+    C: AsRef<core::ffi::CStr> + ?Sized,
+{
+    #[cfg(feature = "valgrind")]
+    unsafe {
+        bindings::vg_print(t.as_ref().as_ptr())
+    };
+}
+
+/// Printing to the Valgrind output channel with a stack trace attached
+#[inline(always)]
+pub fn vg_print_stacktrace<C>(t: &C)
+where
+    C: AsRef<core::ffi::CStr> + ?Sized,
+{
+    #[cfg(feature = "valgrind")]
+    unsafe {
+        bindings::vg_print_backtrace(t.as_ref().as_ptr())
+    };
+}
 
 #[doc(hidden)]
 #[cfg(feature = "valgrind")]
@@ -54,24 +77,6 @@ pub mod imp {
             $crate::vg_print_stacktrace(msg);
         }}
     }
-
-    /// Printing to the Valgrind output channel
-    #[inline(always)]
-    pub fn vg_print<C>(t: &C)
-    where
-        C: AsRef<core::ffi::CStr> + ?Sized,
-    {
-        unsafe { super::bindings::vg_print(t.as_ref().as_ptr()) };
-    }
-
-    /// Printing to the Valgrind output channel with a stack trace attached
-    #[inline(always)]
-    pub fn vg_print_stacktrace<C>(t: &C)
-    where
-        C: AsRef<core::ffi::CStr> + ?Sized,
-    {
-        unsafe { super::bindings::vg_print_backtrace(t.as_ref().as_ptr()) };
-    }
 }
 
 #[cfg(not(feature = "valgrind"))]
@@ -92,21 +97,5 @@ mod imp {
     #[macro_export]
     macro_rules! print_stacktrace {
         ($($arg:tt)+) => {};
-    }
-
-    /// Printing to the Valgrind output channel
-    #[inline(always)]
-    pub fn vg_print<C>(_t: &C)
-    where
-        C: AsRef<core::ffi::CStr> + ?Sized,
-    {
-    }
-
-    /// Printing to the Valgrind output channel with a stack trace attached
-    #[inline(always)]
-    pub fn vg_print_stacktrace<C>(_t: &C)
-    where
-        C: AsRef<core::ffi::CStr> + ?Sized,
-    {
     }
 }

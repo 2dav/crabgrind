@@ -128,7 +128,7 @@ impl LeakCheck {
 }
 
 #[doc = include_str!("../../doc/memcheck/LeaksCount.md")]
-#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Hash)]
 pub struct LeaksCount {
     /// Bytes that are definitely lost (no pointers to the start) or indirectly lost.
     ///

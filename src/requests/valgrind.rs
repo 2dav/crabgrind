@@ -45,7 +45,7 @@ pub type ThreadId = usize;
 pub type StackId = usize;
 
 #[doc = include_str!("../../doc/valgrind/RunningMode.md")]
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum RunningMode {
     /// Running on the host hardware without Valgrind.
     Native,

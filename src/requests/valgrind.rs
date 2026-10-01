@@ -143,7 +143,7 @@ pub fn load_pdb_debuginfo(fd: RawFd, ptr: *const c_void, total_size: usize, delt
 #[doc = include_str!("../../doc/valgrind/map_ip_to_srcloc.md")]
 #[inline(always)]
 #[allow(clippy::needless_lifetimes)]
-pub fn map_ip_to_srcloc<'a>(addr: *const c_void, buf: &'a mut [u8; 64]) -> Option<&'a CStr> {
+pub fn map_ip_to_srcloc(addr: *const c_void, buf: &mut [u8; 64]) -> Option<&CStr> {
     #[cfg(not(feature = "valgrind"))]
     return None;
 

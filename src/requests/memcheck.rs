@@ -21,6 +21,7 @@ pub type BlockHandle = usize;
 
 /// A handle that was invalid or not found during a discard operation.
 #[derive(Debug)]
+#[repr(transparent)]
 pub struct InvalidBlockHandle(BlockHandle);
 
 // `has_core_error` is set by build.rs

@@ -34,19 +34,8 @@ impl Scope for DisabledReporting {
 }
 
 /// Monitor Command error - command not recognized
-#[derive(Debug, PartialEq, Eq)]
-pub struct CommandNotFound<'a>(&'a CStr);
-
-// `has_core_error` is set by build.rs
-#[cfg(has_core_error)]
-impl core::error::Error for CommandNotFound<'_> {}
-
-impl core::fmt::Display for CommandNotFound<'_> {
-    #[inline(always)]
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Command not found: {:?}", self.0)
-    }
-}
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
+pub struct CommandNotFound<'a>(pub &'a CStr);
 
 /// File descriptor
 pub type RawFd = c_int;
@@ -319,5 +308,16 @@ pub fn toolname(buf: &mut [u8; 64]) -> Option<&CStr> {
         }
     }
 }
+
+impl core::fmt::Display for CommandNotFound<'_> {
+    #[inline(always)]
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Command not found: {:?}", self.0)
+    }
+}
+
+// `has_core_error` is set by build.rs
+#[cfg(has_core_error)]
+impl core::error::Error for CommandNotFound<'_> {}
 
 impl Sealed for DisabledReporting {}

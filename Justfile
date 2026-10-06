@@ -24,7 +24,7 @@ cspell:
 
 # Markdown linting
 mdlint:
-	markdownlint doc README.md
+	markdownlint doc README.md CHANGELOG.md
 
 # Cleanup all build and tests artifacts
 clean: clean-valgrind-out

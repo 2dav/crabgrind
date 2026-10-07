@@ -168,89 +168,119 @@ pub enum VBitsError {
 #[doc = include_str!("../../doc/memcheck/Memcheck.md")]
 #[allow(clippy::missing_errors_doc)]
 pub trait Memcheck {
+    #[doc(hidden)]
+    fn as_ptr(&self) -> *const u8;
+    #[doc(hidden)]
+    fn size(&self) -> usize;
+
     /// Manipulation of accessibility and validity state for a memory region
     ///
     /// This is the typed counterpart to [`mark_memory`].
-    fn mark(&self, mark: MemState) -> Result<(), NoValgrind>;
+    fn mark(&self, mark: MemState) -> Result<(), NoValgrind> {
+        mark_memory(self.as_ptr().cast(), self.size(), mark)
+    }
 
     /// Check of memory range addressability
     ///
-    /// This is the typed counterpart to [`check_mem_addressable`]. On error,
-    /// [`OffendingOffset`] contains the index of the first offending `T` rather
-    /// than the byte offset.
-    fn check_addressable(&self) -> Result<(), OffendingOffset>;
+    /// This is the typed counterpart to [`check_mem_addressable`].
+    fn check_addressable(&self) -> Result<(), OffendingOffset> {
+        check_mem_addressable(self.as_ptr().cast(), self.size())
+    }
 
     /// Check of memory range addressability and definedness
     ///
-    /// This is the typed counterpart to [`check_mem_defined`]. On error,
-    /// [`OffendingOffset`] contains the index of the first offending `T` rather
-    /// than the byte offset.
-    fn check_defined(&self) -> Result<(), OffendingOffset>;
+    /// This is the typed counterpart to [`check_mem_defined`].
+    fn check_defined(&self) -> Result<(), OffendingOffset> {
+        check_mem_defined(self.as_ptr().cast(), self.size())
+    }
 
     /// Retrieval of validity (V) bits for a memory range
     ///
     /// This is the typed counterpart to [`vbits`].
-    fn vbits(&self, dest: &mut [u8]) -> Result<(), VBitsError>;
+    fn vbits(&self, dest: &mut [u8]) -> Result<(), VBitsError> {
+        vbits(self.as_ptr().cast(), dest)
+    }
 
     /// Setting of validity (V) bits for a memory range
     ///
     /// This is the typed counterpart to [`set_vbits`].
-    fn set_vbits(&self, vbits: &[u8]) -> Result<(), VBitsError>;
+    fn set_vbits(&self, vbits: &[u8]) -> Result<(), VBitsError> {
+        set_vbits(self.as_ptr().cast(), vbits)
+    }
 
     /// Association of a custom name with a memory range
     ///
     /// This is the typed counterpart to [`create_block`].
     fn create_block<C>(&self, desc: &C) -> BlockHandle
     where
-        C: AsRef<CStr> + ?Sized;
+        C: AsRef<CStr> + ?Sized,
+    {
+        create_block(self.as_ptr().cast(), self.size(), desc)
+    }
 
     /// Temporary disabling of error reporting for a memory range
     ///
     /// This is the typed counterpart to [`disable_reporting`].
-    fn disable_reporting(&self) -> ScopeGuard<DisabledReporting<'_>>;
+    fn disable_reporting(&self) -> ScopeGuard<DisabledReporting<'_>> {
+        disable_reporting(self.as_ptr().cast(), self.size())
+    }
 }
 
 impl<T> Memcheck for [T] {
     #[inline(always)]
-    fn mark(&self, mark: MemState) -> Result<(), NoValgrind> {
-        mark_memory(self.as_ptr().cast(), size_of_val(self), mark)
+    fn as_ptr(&self) -> *const u8 {
+        self.as_ptr().cast()
     }
 
+    #[inline(always)]
+    fn size(&self) -> usize {
+        size_of_val(self)
+    }
+
+    /// Check of memory range addressability
+    ///
+    /// This is the typed counterpart to [`check_mem_addressable`]. On error,
+    /// [`OffendingOffset`] contains the index of the first offending `T` rather
+    /// than the byte offset.
     #[inline(always)]
     fn check_addressable(&self) -> Result<(), OffendingOffset> {
-        check_mem_addressable(self.as_ptr().cast(), size_of_val(self))
+        check_mem_addressable(self.as_ptr().cast(), self.size())
             .map_err(|e| e.checked_div(size_of::<T>()).unwrap_or(e.0).into())
     }
 
+    /// Check of memory range addressability and definedness
+    ///
+    /// This is the typed counterpart to [`check_mem_defined`]. On error,
+    /// [`OffendingOffset`] contains the index of the first offending `T` rather
+    /// than the byte offset.
     #[inline(always)]
     fn check_defined(&self) -> Result<(), OffendingOffset> {
-        check_mem_defined(self.as_ptr().cast(), size_of_val(self))
+        check_mem_defined(self.as_ptr().cast(), self.size())
             .map_err(|e| e.checked_div(size_of::<T>()).unwrap_or(e.0).into())
     }
-
-    #[inline(always)]
-    fn vbits(&self, dest: &mut [u8]) -> Result<(), VBitsError> {
-        vbits(self.as_ptr().cast(), dest)
-    }
-
-    #[inline(always)]
-    fn set_vbits(&self, vbits: &[u8]) -> Result<(), VBitsError> {
-        set_vbits(self.as_ptr().cast(), vbits)
-    }
-
-    #[inline(always)]
-    fn create_block<C>(&self, desc: &C) -> BlockHandle
-    where
-        C: AsRef<CStr> + ?Sized,
-    {
-        create_block(self.as_ptr().cast(), size_of_val(self), desc)
-    }
-
-    #[inline(always)]
-    fn disable_reporting(&self) -> ScopeGuard<DisabledReporting<'_>> {
-        disable_reporting(self.as_ptr().cast(), size_of_val(self))
-    }
 }
+
+macro_rules! impl_memcheck_scalar {
+    ($($t:ty),* $(,)?) => {
+        $(
+            impl Memcheck for $t {
+                #[inline(always)]
+                fn as_ptr(&self) -> *const u8 {
+                    core::ptr::addr_of!(*self).cast()
+                }
+
+                #[inline(always)]
+                fn size(&self) -> usize {
+                    size_of::<$t>()
+                }
+            }
+        )*
+    };
+}
+
+impl_memcheck_scalar!(
+    bool, char, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64,
+);
 
 #[doc = include_str!("../../doc/memcheck/mark_memory.md")]
 #[allow(clippy::match_same_arms)]

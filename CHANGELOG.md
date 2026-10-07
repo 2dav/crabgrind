@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Convenient, typed wrappers for `memcheck` requests for primitive scalar types
+
 ## [0.4.0] - 2026-10-01
 
 ### Added

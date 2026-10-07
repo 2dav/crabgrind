@@ -124,6 +124,19 @@ fn mark_range() {
 }
 
 #[test]
+fn mark_scalar() {
+    valgrind!(memcheck => {
+            let value = &0usize;
+
+            assert!(value.check_defined().is_ok());
+
+            value.mark(mc::MemState::Undefined).unwrap();
+
+            assert_eq!(value.check_defined(), Err(0.into()));
+    });
+}
+
+#[test]
 fn mark_memory_addressable() {
     valgrind!(memcheck => {
         const N:usize = 5;

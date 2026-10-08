@@ -80,7 +80,7 @@ And run under Valgrind
 - **valgrind** *(default)* Enables execution of requests, C-shim compilation and
   bindings generation.
 
-- **alloc** Enables the `println!` and `println_stacktrace!` macros. Disabled
+- **alloc** Enables the `println!` and `print_stacktrace!` macros. Disabled
   by default. The target environment must provide a global allocator.
 
 With `default-features = false`, all requests turn into no-op stubs and are

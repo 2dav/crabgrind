@@ -21,7 +21,7 @@ default = ["valgrind"]
 valgrind = ["dep:cc", "dep:bindgen", "dep:pkg-config"]
 # `opt-out` was removed (v0.3). Use `default-features = false`.
 opt-out = []
-# Enables the `println!` and `println_stacktrace!` macros
+# Enables the `println!` and `print_stacktrace!` macros
 alloc = []
 
 [build-dependencies]

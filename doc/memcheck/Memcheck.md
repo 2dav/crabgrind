@@ -1,7 +1,7 @@
 Convenient, typed wrappers for [`memcheck`](crate::memcheck) requests
 that operate on memory ranges
 
-The trait is implemented for **[T]** and primitive scalar types. For slices,
+The trait is implemented for **\[T\]** and primitive scalar types. For slices,
 it works out of the box with types that dereference to slices, such as
 `Vec<T>`. Scalar implementations operate on the memory occupied by the
 value itself.

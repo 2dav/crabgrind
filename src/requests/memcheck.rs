@@ -1,11 +1,11 @@
 #![doc = include_str!("../../doc/memcheck.md")]
 use super::{client_request, constants::memcheck::*};
 use crate::{
+    requests::{sealed::Sealed, Scope},
     ScopeGuard,
-    requests::{Scope, sealed::Sealed},
 };
 use core::{
-    ffi::{CStr, c_void},
+    ffi::{c_void, CStr},
     marker::PhantomData,
     mem::{size_of, size_of_val},
     ops::Deref,
@@ -302,7 +302,11 @@ pub fn mark_memory(addr: *const c_void, size: usize, mark: MemState) -> Result<(
         MemState::DefinedIfAddressable => r!(CR::CG_VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE),
     };
 
-    if result == MAKE_MEM_OK { Ok(()) } else { Err(NoValgrind) }
+    if result == MAKE_MEM_OK {
+        Ok(())
+    } else {
+        Err(NoValgrind)
+    }
 }
 
 macro_rules! check_mem {

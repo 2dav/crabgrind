@@ -1,12 +1,12 @@
 #![doc = include_str!("../../doc/drd.md")]
 use super::{client_request, valgrind::ThreadId};
-use crate::requests::{Scope, ScopeGuard, sealed::Sealed};
+use crate::requests::{sealed::Sealed, Scope, ScopeGuard};
 
 #[cfg(feature = "valgrind")]
 use crate::bindings::CG_DRDClientRequest as CR;
 
 use core::{
-    ffi::{CStr, c_char, c_void},
+    ffi::{c_char, c_void, CStr},
     marker::PhantomData,
     mem::size_of,
 };

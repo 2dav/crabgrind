@@ -15,7 +15,7 @@ pub extern crate alloc;
 mod bindings;
 mod requests;
 
-pub use requests::{ScopeGuard, cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind};
+pub use requests::{cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind, ScopeGuard};
 
 /// Valgrind version this crate was compiled against.
 pub const VALGRIND_VERSION: (u32, u32) = imp::VALGRIND_VERSION;

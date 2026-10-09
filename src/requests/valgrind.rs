@@ -1,14 +1,14 @@
 #![doc = include_str!("../../doc/valgrind.md")]
 use super::{client_request, constants::valgrind::*};
 use crate::{
+    requests::{sealed::Sealed, Scope},
     ScopeGuard,
-    requests::{Scope, sealed::Sealed},
 };
 
 #[cfg(feature = "valgrind")]
 use crate::bindings::CG_ValgrindClientRequest as CR;
 
-use core::ffi::{CStr, c_int, c_void};
+use core::ffi::{c_int, c_void, CStr};
 
 /// Designates the pool as a "meta-pool". See [`create_mempool`]
 pub const VALGRIND_MEMPOOL_AUTO_FREE: u8 = 1;

@@ -55,6 +55,9 @@ The build script (`build.rs`) attempts to locate headers in this order:
 If headers cannot be located, the crate will still compile without errors,
 however any request will panic at runtime.
 
+[VALGRIND_AVAILABLE](https://docs.rs/crabgrind/latest/crabgrind/constant.VALGRIND_AVAILABLE.html),
+constant reflects whether Valgrind headers were found at compile time.
+
 ### Example
 
 Use some of the [Client Requests][crabgrind.modules]:

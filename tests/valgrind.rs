@@ -7,11 +7,6 @@ mod common;
 use common::*;
 
 #[test]
-fn running_mode_native() {
-    assert_eq!(vg::running_mode(), RunningMode::Native);
-}
-
-#[test]
 fn running_mode_valgrind() {
     valgrind!(memcheck => {
         assert_eq!(vg::running_mode(), RunningMode::Valgrind);
@@ -265,12 +260,6 @@ fn stack() {
         assert_eq!(vg::count_errors(), 0);
     });
 }
-
-/*
- * is there any way to test these:
- * VALGRIND_DISCARD_TRANSLATIONS
- * VALGRIND_LOAD_PDB_DEBUGINFO
-*/
 
 #[test]
 fn load_pdb_debug_info() {

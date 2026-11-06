@@ -4,13 +4,14 @@ let
   overrides = builtins.fromTOML (builtins.readFile ./rust-toolchain.toml);
 
   latestValgrind = pkgs.valgrind.overrideAttrs (old: rec {
-    version = "3.27.1";
+    version = "3.28.0";
 
     src = pkgs.fetchurl {
       url = "https://ftp.funet.fi/pub/mirrors/sourceware.org/pub/valgrind/valgrind-${version}.tar.bz2";
-      sha256 = "sha256-XViRUuuAccAv6rjOarcZ5DGh+8PisXAPVDJjKouSZNw=";
+      sha256 = "sha256-n3oY0SjwXTqA/qU+aVPzSq1yAKQlzq7kYJmop5in3Zw=";
       # sha256 = pkgs.lib.fakeSha256;
     };
+	patches = [];
   });
 in
 pkgs.callPackage (

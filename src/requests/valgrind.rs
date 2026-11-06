@@ -316,6 +316,12 @@ pub fn toolname(buf: &mut [u8; 64]) -> Option<&CStr> {
     }
 }
 
+#[doc = include_str!("../../doc/valgrind/runtime_version.md")]
+#[inline(always)]
+pub fn runtime_version() -> usize {
+    client_request!(CR::CG_VALGRIND_RUNNING_VERSION)
+}
+
 impl core::fmt::Display for CommandNotFound<'_> {
     #[inline(always)]
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {

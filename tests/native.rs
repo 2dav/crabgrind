@@ -24,6 +24,11 @@ fn toolname() {
 }
 
 #[test]
+fn runtime_version() {
+    assert_eq!(vg::runtime_version(), 0);
+}
+
+#[test]
 fn replace_malloc() {
     assert_eq!(false, vg::replaces_malloc());
 }

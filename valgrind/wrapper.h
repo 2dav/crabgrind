@@ -154,6 +154,11 @@ typedef enum {
 #else
 	CG_VALGRIND_GET_TOOLNAME = 27,
 #endif
+#ifdef VALGRIND_RUNNING_VERSION 
+	CG_VALGRIND_RUNNING_VERSION = VG_USERREQ__VALGRIND_RUNNING_VERSION,
+#else
+	CG_VALGRIND_RUNNING_VERSION = 28,
+#endif
 } CG_ValgrindClientRequest;
 
 typedef enum {

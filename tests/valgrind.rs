@@ -24,6 +24,16 @@ fn toolname() {
 }
 
 #[test]
+fn runtime_version() {
+    valgrind!(memcheck => {
+        let version = vg::runtime_version();
+        // 'VALGRIND_RUNNING_VERSION' available since 3.28
+        assert!(version >= 328);
+        assert!(version < 400);
+    });
+}
+
+#[test]
 fn not_replace_malloc() {
     valgrind!(cachegrind => {
         assert_eq!(false, vg::replaces_malloc());

@@ -2,9 +2,12 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-06
+
 ### Added
 
 - Convenient, typed wrappers for `memcheck` requests for primitive scalar types
+- `VALGRIND_RUNNING_VERSION` request introduced in Valgrind 3.28
 
 ## [0.4.0] - 2026-10-01
 
@@ -33,5 +36,6 @@
 - Added defensive checks around Valgrind FFI interactions to improve
   robustness against unexpected responses.
 
-[unreleased]: https://github.com/2dav/crabgrind/compare/b9ad158...HEAD
+[unreleased]: https://github.com/2dav/crabgrind/compare/2e55976...HEAD
+[0.5.0]: https://github.com/2dav/crabgrind/compare/b9ad158...2e55976
 [0.4.0]: https://github.com/2dav/crabgrind/compare/a8b35cb...b9ad158

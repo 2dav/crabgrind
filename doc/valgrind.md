@@ -9,7 +9,7 @@ regardless of the specific tool (Memcheck, Cachegrind, etc.) in use.
 ## Version Requirements
 
 - **Minimum Valgrind:** `3.0`
-- **Recommended Valgrind:** `3.27` or higher to use any of Valgrind core
+- **Recommended Valgrind:** `3.28` or higher to use any of Valgrind core
   requests
 
 [vg-docs]: https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq

@@ -4,9 +4,7 @@ Interface to [Valgrind Client Requests][vg-docs] defined in
 `valgrind/valgrind.h`.
 
 These requests interact with the Valgrind runtime and scheduler, applicable
-regardless of the specific tool (Memcheck, Cachegrind, etc.) in use. They handle
-execution environment queries, dynamic instrumentation changes, and custom
-memory management.
+regardless of the specific tool (Memcheck, Cachegrind, etc.) in use.
 
 ## Version Requirements
 

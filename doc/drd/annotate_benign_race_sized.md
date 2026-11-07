@@ -8,9 +8,6 @@ Identical to [`annotate_benign_race`](annotate_benign_race), but operates on an
 arbitrary memory range `[addr, addr + size)` rather than a typed reference. DRD
 will suppress all race reports involving accesses within this range.
 
-This is useful for suppressing races on slices, buffers, or memory mapped
-regions where the type information is irrelevant or unavailable.
-
 ## Note
 
 Requires Valgrind **3.5** or higher.

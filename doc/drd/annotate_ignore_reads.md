@@ -14,9 +14,6 @@ executed by the current thread, regardless of the memory address. This is a
 coarse-grained suppression mechanism, distinct from [`ignore_var`](ignore_var)
 which targets specific addresses.
 
-Common use cases include benign races in lock-free algorithms or debugging noisy
-output from known-safe racy reads.
-
 ## Note
 
 Requires Valgrind **3.5** or higher.

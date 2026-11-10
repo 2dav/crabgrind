@@ -1,21 +1,25 @@
 #![allow(dead_code)]
-use lazy_static::lazy_static;
 use regex::Regex;
+use std::sync::LazyLock;
 
 const ANSI_CLEAR_LAST_LINE: &'static str = "\x1b[1A\x1b[2K";
 
-lazy_static! {
-    // filter everything from the failed test output, but the panic info(stack, line, message)
-    static ref STRIP_HARNESS_RE: Regex = regex::Regex::new(r"----\n\s+([\s\S]*)note:").unwrap();
-    // DRD address trace
-    pub static ref DRD_TRACE_RE: Regex = regex::Regex::new(r"(end|load|store)\s+0x\S* size (\d+) \(thread (\d+) \/ vc \[(.*)\]").unwrap();
-    // capture number of errors 'ERROR SUMMARY: (n)'
-    pub static ref ERROR_SUMMARY_RE: Regex = regex::Regex::new(r"ERROR SUMMARY: (\d+)").unwrap();
-    // capture number of 'definitely lost' bytes from memcheck report
-    pub static ref DEFINITELY_LOST_RE: Regex = regex::Regex::new(r"definitely lost: (\d+) bytes").unwrap();
-    // capture number of 'definitely lost (+added)' bytes from memcheck report
-    pub static ref DEFINITELY_LOST_ADDED_RE: Regex = regex::Regex::new(r"definitely lost: \d+ \(\+(\d*)\) bytes").unwrap();
-}
+// filter everything from the failed test output, but the panic info(stack, line, message)
+static STRIP_HARNESS_RE: LazyLock<Regex> =
+    LazyLock::new(|| regex::Regex::new(r"----\n\s+([\s\S]*)note:").unwrap());
+// DRD address trace
+pub static DRD_TRACE_RE: LazyLock<Regex> = LazyLock::new(|| {
+    regex::Regex::new(r"(end|load|store)\s+0x\S* size (\d+) \(thread (\d+) \/ vc \[(.*)\]").unwrap()
+});
+// capture number of errors 'ERROR SUMMARY: (n)'
+pub static ERROR_SUMMARY_RE: LazyLock<Regex> =
+    LazyLock::new(|| regex::Regex::new(r"ERROR SUMMARY: (\d+)").unwrap());
+// capture number of 'definitely lost' bytes from memcheck report
+pub static DEFINITELY_LOST_RE: LazyLock<Regex> =
+    LazyLock::new(|| regex::Regex::new(r"definitely lost: (\d+) bytes").unwrap());
+// capture number of 'definitely lost (+added)' bytes from memcheck report
+pub static DEFINITELY_LOST_ADDED_RE: LazyLock<Regex> =
+    LazyLock::new(|| regex::Regex::new(r"definitely lost: \d+ \(\+(\d*)\) bytes").unwrap());
 
 // 'panicks' current process, substituting panic message with the one from child process stdout
 pub fn inline_panic(stdout: Vec<u8>, stderr: Vec<u8>) -> ! {

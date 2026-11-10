@@ -10,19 +10,19 @@ pub(crate) mod constants;
 
 macro_rules! client_request {
     (^ $default:expr, $request:path, $($arg:expr),*) =>  {{
-        #[cfg(feature = "valgrind")]
+        #[cfg(feature="valgrind")]
         {
             $crate::requests::assert_defined!($request);
             unsafe {
                 $crate::bindings::valgrind_client_request_expr(
                     $default as usize,
-                    $request as usize,
+                    $request.code() as usize,
                     $($arg as usize),*
                 )
             }
         }
 
-        #[cfg(not(feature = "valgrind"))]
+        #[cfg(not(feature="valgrind"))]
         $default
     }};
     ($request:path, $default:expr, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => {
@@ -52,24 +52,22 @@ macro_rules! client_request {
 // These assertions are expected to be optimized out by the compiler for supported requests.
 macro_rules! assert_defined {
     ($request:path) => {{
-        const REQUIREMENT: u32 = $request.required_version();
+        const REQUIREMENT: u32 = $request.version();
 
-        // check Valgrind headers indeed found
-        assert!(
-            crate::VALGRIND_AVAILABLE,
-            "\n`bindgen(libclang)` failed to locate `<valgrind/valgrind.h>`.\n\
-            \tThis typically means Valgrind headers ain't found on the standard include paths:\n\
-            \t\t<sysroot>/usr/include\n\
-            \t\t<sysroot>/usr/local/include\n\
-            \t\t...\n\
-            \t\t\tnor via 'pkg-config' probe.\n\
-            \tYou might try 'VALGRIND_INCLUDE=<path to valgrind/include>' as a quick workaround.\n\
-            \tBuild configuration doc: https://docs.rs/crabgrind#build-configuration"
+        #[cfg(not(valgrind_available))]
+        panic!(
+            "Valgrind headers were not found during the build.\n\
+            This typically means Valgrind headers ain't found on the standard include paths:\n\
+            \t<sysroot>/usr/include\n\
+            \t<sysroot>/usr/local/include\n\
+            \t...\n\
+            \tnor via 'pkg-config' probe.\n\
+            You might try 'VALGRIND_INCLUDE=<path to valgrind/include>' as a quick workaround.\n\
+            Build configuration doc: https://docs.rs/crabgrind#build-configuration"
         );
 
-        // check request requirement matches local Valgrind version
         assert!(
-            $request as u32 > 0x1000,
+            $request.is_defined(),
             "\n'{request}' is not supported by your Valgrind version. \n\
                 \t You are compiling against <valgrind/valgrind.h> {major}.{minor}. \n\
                 \t This request requires Valgrind {req_major}.{req_minor} or higher.\n",

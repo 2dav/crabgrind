@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[cfg(feature = "valgrind")]
-use crate::bindings::CG_ValgrindClientRequest as CR;
+use crate::bindings::CR;
 
 use core::ffi::{c_int, c_void, CStr};
 

@@ -2,7 +2,7 @@
 use super::client_request;
 
 #[cfg(feature = "valgrind")]
-use crate::bindings::CG_HelgrindClientRequest as CR;
+use crate::bindings::CR;
 
 use core::ffi::c_void;
 

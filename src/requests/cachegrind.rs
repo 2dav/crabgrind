@@ -2,7 +2,7 @@
 use super::client_request;
 
 #[cfg(feature = "valgrind")]
-use crate::bindings::CG_CachegrindClientRequest as CR;
+use crate::bindings::CR;
 
 #[doc = include_str!("../../doc/cachegrind/start_instrumentation.md")]
 #[inline(always)]

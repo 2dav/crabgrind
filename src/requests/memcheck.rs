@@ -12,7 +12,7 @@ use core::{
 };
 
 #[cfg(feature = "valgrind")]
-use crate::bindings::CG_MemcheckClientRequest as CR;
+use crate::bindings::CR;
 
 /// Identifier for a custom memory block description.
 ///
@@ -290,8 +290,8 @@ pub fn mark_memory(addr: *const c_void, size: usize, mark: MemState) -> Result<(
     return Ok(());
 
     macro_rules! r {
-        ($req:path) => {
-            client_request!($req, addr, size)
+        ($_:ident :: $req:ident) => {
+            client_request!($_::$req, addr, size)
         };
     }
 
@@ -310,8 +310,8 @@ pub fn mark_memory(addr: *const c_void, size: usize, mark: MemState) -> Result<(
 }
 
 macro_rules! check_mem {
-    ($req:path, $addr:expr, $size:expr) => {
-        match client_request!($req, $addr, $size) {
+    ($_:ident :: $req:ident, $addr:expr, $size:expr) => {
+        match client_request!($_::$req, $addr, $size) {
             CHECK_MEM_OK => Ok(()),
             x => Err(x.checked_sub($addr as usize).expect("Valgrind contract violation.").into()),
         }

@@ -3,7 +3,7 @@ use super::{client_request, valgrind::ThreadId};
 use crate::requests::{sealed::Sealed, Scope, ScopeGuard};
 
 #[cfg(feature = "valgrind")]
-use crate::bindings::CG_DRDClientRequest as CR;
+use crate::bindings::CR;
 
 use core::{
     ffi::{c_char, c_void, CStr},

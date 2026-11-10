@@ -1,6 +1,9 @@
 #![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
-#![cfg_attr(not(feature = "valgrind"), allow(unused, missing_docs, clippy::needless_pass_by_value))]
+#![cfg_attr(
+    not(valgrind_available),
+    allow(unused, missing_docs, clippy::needless_pass_by_value, clippy::redundant_else)
+)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![no_std]
 
@@ -18,41 +21,47 @@ mod requests;
 pub use requests::{cachegrind, callgrind, dhat, drd, helgrind, memcheck, valgrind, ScopeGuard};
 
 /// Valgrind version this crate was compiled against.
-pub const VALGRIND_VERSION: (u32, u32) = imp::VALGRIND_VERSION;
+pub const VALGRIND_VERSION: (u32, u32) = valgrind_version();
 #[doc = include_str!("../doc/VALGRIND_AVAILABLE.md")]
-pub const VALGRIND_AVAILABLE: bool = VALGRIND_VERSION.0 != 0xBEDA_BEDA;
+pub const VALGRIND_AVAILABLE: bool = cfg!(valgrind_available);
 
 /// Printing to the Valgrind output channel
 #[inline(always)]
-pub fn vg_print<C>(t: &C)
+pub fn vg_print<C>(cstr: &C)
 where
     C: AsRef<core::ffi::CStr> + ?Sized,
 {
-    #[cfg(feature = "valgrind")]
+    #[cfg(valgrind_available)]
     unsafe {
-        bindings::vg_print(t.as_ref().as_ptr())
+        bindings::vg_print(cstr.as_ref().as_ptr())
     };
 }
 
 /// Printing to the Valgrind output channel with a stack trace attached
 #[inline(always)]
-pub fn vg_print_stacktrace<C>(t: &C)
+pub fn vg_print_stacktrace<C>(cstr: &C)
 where
     C: AsRef<core::ffi::CStr> + ?Sized,
 {
-    #[cfg(feature = "valgrind")]
+    #[cfg(valgrind_available)]
     unsafe {
-        bindings::vg_print_backtrace(t.as_ref().as_ptr())
+        bindings::vg_print_backtrace(cstr.as_ref().as_ptr())
     };
 }
 
+const fn valgrind_version() -> (u32, u32) {
+    #[cfg(valgrind_available)]
+    return (
+        bindings::CR::CG___VALGRIND_MAJOR__.code(),
+        bindings::CR::CG___VALGRIND_MINOR__.code(),
+    );
+    #[cfg(not(valgrind_available))]
+    (0, 0)
+}
+
 #[doc(hidden)]
-#[cfg(feature = "valgrind")]
-pub mod imp {
-
-    pub const VALGRIND_VERSION: (u32, u32) =
-        (super::bindings::__VALGRIND_MAJOR__, super::bindings::__VALGRIND_MINOR__);
-
+#[cfg(valgrind_available)]
+mod imp {
     #[cfg(feature = "alloc")]
     #[doc = include_str!("../doc/println.md")]
     #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
@@ -80,10 +89,9 @@ pub mod imp {
     }
 }
 
-#[cfg(not(feature = "valgrind"))]
+#[doc(hidden)]
+#[cfg(not(valgrind_available))]
 mod imp {
-    pub const VALGRIND_VERSION: (u32, u32) = (0xBEDA_BEDA, 0xBEDA_BEDA);
-
     #[cfg(feature = "alloc")]
     #[doc = include_str!("../doc/println.md")]
     #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]

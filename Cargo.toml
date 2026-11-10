@@ -12,13 +12,13 @@ homepage = "https://github.com/2dav/crabgrind"
 documentation = "https://docs.rs/crabgrind"
 readme = "README.md"
 exclude = [".gitignore", "Justfile", "Cross.toml", "rustfmt.toml", "rust-toolchain.toml", "shell.nix",
-			"*.sh", "*.py", "*.defs", "*.head", "*.dict", "*.json", "tests/*", "CHANGELOG.md"]
+			"*.sh", "*.dict", "*.json", "tests/*", "CHANGELOG.md"]
 
 [features]
 default = ["valgrind"]
 # Enables execution of client requests.
 # When disabled, all requests are no-ops and no native build steps or build dependencies are used.
-valgrind = ["dep:cc", "dep:bindgen", "dep:pkg-config"]
+valgrind = ["dep:cc", "dep:pkg-config", "dep:object"]
 # `opt-out` was removed (v0.3). Use `default-features = false`.
 opt-out = []
 # Enables the `println!` and `print_stacktrace!` macros
@@ -26,7 +26,7 @@ alloc = []
 
 [build-dependencies]
 cc = { version = "1", optional = true }
-bindgen = { version = "0.73", optional = true }
+object = { version = "0.39", optional = true, default-features = false, features = ["std", "read_core", "elf", "macho"] }
 pkg-config = { version = "0.3", optional = true }
 rustversion = "1.0"
 

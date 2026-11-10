@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced `bindgen` with a compiler-based approach for generating client
+  request bindings, removing the `libclang` dependency and improving
+  cross-compilation support
+- Cleaned up some AI-generated filler in documentation
+- Replaced `lazy_static` dev-dependency with `std::sync::LazyLock`.
+  Running `just test` now requires Rust 1.80+, while library's MSRV remains 1.71
+
 ## [0.5.0] - 2026-11-06
 
 ### Added

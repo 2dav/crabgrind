@@ -17,5 +17,3 @@ ranges.
 ## Note
 
 Requires Valgrind **3.5** or higher.
-
-[std-atomic]: https://doc.rust-lang.org/std/sync/atomic/

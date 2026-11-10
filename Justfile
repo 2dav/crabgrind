@@ -46,8 +46,3 @@ test: check test-doc msrv-build
 # Test doc examples
 test-doc:
 	cargo test --doc --features alloc
-
-# Generate wrapper.h and valgrind_version.rs
-[working-directory: 'valgrind']
-wrapper:
-	python gen_wrapper.py wrapper.h valgrind_version.rs

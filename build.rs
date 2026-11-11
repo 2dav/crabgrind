@@ -33,7 +33,7 @@ mod bindings {
     this without relying on architecture-specific assembly or compiler-specific
     output parsing, agnostic to the supported target platform's object file format.
 
-    And also, it's just cool to say: "By the way, my build.rs fishes for constants inside
+    Besides, it's just cool to say: "By the way, my build.rs fishes constants out of
     the object file" with a smug face.
     */
 
@@ -192,7 +192,7 @@ mod bindings {
         fn const_ifdef(defn: &str, val: &str, def: &str, pfx: &str, out: &mut String) {
             writeln!(
                 out,
-                "const {C_UINT} {pfx}{defn} =\n\
+                "SYM const {C_UINT} {pfx}{defn} =\n\
                 #ifdef {defn}\n {val}\n#else\n {def}\n#endif\n;"
             )
             .expect("infallible");
@@ -211,8 +211,8 @@ mod bindings {
 #include "valgrind/dhat.h"
 #include "valgrind/cachegrind.h"
 
+#define SYM __attribute__((used))
 _Static_assert(CHAR_BIT == 8, "8-bit bytes required");
-_Static_assert(sizeof(uint32_t) == 4, "uint32_t must occupy 4 bytes");
             "#,
         );
 

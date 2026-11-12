@@ -27,6 +27,11 @@ pkgs.callPackage (
       rust-analyzer
       python3
 
+	  llvmPackages.clang-unwrapped
+      llvmPackages.llvm
+      llvmPackages.lld
+      binutils
+
       cargo-cross
       cspell
       markdownlint-cli

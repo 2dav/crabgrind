@@ -130,13 +130,16 @@ mod bindings {
 
     impl Objectifying<'_> {
         pub fn symbols(&self) -> impl Iterator<Item = Symbol<'_>> {
+            let symbol_filter = |sym: &object::Symbol| {
+                // NOTE: We might otherwise filter on `SymbolKind::Data`, but some object formats
+                // classify section-defined symbols in custom sections as `SymbolKind::Unknown`.
+                // This is observed in `fixtures/darwin/i386.o`.
+                sym.is_definition() && sym.section_index().is_some() && sym.name().is_ok()
+            };
+
             self.this
                 .symbols()
-                .filter(|sym| {
-                    sym.is_definition()
-                        && sym.kind() == object::SymbolKind::Data
-                        && sym.name().is_ok()
-                })
+                .filter(symbol_filter)
                 .map(|sym| Symbol { object: &self.this, symbol: sym })
         }
     }

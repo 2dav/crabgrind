@@ -50,3 +50,16 @@ MSRV
 armv
 riscv
 docsrs
+ffreestanding
+gnueabihf
+gnuabi
+androideabi
+mipsel
+bitnesses
+gnueabihf
+gnuabi
+androideabi
+mipsel
+buildrs
+buildrs
+globl

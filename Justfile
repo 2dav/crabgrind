@@ -38,9 +38,16 @@ doc:
 	cargo doc --features alloc --open
 
 # Test integration and documentation
-test: check test-doc msrv-build
+test: check test-doc test-build msrv-build
 	cargo test --release --features alloc
 	cargo test --release --no-default-features --features alloc
+
+# Test build.rs object format parsing machinery
+[working-directory: 'build-tests']
+test-build:
+	cargo test 
+	cargo test --release
+
 
 # Test doc examples
 test-doc:

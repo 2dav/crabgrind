@@ -230,10 +230,10 @@ _Static_assert(CHAR_BIT == 8, "8-bit bytes required");
             builder.include(path);
         }
 
-        // NOTE: Build::compile_intermediates() does exactly what we need - compile object files.
-        // However, we're choosing not to use it because it doesn't let us control the ordering of
-        // compiler flags. In particular, `-flto` can be injected through environment variables
-        // (e.g. `CFLAGS*`), producing an LTO object instead of a regular object file.
+        // NOTE: We'd like to just do `Build::compile_intermediates()`, but it doesn't let us
+        // control the ordering of compiler flags. In particular, `-flto` may be injected through
+        // environment variables (e.g. `CFLAGS*`), causing the compiler to produce an LTO object
+        // when we need a regular object file.
         // So we're reusing cc's compiler discovery and configuration, then appending `-fno-lto`
         // last to make sure it takes precedence.
         // See: https://docs.rs/cc/latest/cc/struct.Build.html#method.get_compiler

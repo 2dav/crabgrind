@@ -49,7 +49,9 @@ mod bindings {
 
     const SYM_PREFIX: &str = "CG_";
     const C_UINT: &str = "uint32_t";
-    const C_NDEF: &str = "0";
+    // Sentinel value for requests not defined by the local Valgrind headers.
+    // Valgrind client request codes start at `0x1001`, so 0 cannot be a valid request code.
+    const C_NDEF: Uint = 0;
 
     type Uint = u32;
 
@@ -133,8 +135,7 @@ mod bindings {
                         match self {{ {versions} }}
                     }}
                     pub const fn is_defined(self) -> bool {{
-                        // Valgrind requests starts from 0x1001
-                        self.code() > 0x1000
+                        self.code() > {C_NDEF}
                     }}
                 }}"
             )
@@ -166,6 +167,11 @@ mod bindings {
     }
 
     fn parse_defs(defs: &str) -> Result<HashMap<&str, (&str, u32)>> {
+        // Definitions format:
+        // <section>:
+        //      <request identifier> = <request code>, <version>
+        //      ...
+        // ...
         let defs_iter = defs
             .lines()
             .enumerate()
@@ -189,11 +195,11 @@ mod bindings {
     }
 
     fn c_defs(defs: &HashMap<&str, (&str, u32)>) -> String {
-        fn const_ifdef(defn: &str, val: &str, def: &str, pfx: &str, out: &mut String) {
+        fn const_ifdef(defn: &str, value: &str, fallback: Uint, prefix: &str, out: &mut String) {
             writeln!(
                 out,
-                "SYM const {C_UINT} {pfx}{defn} =\n\
-                #ifdef {defn}\n {val}\n#else\n {def}\n#endif\n;"
+                "SYM const {C_UINT} {prefix}{defn} =\n\
+                #ifdef {defn}\n {value}\n#else\n {fallback}\n#endif\n;"
             )
             .expect("infallible");
         }
@@ -216,6 +222,10 @@ _Static_assert(CHAR_BIT == 8, "8-bit bytes required");
             "#,
         );
 
+        // Valgrind requests are macros of the form `R = ...(R_ID, ...)`.
+        // We generate a symbol for each known request, using `#ifdef R` to initialize it with
+        // the R_ID value from the local Valgrind headers, or `C_NDEF` if the request is not defined
+        // there.
         for (req, (code, _)) in defs {
             const_ifdef(req, code, C_NDEF, SYM_PREFIX, &mut cdefs);
         }
@@ -327,9 +337,7 @@ _Static_assert(CHAR_BIT == 8, "8-bit bytes required");
             };
             let value = read_sym(obj, &sym)?;
 
-            // NOTE: All fallback definitions are zero. A nonzero value therefore indicates
-            // that request was defined by the real Valgrind headers.
-            any_defined |= value != 0;
+            any_defined |= value != C_NDEF;
 
             bindgen.insert(name, value, ver);
         }

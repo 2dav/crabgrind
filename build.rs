@@ -30,8 +30,7 @@ mod bindings {
     target binaries, so cross-compilation is a breeze.
 
     The object file serves only as a serialization format for values already evaluated by
-    the C compiler. See `BUILD.md` for implementation details and the assumptions made
-    when extracting these values.
+    the C compiler.
 
     Besides, it's just cool to say "By the way, my build.rs fishes compile-time constants
     out of an object file" with a smug face.

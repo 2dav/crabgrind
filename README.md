@@ -58,6 +58,20 @@ however any request will panic at runtime.
 [VALGRIND_AVAILABLE](https://docs.rs/crabgrind/latest/crabgrind/constant.VALGRIND_AVAILABLE.html),
 constant reflects whether Valgrind headers were found at compile time.
 
+### Build-time identifier discovery
+
+`crabgrind` discovers Valgrind client request identifiers from the headers
+available in the build environment.
+
+The build script uses the target C compiler to evaluate the relevant C
+definitions, then extracts their values from a relocatable object file using the
+[`object`](https://crates.io/crates/object) crate.
+
+**Requirements:**
+
+- GCC or Clang-compatible C compiler.
+- Valgrind headers for the target environment (when enabling the `valgrind` feature).
+
 ### Example
 
 Use some of the [Client Requests][crabgrind.modules]:

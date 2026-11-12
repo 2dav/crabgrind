@@ -1,4 +1,4 @@
-//! Build script for native library wrapping the Valgrind [Client Request API](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
+// Build script for native library wrapping the Valgrind [Client Request API](https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq)
 
 #[cfg(feature = "valgrind")]
 fn env_path(var: &str) -> Result<std::path::PathBuf, std::env::VarError> {
@@ -38,7 +38,7 @@ mod bindings {
     */
 
     use super::env_path;
-    use object::{Object, ObjectSection, ObjectSymbol};
+    use object::{Object as _, ObjectSection as _, ObjectSymbol as _};
     use std::{
         collections::HashMap,
         fmt::Write,
@@ -106,6 +106,85 @@ mod bindings {
         codes: String,
     }
 
+    #[derive(Debug)]
+    pub struct Objectifying<'mere_bytes> {
+        this: object::File<'mere_bytes>,
+    }
+
+    pub struct Symbol<'a> {
+        object: &'a object::File<'a>,
+        symbol: object::Symbol<'a, 'a>,
+    }
+
+    impl<'a> Objectifying<'a> {
+        pub fn this(bytes: &'a [u8]) -> Result<Self> {
+            let this = object::File::parse(bytes)?;
+
+            if this.kind() == object::ObjectKind::Relocatable {
+                Ok(Self { this })
+            } else {
+                Err(Error::UnexpectedObjectKind(this.kind()))
+            }
+        }
+    }
+
+    impl Objectifying<'_> {
+        pub fn symbols(&self) -> impl Iterator<Item = Symbol<'_>> {
+            self.this
+                .symbols()
+                .filter(|sym| {
+                    sym.is_definition()
+                        && sym.kind() == object::SymbolKind::Data
+                        && sym.name().is_ok()
+                })
+                .map(|sym| Symbol { object: &self.this, symbol: sym })
+        }
+    }
+
+    impl Symbol<'_> {
+        pub fn name(&self) -> &str {
+            let name = self
+                .symbol
+                .name()
+                .expect("existence of symbol's name should be established before constructing");
+            match self.object.format() {
+                // Mach-O adds leading '_' to externally visible symbols
+                object::BinaryFormat::MachO => name.strip_prefix('_').unwrap_or(name),
+                _ => name,
+            }
+        }
+
+        pub fn read_uint(&self) -> Result<Uint> {
+            let bytes = self.value_chunk()?;
+
+            <[u8; size_of::<Uint>()]>::try_from(bytes)
+                .map(|bytes| {
+                    if self.object.is_little_endian() {
+                        Uint::from_le_bytes(bytes)
+                    } else {
+                        Uint::from_be_bytes(bytes)
+                    }
+                })
+                .map_err(|_| {
+                    Error::InvalidSymbol(format!("{}: Invalid integer width.", self.name()))
+                })
+        }
+
+        fn value_chunk(&self) -> Result<&[u8]> {
+            let invalid_sym = || Error::InvalidSymbol(self.name().into());
+
+            let sec_index = self.symbol.section_index().ok_or_else(invalid_sym)?;
+            let section = self.object.section_by_index(sec_index)?;
+
+            let offset =
+                self.symbol.address().checked_sub(section.address()).ok_or_else(invalid_sym)?;
+            let offset = usize::try_from(offset).map_err(|_| invalid_sym())?;
+            let end = offset.checked_add(size_of::<Uint>()).ok_or_else(invalid_sym)?;
+
+            section.data()?.get(offset..end).ok_or_else(invalid_sym)
+        }
+    }
+
     impl Bindgen {
         fn new() -> Self {
             Self {
@@ -135,7 +214,7 @@ mod bindings {
                         match self {{ {versions} }}
                     }}
                     pub const fn is_defined(self) -> bool {{
-                        self.code() > {C_NDEF}
+                        self.code() != {C_NDEF}
                     }}
                 }}"
             )
@@ -277,65 +356,21 @@ _Static_assert(CHAR_BIT == 8, "8-bit bytes required");
         fs::read(object).map_err(Into::into)
     }
 
-    fn decode_uint(
-        bytes: &[u8],
-        little_endian: bool,
-    ) -> Result<Uint, std::array::TryFromSliceError> {
-        <[u8; size_of::<Uint>()]>::try_from(bytes).map(|bytes| {
-            if little_endian {
-                Uint::from_le_bytes(bytes)
-            } else {
-                Uint::from_be_bytes(bytes)
-            }
-        })
-    }
-
-    fn read_sym(obj: &object::File, sym: &object::Symbol) -> Result<Uint> {
-        let name = sym.name()?;
-        let invalid_sym = || Error::InvalidSymbol(name.into());
-
-        let sec_index = sym.section_index().ok_or_else(invalid_sym)?;
-        let section = obj.section_by_index(sec_index)?;
-
-        let offset = sym.address().checked_sub(section.address()).ok_or_else(invalid_sym)?;
-        let offset = usize::try_from(offset).map_err(|_| invalid_sym())?;
-        let end = offset.checked_add(size_of::<Uint>()).ok_or_else(invalid_sym)?;
-
-        let bytes = section.data()?.get(offset..end).ok_or_else(invalid_sym)?;
-
-        decode_uint(bytes, obj.is_little_endian())
-            .map_err(|_| Error::InvalidSymbol(format!("{name}: Invalid integer width.")))
-    }
-
-    fn symbol_name<'a>(sym: &'a object::Symbol, fmt: object::BinaryFormat) -> Option<&'a str> {
-        let name = sym.name().ok()?;
-        match fmt {
-            // Mach-O adds leading '_' to externally visible symbols
-            object::BinaryFormat::MachO => name.strip_prefix('_').unwrap_or(name),
-            _ => name,
-        }
-        .into()
-    }
-
     fn extract_bindings(
-        obj: &object::File,
+        obj: &Objectifying,
         mut defs: HashMap<&str, (&str, u32)>,
     ) -> Result<(Bindgen, bool)> {
-        let fmt = obj.format();
         let mut bindgen = Bindgen::new();
         let mut any_defined = false;
 
-        for sym in obj
-            .symbols()
-            .filter(|sym| sym.is_definition() && sym.kind() == object::SymbolKind::Data)
-        {
-            let Some(name) = symbol_name(&sym, fmt).and_then(|n| n.strip_prefix(SYM_PREFIX)) else {
+        for sym in obj.symbols() {
+            let Some(name) = sym.name().strip_prefix(SYM_PREFIX) else {
                 continue;
             };
             let Some((_, ver)) = defs.remove(name) else {
                 continue;
             };
-            let value = read_sym(obj, &sym)?;
+            let value = sym.read_uint()?;
 
             any_defined |= value != C_NDEF;
 
@@ -355,11 +390,7 @@ _Static_assert(CHAR_BIT == 8, "8-bit bytes required");
         let defs = parse_defs(&request_defs)?;
 
         let obj_bytes = compile_cdefs(c_defs(&defs), valgrind_include)?;
-        let obj = object::File::parse(obj_bytes.as_slice())?;
-
-        if obj.kind() != object::ObjectKind::Relocatable {
-            return Err(Error::UnexpectedObjectKind(obj.kind()));
-        }
+        let obj = Objectifying::this(&obj_bytes)?;
 
         let (bindings, any_defined) = extract_bindings(&obj, defs)?;
 

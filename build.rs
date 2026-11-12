@@ -427,7 +427,6 @@ mod imp {
         println!("cargo:rerun-if-changed=valgrind/native.c");
         println!("cargo:rerun-if-changed=valgrind/client_request.defs");
         println!("cargo:rerun-if-env-changed={ENV_VALGRIND_INCLUDE}");
-        println!("cargo:rerun-if-env-changed=TARGET");
 
         let include = valgrind_include_paths();
 

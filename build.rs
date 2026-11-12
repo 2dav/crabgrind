@@ -40,7 +40,7 @@ mod bindings {
     use super::env_path;
     use object::{Object, ObjectSection, ObjectSymbol};
     use std::{
-        collections::BTreeMap,
+        collections::HashMap,
         fmt::Write,
         fs, io,
         mem::size_of,
@@ -165,7 +165,7 @@ mod bindings {
         Ok(Definition { request, code, version })
     }
 
-    fn parse_defs(defs: &str) -> Result<BTreeMap<&str, (&str, u32)>> {
+    fn parse_defs(defs: &str) -> Result<HashMap<&str, (&str, u32)>> {
         let defs_iter = defs
             .lines()
             .enumerate()
@@ -175,7 +175,7 @@ mod bindings {
             })
             .map(parse_definition);
 
-        let mut defs = BTreeMap::new();
+        let mut defs = HashMap::with_capacity(80);
 
         for def in defs_iter {
             let Definition { request, code, version } = def?;
@@ -188,7 +188,7 @@ mod bindings {
         Ok(defs)
     }
 
-    fn c_defs(defs: &BTreeMap<&str, (&str, u32)>) -> String {
+    fn c_defs(defs: &HashMap<&str, (&str, u32)>) -> String {
         fn const_ifdef(defn: &str, val: &str, def: &str, pfx: &str, out: &mut String) {
             writeln!(
                 out,
@@ -309,7 +309,7 @@ _Static_assert(CHAR_BIT == 8, "8-bit bytes required");
 
     fn extract_bindings(
         obj: &object::File,
-        mut defs: BTreeMap<&str, (&str, u32)>,
+        mut defs: HashMap<&str, (&str, u32)>,
     ) -> Result<(Bindgen, bool)> {
         let fmt = obj.format();
         let mut bindgen = Bindgen::new();

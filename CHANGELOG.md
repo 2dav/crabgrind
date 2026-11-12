@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.0]
+
 ### Changed
 
 - Replaced `bindgen` with a compiler-based approach for generating client
@@ -45,6 +47,7 @@
 - Added defensive checks around Valgrind FFI interactions to improve
   robustness against unexpected responses.
 
-[unreleased]: https://github.com/2dav/crabgrind/compare/2e55976...HEAD
+[unreleased]: https://github.com/2dav/crabgrind/compare/20af820...HEAD
+[0.6.0]: https://github.com/2dav/crabgrind/compare/2e55976...20af820
 [0.5.0]: https://github.com/2dav/crabgrind/compare/b9ad158...2e55976
 [0.4.0]: https://github.com/2dav/crabgrind/compare/a8b35cb...b9ad158

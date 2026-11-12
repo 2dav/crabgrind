@@ -16,6 +16,7 @@ mod bindings {
     `bindgen` can extract these definitions, but it depends on `libclang`,
     which introduces an additional host-side dependency and configuration
     burden, particularly for cross-compilation.
+
     Instead, we let the C compiler do what it already does best: preprocess
     Valgrind's headers and evaluate their constant expressions.
 
@@ -25,16 +26,15 @@ mod bindings {
     - Use the awesome `object` crate to extract initialized values of exported symbols
     - Generate Rust constants and configuration flags from those values
 
-    This avoids parsing and evaluating C ourselves, avoids `libclang`, and does not
-    require executing target binaries, so cross-compilation is supported.
+    This avoids parsing C ourselves, avoids `libclang`, and does not require executing
+    target binaries, so cross-compilation is supported.
 
-    The object file serves only as a means of retrieving values already
-    evaluated by the C compiler. Using the `object` crate(awesome one) lets us do
-    this without relying on architecture-specific assembly or compiler-specific
-    output parsing, agnostic to the supported target platform's object file format.
+    The object file serves only as a container format for values already evaluated by
+    the C compiler. See `BUILD.md` for implementation details and the assumptions made
+    when extracting these values.
 
-    Besides, it's just cool to say: "By the way, my build.rs fishes constants out of
-    the object file" with a smug face.
+    Besides, it's just cool to say "By the way, my build.rs fishes constants out of
+    an object file" with a smug face.
     */
 
     use super::env_path;
@@ -54,7 +54,7 @@ mod bindings {
     type Uint = u32;
 
     #[derive(Debug)]
-    #[allow(dead_code)]
+    #[allow(unused)]
     pub enum Error {
         InvalidDefinition { line: usize, reason: &'static str },
         DuplicateDefinition(String),

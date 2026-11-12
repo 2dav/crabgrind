@@ -58,6 +58,7 @@ fn monitor_command() {
     });
 }
 
+#[cfg(feature = "alloc")]
 #[test]
 fn println_macro() {
     valgrind!(memcheck => {

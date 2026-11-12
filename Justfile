@@ -6,7 +6,6 @@ default:
 build: check doc
 	cargo build
 	cargo build --no-default-features
-	cargo test --release --no-run 
 
 # Test build with MSRV toolchain
 msrv-build:

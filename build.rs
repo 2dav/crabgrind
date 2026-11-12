@@ -27,14 +27,14 @@ mod bindings {
     - Generate Rust constants and configuration flags from those values
 
     This avoids parsing C ourselves, avoids `libclang`, and does not require executing
-    target binaries, so cross-compilation is supported.
+    target binaries, so cross-compilation is a breeze.
 
-    The object file serves only as a container format for values already evaluated by
+    The object file serves only as a serialization format for values already evaluated by
     the C compiler. See `BUILD.md` for implementation details and the assumptions made
     when extracting these values.
 
-    Besides, it's just cool to say "By the way, my build.rs fishes constants out of
-    an object file" with a smug face.
+    Besides, it's just cool to say "By the way, my build.rs fishes compile-time constants
+    out of an object file" with a smug face.
     */
 
     use super::env_path;
@@ -230,12 +230,13 @@ _Static_assert(CHAR_BIT == 8, "8-bit bytes required");
             builder.include(path);
         }
 
-        // We'd want `cc::Build::compile_intermediates()` here, but it doesn't let us
-        // control the ordering of compiler flags. In particular, `-flto` can be
-        // injected through environment variables (e.g. `CFLAGS`), producing an LTO object
-        // instead of a regular object file.
-        // So we're reusing `cc`'s compiler discovery and configuration, and append `-fno-lto`
-        // last to ensure it takes precedence.
+        // NOTE: Build::compile_intermediates() does exactly what we need - compile object files.
+        // However, we're choosing not to use it because it doesn't let us control the ordering of
+        // compiler flags. In particular, `-flto` can be injected through environment variables
+        // (e.g. `CFLAGS*`), producing an LTO object instead of a regular object file.
+        // So we're reusing cc's compiler discovery and configuration, then appending `-fno-lto`
+        // last to make sure it takes precedence.
+        // See: https://docs.rs/cc/latest/cc/struct.Build.html#method.get_compiler
         let status = builder
             .inherit_rustflags(false)
             .flags(["-idirafter", "valgrind/include"])
@@ -326,7 +327,7 @@ _Static_assert(CHAR_BIT == 8, "8-bit bytes required");
             };
             let value = read_sym(obj, &sym)?;
 
-            // All fallback definitions are zero. A nonzero value therefore indicates
+            // NOTE: All fallback definitions are zero. A nonzero value therefore indicates
             // that request was defined by the real Valgrind headers.
             any_defined |= value != 0;
 

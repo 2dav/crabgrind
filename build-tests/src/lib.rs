@@ -13,6 +13,9 @@ pub static FX: LazyLock<Vec<PathBuf>> = LazyLock::new(|| {
         .expect("'object/' should exist inside '<CARGO_MANIFEST_DIR>/fixtures'")
         .map(|e| e.unwrap().path())
         .filter(|entry| entry.is_dir())
+        // fixtures/object
+        .flat_map(|dir| dir.read_dir().unwrap().map(|e| e.unwrap().path()).filter(|p| p.is_dir()))
+        // fixtures/object/[gcc|clang]
         .flat_map(|dir| {
             dir.read_dir()
                 .unwrap()
@@ -49,7 +52,7 @@ mod tests {
 
     #[test]
     fn test_valid_objects_read() {
-        assert_eq!(FX.len(), 22);
+        assert_eq!(FX.len(), 28);
 
         for fix in FX.iter() {
             let obj_bytes = std::fs::read(fix).unwrap();

@@ -1,56 +1,107 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-rm -rf object && mkdir -p object object/linux object/freebsd object/solaris object/darwin object/android
+CLANG="${CLANG:-clang}"
 
-build() {
+for compiler in \
+    "$CLANG" \
+    "$GCC_I686" \
+    "$GCC_X86_64" \
+    "$GCC_AARCH64" \
+    "$GCC_ARMV7" \
+    "$GCC_POWERPC64" \
+    "$GCC_RISCV64"
+do
+    if [[ ! -x "$compiler" ]]; then
+        echo "ERROR: Required compiler not executable: $compiler" >&2
+        exit 1
+    fi
+
+done
+
+rm -rf object
+
+compile_gcc() {
+    local path="$1"
+    local name="$2"
+    local compiler="$3"
+
+    echo "Building GCC $path/$name"
+
+    mkdir -p "object/gcc/$path"
+
+    "$compiler" \
+        -ffreestanding \
+        -c symbols.c \
+        -o "object/gcc/$path/$name.o"
+}
+
+compile_clang() {
     local path="$1"
     local target="$2"
     local name="$3"
 
-    echo "Building $name ($target)"
+    echo "Building Clang $path/$name ($target)"
 
-	"$CLANG" \
-		--target="$target" \
-		-ffreestanding \
-		-c symbols.c \
-		-o "object/${path}/${name}.o"
+    mkdir -p "object/clang/$path"
+
+    "$CLANG" \
+        --target="$target" \
+        -ffreestanding \
+        -c symbols.c \
+        -o "object/clang/$path/$name.o"
+}
+
+build_linux() {
+    local target="$1"
+    local name="$2"
+    local gcc="${3:-}"
+
+    if [[ -n "$gcc" ]]; then
+        compile_gcc linux "$name" "$gcc"
+    fi
+
+    compile_clang linux "$target" "$name"
 }
 
 #
 # Linux
 #
-build linux i686-unknown-linux-gnu			i686
-build linux powerpc-unknown-linux-gnu		powerpc
-build linux x86_64-unknown-linux-gnu		x86_64
-build linux powerpc64-unknown-linux-gnu		powerpc64
-build linux aarch64-unknown-linux-gnu		aarch64
-build linux powerpc64le-unknown-linux-gnu	ppc64le
-build linux s390x-unknown-linux-gnu			s390x							
-build linux armv7-unknown-linux-gnueabihf	armv7							
-build linux mips-unknown-linux-gnu			mips							
-build linux mips64-unknown-linux-gnuabi64	mips64						
-build linux riscv64-unknown-linux-gnu		riscv64						
+build_linux i686-unknown-linux-gnu             i686       "$GCC_I686"
+build_linux powerpc-unknown-linux-gnu          powerpc
+build_linux x86_64-unknown-linux-gnu           x86_64     "$GCC_X86_64"
+build_linux powerpc64-unknown-linux-gnu        powerpc64  "$GCC_POWERPC64"
+build_linux aarch64-unknown-linux-gnu          aarch64    "$GCC_AARCH64"
+build_linux powerpc64le-unknown-linux-gnu      ppc64le
+build_linux s390x-unknown-linux-gnu            s390x
+build_linux armv7-unknown-linux-gnueabihf      armv7      "$GCC_ARMV7"
+build_linux mips-unknown-linux-gnu             mips
+build_linux mips64-unknown-linux-gnuabi64      mips64
+build_linux riscv64-unknown-linux-gnu          riscv64    "$GCC_RISCV64"
+
 #
-# FreeBSD
+# FreeBSD: Clang only
 #
-build freebsd i686-unknown-freebsd11.3		i686
-build freebsd x86_64-unknown-freebsd11.3	x86_64
-build freebsd aarch64-unknown-freebsd14.0	aarch64
+compile_clang freebsd i686-unknown-freebsd11.3 i686
+compile_clang freebsd x86_64-unknown-freebsd11.3 x86_64
+compile_clang freebsd aarch64-unknown-freebsd14.0 aarch64
+
 #
 # Solaris
 #
-build solaris i686-pc-solaris2.11		i686 
-build solaris x86_64-pc-solaris2.11		x86_64 
+compile_clang solaris i686-pc-solaris2.11 i686
+compile_clang solaris x86_64-pc-solaris2.11 x86_64
+
 #
 # Android
 #
-build android armv7a-linux-androideabi21	arm 
-build android aarch64-linux-android21		arm64 
-build android mipsel-linux-android21		mips 
-build android i686-linux-android21			i686 
+compile_clang android armv7a-linux-androideabi21 arm
+compile_clang android aarch64-linux-android21 arm64
+compile_clang android mipsel-linux-android21 mips
+compile_clang android i686-linux-android21 i686
+
 #
-# Mach-O
+# Darwin
 #
-build darwin i386-apple-macosx10.8		i386
-build darwin x86_64-apple-macosx10.8	x86_64
+compile_clang darwin i386-apple-macosx10.8 i386
+compile_clang darwin x86_64-apple-macosx10.8 x86_64

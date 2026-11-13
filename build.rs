@@ -157,7 +157,7 @@ mod bindings {
         }
 
         pub fn read_uint(&self) -> Result<Uint> {
-            let bytes = self.value_chunk()?;
+            let bytes = self.value_chunk(size_of::<Uint>())?;
 
             <[u8; size_of::<Uint>()]>::try_from(bytes)
                 .map(|bytes| {
@@ -172,7 +172,7 @@ mod bindings {
                 })
         }
 
-        fn value_chunk(&self) -> Result<&[u8]> {
+        fn value_chunk(&self, size: usize) -> Result<&[u8]> {
             let invalid_sym = || Error::InvalidSymbol(self.name().into());
 
             let sec_index = self.symbol.section_index().ok_or_else(invalid_sym)?;
@@ -181,7 +181,7 @@ mod bindings {
             let offset =
                 self.symbol.address().checked_sub(section.address()).ok_or_else(invalid_sym)?;
             let offset = usize::try_from(offset).map_err(|_| invalid_sym())?;
-            let end = offset.checked_add(size_of::<Uint>()).ok_or_else(invalid_sym)?;
+            let end = offset.checked_add(size).ok_or_else(invalid_sym)?;
 
             section.data()?.get(offset..end).ok_or_else(invalid_sym)
         }

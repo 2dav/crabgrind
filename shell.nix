@@ -24,13 +24,7 @@ pkgs.callPackage (
       pkg-config
       rustup
       rustPlatform.bindgenHook
-      rust-analyzer
       python3
-
-	  llvmPackages.clang-unwrapped
-      llvmPackages.llvm
-      llvmPackages.lld
-      binutils
 
       cargo-cross
       cspell

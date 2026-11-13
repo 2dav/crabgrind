@@ -9,19 +9,21 @@ pub static FX: LazyLock<Vec<PathBuf>> = LazyLock::new(|| {
         .map(PathBuf::from)
         .expect("cargo should set <CARGO_MANIFEST_DIR>")
         .join("fixtures/object")
+        // fixtures/object
         .read_dir()
+        // fixtures/object/[gcc|clang]
         .expect("'object/' should exist inside '<CARGO_MANIFEST_DIR>/fixtures'")
         .map(|e| e.unwrap().path())
         .filter(|entry| entry.is_dir())
-        // fixtures/object
         .flat_map(|dir| dir.read_dir().unwrap().map(|e| e.unwrap().path()).filter(|p| p.is_dir()))
-        // fixtures/object/[gcc|clang]
+        // fixtures/object/[gcc|clang]/[platform]
         .flat_map(|dir| {
             dir.read_dir()
                 .unwrap()
                 .map(|e| e.unwrap().path())
                 .filter(|p| p.extension().is_some_and(|e| e == "o"))
         })
+        // fixtures/object/[gcc|clang]/[platform]/[arch].o
         .collect()
 });
 

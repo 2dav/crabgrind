@@ -16,7 +16,7 @@
 `crabgrind` is a small library that enables Rust programs to tap into
 Valgrind's tools and environment.
 
-It exposes full set of [Valgrind's client requests][vg-client.req] in Rust,
+It exposes the full set of [Valgrind's client requests][vg-client.req] in Rust,
 manages the structure, type conversions and enforces static typing where
 possible.
 
@@ -37,7 +37,7 @@ or
 cargo add crabgrind
 ```
 
-> Note: This crate is `no_std + alloc` with `alloc` feature, `no_std` otherwise
+> Note: This crate is `no_std` + `alloc` with `alloc` feature, `no_std` otherwise
 
 ### Build Configuration
 
@@ -46,24 +46,24 @@ available in the build environment.
 
 The build script (`build.rs`) uses the target C compiler to evaluate the
 relevant C definitions, then extracts their values from an object file using the
-[`object`](https://crates.io/crates/object) crate.
+[`object`][object.crate] crate.
 
 **Requirements:**
 
 - GCC or Clang-compatible C compiler.
-- Valgrind headers for the target environment (when enabling the `valgrind` feature).
+- Valgrind headers for the target environment (when enabling the [valgrind feature](#features)).
 
 Headers are searched for in this order:
 
-1. `VALGRIND_INCLUDE`, if set.
-2. `pkg-config`.
-3. The compiler’s default include paths.
+1. `VALGRIND_INCLUDE`, if set
+2. pkg-config
+3. The compiler’s default include paths
 
 If headers cannot be located, the crate will still compile without errors,
 however any request will panic at runtime.
 
-The [VALGRIND_AVAILABLE](https://docs.rs/crabgrind/latest/crabgrind/constant.VALGRIND_AVAILABLE.html)
-constant reflects whether Valgrind headers were found at compile time.
+The [`VALGRIND_AVAILABLE`][valgrind.available] constant reflects whether
+Valgrind headers were found at compile time.
 
 ### Example
 
@@ -127,7 +127,7 @@ preprocessor, these macros cannot be used directly.
 FFI binding. All higher-level client requests are implemented in Rust on top of
 this binding.
 
-The overhead per request, compared to using C macros directly is strictly the
+The overhead per request, compared to using C macros directly, is strictly the
 cost of a single function call.
 
 The implementation itself is not tied to a particular Valgrind version. However,
@@ -146,9 +146,9 @@ overhead is probably undetectable except in a tight loops.
 
 ## License
 
-`crabgrind` is distributed under `MIT` license.
+`crabgrind` is distributed under MIT license.
 
-`Valgrind` itself is a GPL3, however `valgrind/*.h` headers are distributed
+Valgrind itself is a GPL-3, however `valgrind/*.h` headers are distributed
 under a BSD-style license, so we can use them without worrying about license
 conflicts.
 
@@ -158,3 +158,5 @@ conflicts.
 [libs.rs]: https://lib.rs/crates/crabgrind
 [license]: https://github.com/2dav/crabgrind/blob/main/LICENSE/MIT.LICENSE
 [vg-client.req]: https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq
+[object.crate]: https://crates.io/crates/object
+[valgrind.available]: https://docs.rs/crabgrind/latest/crabgrind/constant.VALGRIND_AVAILABLE.html

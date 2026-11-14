@@ -41,36 +41,29 @@ cargo add crabgrind
 
 ### Build Configuration
 
-The crate needs access to a local Valgrind installation(or at least its headers)
-in order to read C macro definitions, constants, and supported requests.
-
-The build script (`build.rs`) attempts to locate headers in this order:
-
-1. **Environment Variable:** If `VALGRIND_INCLUDE` is set, it's value is added
-   to the search paths.
-1. **pkg-config:** The system is queried via `pkg-config`.
-1. **Compiler defaults:** No additional include paths are provided, and the
-   compiler’s default include paths are used.
-
-If headers cannot be located, the crate will still compile without errors,
-however any request will panic at runtime.
-
-[VALGRIND_AVAILABLE](https://docs.rs/crabgrind/latest/crabgrind/constant.VALGRIND_AVAILABLE.html),
-constant reflects whether Valgrind headers were found at compile time.
-
-### Build-time identifier discovery
-
 `crabgrind` discovers Valgrind client request identifiers from the headers
 available in the build environment.
 
-The build script uses the target C compiler to evaluate the relevant C
-definitions, then extracts their values from a relocatable object file using the
+The build script (`build.rs`) uses the target C compiler to evaluate the
+relevant C definitions, then extracts their values from an object file using the
 [`object`](https://crates.io/crates/object) crate.
 
 **Requirements:**
 
 - GCC or Clang-compatible C compiler.
 - Valgrind headers for the target environment (when enabling the `valgrind` feature).
+
+Headers are searched for in this order:
+
+1. `VALGRIND_INCLUDE`, if set.
+2. `pkg-config`.
+3. The compiler’s default include paths.
+
+If headers cannot be located, the crate will still compile without errors,
+however any request will panic at runtime.
+
+The [VALGRIND_AVAILABLE](https://docs.rs/crabgrind/latest/crabgrind/constant.VALGRIND_AVAILABLE.html)
+constant reflects whether Valgrind headers were found at compile time.
 
 ### Example
 

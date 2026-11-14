@@ -90,8 +90,9 @@ And run under Valgrind
 - **valgrind** *(default)* Enables execution of requests, C-shim compilation and
   bindings generation.
 
-- **alloc** Enables the `println!` and `print_stacktrace!` macros. Disabled
-  by default. The target environment must provide a global allocator.
+- **alloc** Enables the [`println!`][println] and [`print_stacktrace!`][print-stacktrace]
+  macros. Disabled by default. The target environment must provide a global
+  allocator.
 
 With `default-features = false`, all requests turn into no-op stubs and are
 optimized out by the compiler. No build dependencies are pulled in.
@@ -160,3 +161,5 @@ conflicts.
 [vg-client.req]: https://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq
 [object.crate]: https://crates.io/crates/object
 [valgrind.available]: https://docs.rs/crabgrind/latest/crabgrind/constant.VALGRIND_AVAILABLE.html
+[println]: https://docs.rs/crabgrind/latest/crabgrind/macro.println.html
+[print-stacktrace]: https://docs.rs/crabgrind/latest/crabgrind/macro.print_stacktrace.html

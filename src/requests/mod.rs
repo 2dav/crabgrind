@@ -71,7 +71,7 @@ macro_rules! assert_defined {
             "\n'{request}' is not supported by your Valgrind version. \n\
                 \t You are compiling against <valgrind/valgrind.h> {major}.{minor}. \n\
                 \t This request requires Valgrind {req_major}.{req_minor} or higher.\n",
-            request = &stringify!($request)[7..], // CR::CG_*
+            request = $request.name(),
             major = crate::VALGRIND_VERSION.0,
             minor = crate::VALGRIND_VERSION.1,
             req_major = REQUIREMENT / 100,

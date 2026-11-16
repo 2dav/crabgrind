@@ -102,6 +102,7 @@ mod bindings {
     struct Bindgen {
         variants: String,
         versions: String,
+        names: String,
         codes: String,
     }
 
@@ -192,6 +193,7 @@ mod bindings {
             Self {
                 variants: String::with_capacity(4 << 10),
                 versions: String::with_capacity(4 << 10),
+                names: String::with_capacity(4 << 10),
                 codes: String::with_capacity(4 << 10),
             }
         }
@@ -200,10 +202,12 @@ mod bindings {
             writeln!(&mut self.variants, "{SYM_PREFIX}{name},").expect("infallible");
             writeln!(&mut self.codes, "Self::{SYM_PREFIX}{name} => {value},").expect("infallible");
             writeln!(&mut self.versions, "Self::{SYM_PREFIX}{name} => {ver},").expect("infallible");
+            writeln!(&mut self.names, "Self::{SYM_PREFIX}{name} => \"{name}\",")
+                .expect("infallible");
         }
 
         fn finalize(self) -> String {
-            let Self { variants, versions, codes } = self;
+            let Self { variants, versions, codes, names } = self;
             format!(
                 "
                 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -217,6 +221,9 @@ mod bindings {
                     }}
                     pub const fn is_defined(self) -> bool {{
                         self.code() != {C_NDEF}
+                    }}
+                    pub const fn name(self) -> &'static str {{
+                        match self {{ {names} }}
                     }}
                 }}"
             )
